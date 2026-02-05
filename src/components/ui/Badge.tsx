@@ -2,7 +2,7 @@ import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface BadgeProps extends HTMLAttributes<HTMLDivElement> {
-    variant?: "default" | "secondary" | "destructive" | "outline" | "npc" | "player";
+    variant?: "default" | "secondary" | "destructive" | "outline" | "npc" | "player" | "agent";
 }
 
 const Badge = forwardRef<HTMLDivElement, BadgeProps>(({ className, variant = "default", ...props }, ref) => {
@@ -13,6 +13,7 @@ const Badge = forwardRef<HTMLDivElement, BadgeProps>(({ className, variant = "de
         outline: "text-neutral-100 border-neutral-100",
         npc: "border-transparent bg-red-900/50 text-red-200 border border-red-800",
         player: "border-transparent bg-blue-900/50 text-blue-200 border border-blue-800",
+        agent: "border-transparent bg-agent-blue text-white shadow-[0_0_10px_rgba(43,43,238,0.2)]",
     };
 
     return (

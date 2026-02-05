@@ -1,11 +1,17 @@
 import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
-const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'agent';
+}
+
+const Card = forwardRef<HTMLDivElement, CardProps>(({ className, variant = 'default', ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border border-neutral-700 bg-neutral-800 text-neutral-100 shadow",
+      "rounded-lg border shadow",
+      variant === 'default' && "border-neutral-700 bg-neutral-800 text-neutral-100",
+      variant === 'agent' && "border-agent-blue/30 bg-agent-navy text-white shadow-[0_0_20px_rgba(43,43,238,0.15)]",
       className
     )}
     {...props}

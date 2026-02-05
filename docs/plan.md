@@ -4,7 +4,7 @@
     - [x] Add more features (Campaign Selector)
     - [x] Add more tests
     - [x] Add more documentation
-    - [ ] Add more examples
+    - [x] Add more examples
 - [ ] Improve and standardize the backend
     - [ ] Add more features
     - [ ] Add more tests
