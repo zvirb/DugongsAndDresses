@@ -48,6 +48,7 @@ export async function logAction(campaignId: string, content: string, type: strin
         const entry = await prisma.logEntry.create({ data: { campaignId, content, type } });
         revalidatePath('/dm');
         revalidatePath('/public');
+        revalidatePath('/player');
         return entry;
     });
 }
@@ -62,6 +63,7 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
         });
         revalidatePath('/dm');
         revalidatePath('/public');
+        revalidatePath('/player');
         return character;
     });
 }

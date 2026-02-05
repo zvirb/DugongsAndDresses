@@ -7,72 +7,105 @@ export const dynamic = 'force-dynamic';
 export default async function PublicPage() {
     const campaign = await getPublicCampaign();
 
-    if (!campaign) return <div className="p-10">Waiting for DM...</div>;
+    if (!campaign) return (
+        <div className="min-h-screen bg-agent-navy text-agent-blue flex items-center justify-center p-10 font-sans italic font-black text-4xl animate-pulse">
+            WAITING FOR DM...
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-stone-950 text-stone-100 p-8 font-serif bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]">
+        <div className="min-h-screen bg-agent-navy text-white p-8 font-sans overflow-hidden relative">
+            {/* Background elements for technical feel */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#2b2bee_1px,transparent_1px)] [background-size:40px_40px]" />
+                <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-agent-blue/10 to-transparent" />
+            </div>
+
             <AutoRefresh />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            
+            <header className="relative z-10 flex justify-between items-end mb-12 border-b-2 border-agent-blue/30 pb-4">
+                <div>
+                    <h1 className="text-6xl font-black italic tracking-tighter text-white uppercase leading-none">
+                        CAMPAIGN <span className="text-agent-blue">VITALIS</span>
+                    </h1>
+                    <p className="text-agent-blue font-bold tracking-[0.4em] uppercase text-xs mt-2">
+                        {campaign.name} // Active Encounter Data
+                    </p>
+                </div>
+                <div className="text-right">
+                    <div className="inline-block px-3 py-1 bg-agent-blue/20 border border-agent-blue text-agent-blue text-[10px] font-black uppercase tracking-widest rounded-full">
+                        System Live
+                    </div>
+                </div>
+            </header>
+
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {campaign.characters.map((char: CharacterWithState) => (
                     <div
                         key={char.id}
                         className={`
-                relative overflow-hidden rounded-xl border-2 transition-all duration-500
+                relative overflow-hidden rounded-2xl border-2 transition-all duration-700
                 ${char.activeTurn
-                                ? 'border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.3)] bg-stone-900 scale-105 z-10'
-                                : 'border-stone-800 bg-stone-900/80 grayscale-[0.3]'}
+                                ? 'border-agent-blue shadow-[0_0_40px_rgba(43,43,238,0.4)] bg-agent-navy/90 scale-105 z-10'
+                                : 'border-white/5 bg-white/5 grayscale-[0.2] hover:grayscale-0 hover:border-white/10'}
             `}
                     >
-                        {/* Active Turn Indicator Overlay */}
+                        {/* Active Turn Scanner Effect */}
                         {char.activeTurn && (
-                            <div className="absolute inset-0 border-[3px] border-amber-500/50 rounded-xl animate-pulse pointer-events-none"></div>
+                            <div className="absolute inset-0 pointer-events-none">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-agent-blue shadow-[0_0_15px_#2b2bee] animate-[scan_3s_linear_infinite]" />
+                                <div className="absolute inset-0 border-2 border-agent-blue/50 rounded-2xl animate-pulse" />
+                            </div>
                         )}
 
-                        {/* Health Bar Background */}
-                        <div
-                            className={`absolute bottom-0 left-0 h-1.5 transition-all duration-700 ease-out z-0
-                  ${char.hp < char.maxHp * 0.3 ? 'bg-red-600 shadow-[0_0_10px_red]' : 'bg-emerald-600 shadow-[0_0_10px_emerald]'}
-              `}
-                            style={{ width: `${(char.hp / char.maxHp) * 100}%` }}
-                        />
-
-                        <div className="relative z-10 p-6 flex flex-col h-full">
-                            {/* Character Image Background/Overlay */}
+                        <div className="relative z-10 p-6 flex flex-col h-full min-h-[400px]">
+                            {/* Portrait Background */}
                             {char.imageUrl && (
-                                <div className="absolute inset-0 z-[-1] opacity-30">
+                                <div className="absolute inset-0 z-[-1] opacity-40">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={char.imageUrl} alt={char.name} className="w-full h-full object-cover grayscale mix-blend-overlay" />
+                                    <img src={char.imageUrl} alt="" className="w-full h-full object-cover grayscale" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-agent-navy via-agent-navy/40 to-transparent" />
                                 </div>
                             )}
 
-                            <div className="mb-4 flex items-start gap-4">
-                                {char.imageUrl && (
-                                    <div className="w-16 h-16 rounded-full border-2 border-stone-600 overflow-hidden shrink-0 shadow-lg">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={char.imageUrl} alt={char.name} className="w-full h-full object-cover" />
+                            <div className="mb-auto">
+                                <div className="flex justify-between items-start mb-4">
+                                    <Badge variant={char.activeTurn ? 'agent' : 'player'} className="font-black italic">
+                                        LVL {char.level}
+                                    </Badge>
+                                    <div className="text-right">
+                                        <span className="block text-[10px] text-neutral-500 uppercase font-black tracking-widest">Defense</span>
+                                        <span className={`text-3xl font-black ${char.activeTurn ? 'text-agent-blue' : 'text-white'}`}>{char.armorClass}</span>
                                     </div>
-                                )}
-                                <div>
-                                    <h2 className={`text-3xl font-bold mb-1 leading-none ${char.activeTurn ? 'text-amber-500' : 'text-stone-400'}`}>
-                                        {char.name}
-                                    </h2>
-                                    <p className="text-stone-500 text-lg italic">{char.race} {char.class} <span className="text-xs bg-stone-800 px-1 rounded ml-2">Lvl {char.level}</span></p>
                                 </div>
+                                
+                                <h2 className={`text-4xl font-black italic tracking-tighter uppercase mb-1 leading-none ${char.activeTurn ? 'text-white' : 'text-neutral-400'}`}>
+                                    {char.name}
+                                </h2>
+                                <p className="text-agent-blue text-xs font-bold uppercase tracking-widest mb-6">
+                                    {char.race} // {char.class}
+                                </p>
                             </div>
-                            <div className="mt-auto flex justify-between items-end border-t border-stone-800 pt-4">
-                                <div className="text-center">
-                                    <span className="block text-xs text-stone-600 uppercase tracking-widest mb-1">Health</span>
-                                    <span className={`text-5xl font-mono font-bold ${char.hp <= 0 ? 'text-red-500' : 'text-stone-200'}`}>
-                                        {char.hp}
-                                    </span>
-                                    <span className="text-xl text-stone-600">/{char.maxHp}</span>
-                                </div>
 
-                                <div className="text-center">
-                                    <span className="block text-xs text-stone-600 uppercase tracking-widest mb-1">Defense</span>
-                                    <span className="text-4xl font-bold text-blue-400/80 font-mono border-2 border-blue-900/30 rounded-full w-12 h-12 flex items-center justify-center bg-blue-950/20">
-                                        {char.armorClass}
-                                    </span>
+                            <div className="mt-8">
+                                <div className="flex justify-between items-end mb-2">
+                                    <span className="text-[10px] text-neutral-500 uppercase font-black tracking-[0.2em]">Vitality Status</span>
+                                    <div className="text-right">
+                                        <span className={`text-4xl font-black italic tracking-tighter ${char.hp <= 0 ? 'text-red-500' : 'text-white'}`}>
+                                            {char.hp}
+                                        </span>
+                                        <span className="text-sm text-neutral-600 font-bold ml-1">/ {char.maxHp}</span>
+                                    </div>
+                                </div>
+                                
+                                {/* Health Bar */}
+                                <div className="h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
+                                    <div 
+                                        className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                                            char.hp <= char.maxHp * 0.2 ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'bg-agent-blue'
+                                        }`}
+                                        style={{ width: `${Math.min(100, (char.hp / char.maxHp) * 100)}%` }}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -81,18 +114,32 @@ export default async function PublicPage() {
             </div>
 
             {/* Current Turn Indicator (Bottom) */}
-            <div className="fixed bottom-0 left-0 w-full bg-stone-950/90 border-t border-stone-800 p-6 text-center backdrop-blur-sm">
+            <div className="fixed bottom-0 left-0 w-full bg-agent-navy/90 border-t-2 border-agent-blue/50 p-6 text-center backdrop-blur-xl z-30">
                 {(() => {
                     const activeChar = campaign.characters.find((c: CharacterWithState) => c.activeTurn);
                     return activeChar ? (
-                        <h3 className="text-3xl text-amber-500 font-serif tracking-widest uppercase">
-                            Current Turn: <span className="font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">{activeChar.name}</span>
-                        </h3>
+                        <div className="flex items-center justify-center gap-8 overflow-hidden">
+                            <div className="h-px bg-agent-blue/50 flex-1 hidden md:block" />
+                            <h3 className="text-4xl font-black italic tracking-[0.2em] uppercase text-white animate-pulse">
+                                ACTIVE: <span className="text-agent-blue underline decoration-4 underline-offset-8">{activeChar.name}</span>
+                            </h3>
+                            <div className="h-px bg-agent-blue/50 flex-1 hidden md:block" />
+                        </div>
                     ) : (
-                        <h3 className="text-xl text-stone-600 animate-pulse">Waiting for Initiative...</h3>
+                        <h3 className="text-xl text-neutral-600 font-bold uppercase tracking-[0.5em] animate-pulse italic">
+                            Awaiting Initiative...
+                        </h3>
                     );
                 })()}
             </div>
+
+            <style jsx global>{`
+                @keyframes scan {
+                    0% { transform: translateY(0); opacity: 0; }
+                    50% { opacity: 1; }
+                    100% { transform: translateY(400px); opacity: 0; }
+                }
+            `}</style>
         </div>
     );
 }

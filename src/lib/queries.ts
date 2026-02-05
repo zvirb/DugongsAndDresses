@@ -50,10 +50,20 @@ export async function getPublicCampaign() {
 }
 
 /**
- * Fetches a single character by ID.
+ * Fetches a single character by ID with recent logs for their campaign.
  */
-export async function getCharacter(id: string) {
-  return prisma.character.findUnique({
+export async function getCharacterWithLogs(id: string) {
+  const character = await prisma.character.findUnique({
     where: { id }
   });
+
+  if (!character) return null;
+
+  const logs = await prisma.logEntry.findMany({
+    where: { campaignId: character.campaignId },
+    take: 10,
+    orderBy: { timestamp: 'desc' }
+  });
+
+  return { ...character, logs };
 }

@@ -15,11 +15,11 @@
     - [x] Add more tests
     - [x] Add more documentation
     - [x] Add more examples
-- [ ] Improve and standardize the mobile web app for individual users (build if it does not yet exist)
-    - [ ] Add more features
-    - [ ] Add more tests
-    - [ ] Add more documentation
-    - [ ] Add more examples
+- [x] Improve and standardize the mobile web app for individual users (build if it does not yet exist)
+    - [x] Add more features (Selection, HP Controls, Action Submission, Tactical Logs)
+    - [x] Add more tests (PlayerHPControls tests)
+    - [x] Add more documentation (README, SDD updates)
+    - [x] Add more examples (Mobile UI Preview in Gallery)
 - [ ] Improve the document: docs\This Software Development Document (SDD).md
     - [ ] Add more features
     - [ ] Add more tests
