@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Campaign {
+  id        String      @id @default(uuid())
+  name      String
+  active    Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  characters Character[]
+  logs      LogEntry[]
+  encounters Encounter[]
+}
+
+model Character {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // "PLAYER" or "NPC"
+  race        String?
+  class       String?
+  level       Int      @default(1)
+  
+  // Stats
+  hp          Int
+  maxHp       Int
+  armorClass  Int
+  speed       Int      @default(30)
+  initiative  Int      @default(0) // Static bonus
+  
+  // Attributes (JSON for flexibility: { str: 10, dex: 12, ... })
+  attributes  String   @default("{}") 
+  
+  // Status
+  conditions  String   @default("[]") // JSON array of strings
+  
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+
+  // Session State
+  activeTurn      Boolean @default(false)
+  initiativeRoll  Int     @default(0) // The actual roll for the current combat
+}
+
+model LogEntry {
+  id          String   @id @default(uuid())
+  content     String
+  type        String   // "Combat", "Story", "Roll"
+  timestamp   DateTime @default(now())
+  
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+}
+
+model Encounter {
+  id          String   @id @default(uuid())
+  name        String
+  status      String   // "Active", "Planned", "Completed"
+  
+  // Store who is in the encounter and their current init roll as JSON
+  // e.g. [{ characterId: "...", initiative: 15, currentHp: 20 }]
+  participants String  @default("[]") 
+  
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+}

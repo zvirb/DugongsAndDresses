@@ -1,0 +1,22 @@
+# Implementation Plan
+
+- [ ] Improve and standardize the frontend
+    - [ ] Add more features
+    - [ ] Add more tests
+    - [ ] Add more documentation
+    - [ ] Add more examples
+- [ ] Improve and standardize the backend
+    - [ ] Add more features
+    - [ ] Add more tests
+    - [ ] Add more documentation
+    - [ ] Add more examples
+- [ ] Improve and standardize the database
+    - [ ] Add more features
+    - [ ] Add more tests
+    - [ ] Add more documentation
+    - [ ] Add more examples
+- [ ] Improve and standardize the mobile web app for individual users (build if it does not yet exist)
+    - [ ] Add more features
+    - [ ] Add more tests
+    - [ ] Add more documentation
+    - [ ] Add more examples
