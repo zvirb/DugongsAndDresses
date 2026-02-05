@@ -62,7 +62,7 @@ export default function AvatarSelector({ characterId, currentUrl }: { characterI
                     <h4 className="text-sm font-bold text-white mb-2">Choose Avatar</h4>
 
                     {/* Presets */}
-                    <div className="grid grid-cols-4 gap-2 mb-4">
+                    <div className="grid grid-cols-4 gap-2 mb-4 max-h-60 overflow-y-auto pr-1">
                         {PRESETS.map((src, i) => (
                             <button
                                 key={i}

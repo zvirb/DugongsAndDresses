@@ -2,7 +2,7 @@
 
 - [x] Improve and standardize the frontend
     - [x] Add more features (Campaign Selector)
-    - [ ] Add more tests
+    - [x] Add more tests
     - [x] Add more documentation
     - [ ] Add more examples
 - [ ] Improve and standardize the backend
