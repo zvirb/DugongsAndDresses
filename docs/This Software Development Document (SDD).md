@@ -1,62 +1,148 @@
-This Software Development Document (SDD) synthesizes the current codebase architecture (Next.js/Prisma) with the requested expansions (Mobile Player App, QR Codes) and the established operational protocols (Git Logging, AI Integration).GEMINI Project: Software Design DocumentProject Code: DugongsAndDressesVersion: 2.0 (Mobile Expansion Draft)Tech Stack: Next.js 16, TypeScript, Prisma, SQLite, Tailwind CSS 41. Executive SummaryThe GEMINI Project is a Dungeons & Dragons campaign management platform designed to bridge the gap between table-top mechanics and AI-assisted storytelling. It functions as a "Hybrid Digital DM Screen," allowing the Dungeon Master to track state (HP, Initiative), log narrative events, and generate context for external Large Language Models (LLMs) like Gemini 1.5 Pro.Current State: A functional DM Dashboard and Passive Public Display using polling for state synchronization.Development Goal: Expand to a "Player Second Screen" experience via a mobile webapp, orchestrated via QR codes, with automated Git-based session logging.2. System Architecture2.1 High-Level DesignThe application is a Monolithic Next.js application using Server Actions for data mutation and React Server Components (RSC) for rendering.Host: Local Network (Tailscale/Cloudflare Tunnel recommended for external access).Database: SQLite (local file dev.db), managed via Prisma ORM.State Sync: Currently relies on revalidatePath (Server Actions) and Client-Side Polling (AutoRefresh.tsx) for the Public view.2.2 Directory Structure (Key Components)Plaintextsrc/
+# This Software Development Document (SDD)
+
+The **Dugongs & Dresses** project (Code: **GEMINI**) is a next-generation Dungeons & Dragons campaign management platform. It bridges the gap between physical tabletop play and AI-assisted storytelling through a hybrid digital environment.
+
+## 1. Executive Summary
+
+The GEMINI Project functions as a "Hybrid Digital DM Screen," allowing the Dungeon Master to track state (HP, Initiative), log narrative events, and generate high-fidelity context for external Large Language Models (LLMs) like Gemini 1.5 Pro.
+
+- **Primary Goal**: Seamlessly integrate digital automation with traditional TTRPG mechanics.
+- **Secondary Goal**: Provide a mobile "Player Second Screen" experience for real-time interaction.
+- **Design Philosophy**: **Agent Mesh** — High-contrast, performance-oriented UI using Neon Blue (#2b2bee) and Dark Navy (#101022).
+
+---
+
+## 2. System Architecture
+
+### 2.1 Tech Stack
+- **Framework**: Next.js 15+ (App Router, Server Actions, RSC)
+- **Language**: TypeScript (Strict Mode)
+- **Database**: SQLite (Local persistent storage via Prisma ORM)
+- **Styling**: Tailwind CSS 4.0 (Custom design tokens for Agent Mesh)
+- **Testing**: Vitest + React Testing Library
+
+### 2.2 Directory Structure
+```plaintext
+src/
 ├── app/
-│   ├── dm/           # DM Dashboard (Write Access)
-│   ├── public/       # Passive TV Display (Read Only)
-│   ├── player/       # Mobile Player Interface (Character Selection & Stats)
-│   └── actions.ts    # Server Actions (Mutations: Roll, HP, Turn, Logs)
+│   ├── dm/           # DM Dashboard (Write Access, Campaign Management)
+│   ├── public/       # Passive TV Display (Read-Only Polling)
+│   ├── player/       # Mobile Player Experience (Character-specific UI)
+│   └── actions.ts    # Standardized Server Actions
 ├── components/
-│   ├── DiceRoller.tsx        # Digital Dice Logic
-│   ├── TurnTracker.tsx       # Initiative Management
-│   ├── PlayerHPControls.tsx  # Mobile-optimized HP management
-│   ├── PlayerActionForm.tsx  # Action submission for players
-│   └── HPControls.tsx        # DM-side Health Editing
-└── lib/
-    └── prisma.ts     # DB Singleton
-2.3 UI Design System
-The frontend utilizes a standardized component library located in `src/components/ui`.
-- **Button**: Supports variants (primary, secondary, destructive, success, outline, ghost).
-- **Card**: Container for grouping content.
-- **Input**: Standardized text input.
-- **Badge**: Status indicators.
-- **CampaignSelector**: Dropdown for switching active campaigns.
+│   ├── ui/           # Atomic Design System (Button, Card, Badge, Input)
+│   ├── DiceRoller/   # Physics-free digital dice logic
+│   ├── TurnTracker/  # Reactive initiative management
+│   └── ...           # Specialized feature components
+├── lib/
+│   ├── queries.ts    # Standardized, cached DB read operations
+│   ├── actions-utils.ts # Error-handling wrappers for mutations
+│   └── prisma.ts     # Database singleton
+└── types/            # Centralized TypeScript definitions
+```
 
-3. Data Schema & PersistenceSource: prisma/schema.prismaThe database acts as the single source of truth for the game state.ModelDescriptionKey FieldsCampaignThe container for a game world.active (Bool), name (String)CharacterPlayers and NPCs.attributes (JSON), conditions (JSON), activeTurn (Bool), initiativeRoll (Int)LogEntryThe narrative history.content (String), type (Enum-like: "Story", "Roll")EncounterGroupings for combat.status (String), participants (JSON)4. Feature Specifications4.1 DM Dashboard (Existing)Turn Tracker: Displays characters sorted by initiative. Allows toggling activeTurn.Dice Tray: Supports d4-d20 rolls with Advantage/Disadvantage toggles. Logs results directly to LogEntry.AI Bridge: AICopyButton aggregates the last 5 logs, current character health/status, and initiative order into a prompt-ready text block for external LLMs.Quick Actions: Placeholder buttons for generic moves (Attack, Skill Check).4.2 Public Display (Existing)Visuals: High-contrast, read-only view for a TV screen.State Feedback:Health Bars: Dynamic width (Green/Red based on HP%).Active Turn: Visual highlight/scaling of the active character.Sync: Uses AutoRefresh component (polls every 3s) to fetch latest Server state.4.3 Mobile Player Webapp (Implemented) Access Point: /player/[id] (Dynamic Route). Core Functions: - HP Management: Large, thumb-friendly buttons for rapid health tracking. - Action Log: View of the last 10 campaign events. - Intent Submission: Text field to declare actions (e.g., "I swing my axe") which logs directly to the DM screen. - Real-time Sync: Polling every 2s for initiative and status updates. - Design: High-contrast Agent Mesh theme (Navy/Blue/Neon). 5. Protocols & Workflows5.1 The "GEMINI" Loop (AI Integration)Defined in GEMINI.md and AICopyButton.tsx.State Change: DM or Player logs an action/roll.Aggregation: System compiles Turn Order + Character Status + Recent Logs.Extraction: DM clicks "Copy AI Context".Generation: Context pasted into LLM (e.g., "Describe the goblin's reaction").Injection: LLM output is pasted back into the Game Log via DM Dashboard.5.2 GitOps Logging ProtocolTrigger: End of Turn or Significant Event.Mechanism:The application queries LogEntry for the current session.Formats entries into a Markdown file (e.g., session_logs/turn_05.md).System Automation: A background worker (or the ralph_loop.ps1 script) detects the new file, stages it, and commits to Git: git commit -m "Log: Turn 05 complete".6. Implementation Plan: Mobile & QR6.1 QR Code Generation (Local Network)To allow players to join without typing IPs:Server-Side: Detect local IP (e.g., 192.168.1.x).Route: src/app/join/page.tsx.Logic: Render a QR code encoding: http://[LOCAL_IP]:3000/play?char=[CHARACTER_ID].Display: Added to the DM Dashboard header ("Invite Players" button).6.2 Mobile Interface (src/app/play/page.tsx)Code Logic:TypeScript// Conceptual implementation for the new feature
-export default function PlayerPage({ searchParams }: { searchParams: { char: string } }) {
-  const character = await prisma.character.findUnique({ where: { id: searchParams.char }});
-  
-  async function submitAction(formData: FormData) {
-    'use server'
-    await logAction(character.campaignId, 
-      `${character.name} attempts: ${formData.get('intent')} (Roll: ${formData.get('roll')})`, 
-      "PlayerAction"
-    );
-  }
+---
 
-  return (
-    <form action={submitAction} className="mobile-layout">
-      <h1>{character.name}</h1>
-      <input name="intent" placeholder="What do you do?" />
-      <input name="roll" type="number" placeholder="Dice Result" />
-      <button type="submit">End Turn</button>
-    </form>
-  )
-}
-7. RoadmapImmediate: Implement src/app/play route and QR generation.Short Term: Refine ralph_loop.ps1 to automatically export Prisma Logs to Markdown files for the Git Sync protocol.Long Term: Replace Polling (AutoRefresh) with Next.js streaming or Websockets for instant dice roll visibility on the DM screen.
+## 3. Data Schema & Persistence
 
+The system uses a persistent SQLite database (`dev.db`) managed via Prisma. 
 
+### 3.1 Key Models
+- **Campaign**: The root container for a game world. Supports multi-campaign residency.
+- **Character**: Stores stats, level, race, class, and session state (HP, initiative, active turn).
+- **LogEntry**: Narrative history and mechanical results (Rolls, Combat actions).
+- **Encounter**: Temporary groupings for combat scenarios.
 
-8. Database for Long-Standing Campaigns
-Yes, the system is designed to support this. The project uses a persistent SQLite database (managed via Prisma) that is structured to handle long-term campaign data.
+### 3.2 Standardized Features
+- **Timestamps**: All models include `createdAt` and `updatedAt`.
+- **Cascade Deletes**: Deleting a Campaign cleans up all associated Characters and Logs.
+- **JSON Storage**: Flexible attributes and conditions stored as JSON strings.
 
-Evidence: The database schema explicitly defines a Campaign model that serves as a container for all game data.
+---
 
-Data Persistence: Every Campaign is linked to its own Character lists, LogEntry history, and Encounter data. This means you can have multiple different campaigns stored in the same database file (dev.db), each with its own independent history and party members.
+## 4. Feature Specifications
 
-9. Easy Way to Resume Any Choice of Campaign
-Not yet implemented in the User Interface. While the database supports multiple campaigns, the current application code does not yet have a "Load Game" or "Campaign Selector" screen.
+### 4.1 DM Dashboard
+The central hub for game orchestration.
+- **Campaign Selector**: Real-time switching between active campaigns.
+- **Initiative Tracker**: Automated sorting and turn management with visual "Active" indicators.
+- **Dice Tray**: Digital rolls with advantage/disadvantage toggles.
+- **AI Bridge**: `AICopyButton` aggregates logs, turn order, and status into a prompt-ready context for LLMs.
 
-Current Behavior: The DM Dashboard currently defaults to loading only the first active campaign it finds in the database (const campaign = campaigns[0];).
+### 4.2 Player Mobile Experience
+Mobile-optimized web interface accessible via `/player`.
+- **Hero Selection**: Dynamic list of characters from the active campaign.
+- **HP Management**: Large, thumb-friendly controls for rapid tracking.
+- **Tactical Logging**: Players submit intents (e.g., "I cast Fireball") directly to the DM's log.
+- **Real-time Sync**: High-frequency polling (2s) for instant turn awareness.
 
-Missing Feature: There is currently no UI element (like a dropdown or menu) that allows you to switch between different campaigns or "resume" a specific one if you have multiple running.
+### 4.3 Public Display
+Passive view designed for high-resolution monitors or TVs.
+- **Visual Feedback**: Dynamic health bars and active character highlights.
+- **Polling Sync**: Uses `AutoRefresh` component to maintain state without user interaction.
 
-Recommendation: To fulfill your requirement for an "easy way to resume," a "Campaign Selection" screen needs to be added to the implementation plan. This would list all available campaigns and allow the DM to set the "Active" session before loading the dashboard.
+---
+
+## 5. Protocols & Workflows
+
+### 5.1 The "GEMINI" Loop
+1. **Mechanical Action**: DM or Player performs a roll or HP change.
+2. **Context Aggregation**: System compiles current session state.
+3. **LLM Interaction**: DM copies context to external LLM (Gemini 1.5 Pro).
+4. **Narrative Injection**: LLM-generated descriptions are logged back into the system.
+
+### 5.2 GitOps Logging
+The `ralph_loop.ps1` script periodically exports `LogEntry` records to Markdown files, which are committed to the repository. This provides a version-controlled, permanent record of the campaign's narrative progression.
+
+---
+
+## 6. Testing Strategy
+
+The project maintains high reliability through a comprehensive testing suite:
+- **Unit Testing**: Logic-heavy utilities in `lib/` and `actions-utils.ts`.
+- **Component Testing**: Vitest/RTL tests for UI components (`DiceRoller.test.tsx`, `HPControls.test.tsx`).
+- **Integration Testing**: Server Action flows and Prisma query validation.
+
+---
+
+## 7. Usage Examples
+
+### 7.1 AI Bridge Context Example
+When the DM clicks "Copy AI Context", the following structured data is prepared for the LLM:
+```text
+Campaign: The Whispering Woods
+Active Turn: Thistle (Elf Rogue)
+
+Initiative Order:
+1. Thistle (22) - CURRENT
+2. Orc Grunt (15)
+3. Borin (12)
+
+Recent Logs:
+- [21:45:01] Thistle rolls Stealth: 18
+- [21:45:30] Thistle attempts: I sneak behind the orc.
+- [21:46:12] DM rolls Attack (Orc): 5 (Miss)
+
+Character Status:
+- Thistle: 24/30 HP (Healthy)
+- Borin: 12/45 HP (Wounded)
+```
+
+### 7.2 Standardized Action Pattern
+```typescript
+// Example of a mutation using the standardized action wrapper
+export const updateHP = actionWrapper(async (id: string, newHp: number) => {
+    return await prisma.character.update({
+        where: { id },
+        data: { hp: newHp }
+    });
+});
+```
+
+---
+
+## 8. Future Roadmap
+- **Websockets**: Transition from polling to real-time events for instant feedback.
+- **QR Integration**: Auto-generated QR codes on the DM screen for instant player joining.
+- **Fog of War**: Hidden NPC stats and private DM notes.
+- **Asset Management**: Integrated map viewing and token placement.

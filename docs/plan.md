@@ -20,8 +20,8 @@
     - [x] Add more tests (PlayerHPControls tests)
     - [x] Add more documentation (README, SDD updates)
     - [x] Add more examples (Mobile UI Preview in Gallery)
-- [ ] Improve the document: docs\This Software Development Document (SDD).md
-    - [ ] Add more features
-    - [ ] Add more tests
-    - [ ] Improve documentation
-    - [ ] Add more examples
+- [x] Improve the document: docs\This Software Development Document (SDD).md
+    - [x] Add more features
+    - [x] Add more tests
+    - [x] Improve documentation
+    - [x] Add more examples
