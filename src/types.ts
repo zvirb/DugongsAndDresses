@@ -16,6 +16,8 @@ export interface CharacterWithState {
     activeTurn: boolean;
     initiativeRoll: number;
     imageUrl: string | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface LogEntry {
@@ -24,4 +26,22 @@ export interface LogEntry {
     type: string;
     timestamp: Date;
     campaignId: string;
+}
+
+export interface Campaign {
+    id: string;
+    name: string;
+    active: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface Encounter {
+    id: string;
+    name: string;
+    status: string;
+    participants: string;
+    campaignId: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
