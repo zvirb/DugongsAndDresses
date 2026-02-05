@@ -21,10 +21,10 @@ export default async function DMPage() {
 
     if (!campaign) {
         return (
-            <div className="p-10 text-center flex flex-col items-center justify-center min-h-screen bg-neutral-900 text-white">
-                <Card className="max-w-md w-full border-neutral-700 bg-neutral-800">
+            <div className="p-10 text-center flex flex-col items-center justify-center min-h-screen bg-agent-navy text-white">
+                <Card variant="agent" className="max-w-md w-full">
                     <CardHeader>
-                        <CardTitle className="text-3xl font-bold text-amber-500 mb-2">Welcome, Dungeon Master</CardTitle>
+                        <CardTitle className="text-3xl font-bold text-agent-blue mb-2">Welcome, Dungeon Master</CardTitle>
                         <p className="text-neutral-400">No active campaign found. Start your adventure below.</p>
                     </CardHeader>
                     <CardContent>
@@ -47,10 +47,10 @@ export default async function DMPage() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-900 text-neutral-100 p-4 font-sans">
-            <header className="flex justify-between items-center mb-6 border-b border-neutral-700 pb-4">
+        <div className="min-h-screen bg-agent-navy text-neutral-100 p-4 font-sans">
+            <header className="flex justify-between items-center mb-6 border-b border-agent-blue/20 pb-4">
                 <div className="flex items-center gap-6">
-                    <h1 className="text-xl font-bold text-amber-500">DM Control Station</h1>
+                    <h1 className="text-xl font-bold text-agent-blue">DM Control Station</h1>
                     <CampaignSelector campaigns={campaignList} activeId={campaign.id} />
                 </div>
                 <div className="flex items-center space-x-4">
@@ -63,7 +63,7 @@ export default async function DMPage() {
             <div className="grid grid-cols-12 gap-4 h-[calc(100vh-100px)]">
                 {/* Left Column: Initiative / Turn Tracker + Dice */}
                 <div className="col-span-3 flex flex-col gap-4">
-                    <Card className="flex-1 overflow-hidden border-neutral-700 bg-neutral-800">
+                    <Card variant="agent" className="flex-1 overflow-hidden">
                         <CardContent className="h-full p-4">
                             <TurnTracker initialParticipants={campaign.characters} campaignId={campaign.id} />
                         </CardContent>
@@ -73,9 +73,9 @@ export default async function DMPage() {
 
                 {/* Center Column: Log & Actions */}
                 <div className="col-span-6 flex flex-col gap-4 h-full">
-                    <Card className="flex-1 flex flex-col border-neutral-700 bg-neutral-800 overflow-hidden">
-                        <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-neutral-700">
-                            <CardTitle className="text-blue-400">Game Log</CardTitle>
+                    <Card variant="agent" className="flex-1 flex flex-col overflow-hidden">
+                        <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-agent-blue/20">
+                            <CardTitle className="text-agent-blue">Game Log</CardTitle>
                             <AICopyButton
                                 logs={campaign.logs}
                                 characters={campaign.characters}
@@ -86,9 +86,9 @@ export default async function DMPage() {
                             />
                         </CardHeader>
                         <CardContent className="flex-1 p-0 overflow-hidden relative">
-                            <div className="absolute inset-0 p-4 overflow-y-auto space-y-2 font-mono text-sm">
+                            <div className="absolute inset-0 p-4 overflow-y-auto space-y-2 font-mono text-sm text-neutral-300">
                                 {campaign.logs.map((log: LogEntry) => (
-                                    <div key={log.id} className="border-b border-neutral-800 pb-1 last:border-0">
+                                    <div key={log.id} className="border-b border-agent-blue/10 pb-1 last:border-0">
                                         <span className="text-neutral-500 text-xs">[{new Date(log.timestamp).toLocaleTimeString()}]</span> {log.content}
                                     </div>
                                 ))}
@@ -96,7 +96,7 @@ export default async function DMPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-neutral-700 bg-neutral-800">
+                    <Card variant="agent">
                         <CardHeader className="py-2 px-4">
                             <CardTitle className="text-sm text-neutral-400">Quick Actions</CardTitle>
                         </CardHeader>
@@ -113,13 +113,13 @@ export default async function DMPage() {
 
                 {/* Right Column: Stat Blocks */}
                 <div className="col-span-3 h-full">
-                    <Card className="h-full flex flex-col border-neutral-700 bg-neutral-800 overflow-hidden">
-                        <CardHeader className="py-3 px-4 border-b border-neutral-700">
-                            <CardTitle className="text-amber-400">Characters</CardTitle>
+                    <Card variant="agent" className="h-full flex flex-col overflow-hidden">
+                        <CardHeader className="py-3 px-4 border-b border-agent-blue/20">
+                            <CardTitle className="text-agent-blue">Characters</CardTitle>
                         </CardHeader>
                         <CardContent className="flex-1 p-4 overflow-y-auto space-y-4">
                             {campaign.characters.map((char: CharacterWithState) => (
-                                <Card key={char.id} className="bg-neutral-700/50 border-neutral-600">
+                                <Card key={char.id} className="bg-agent-navy/50 border-agent-blue/20">
                                     <CardContent className="p-3">
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="font-bold text-white">{char.name}</span>

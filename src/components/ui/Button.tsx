@@ -8,7 +8,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const buttonVariants = ({ variant = 'primary', size = 'md', className }: { variant?: ButtonProps['variant'], size?: ButtonProps['size'], className?: string } = {}) => {
     const variants = {
-      primary: 'bg-amber-600 text-black hover:bg-amber-500 font-bold',
+      primary: 'bg-agent-blue text-white hover:bg-blue-600 font-bold shadow-[0_0_15px_rgba(43,43,238,0.3)]',
       secondary: 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 border border-neutral-600',
       destructive: 'bg-red-900 text-red-100 hover:bg-red-800',
       success: 'bg-emerald-900 text-emerald-100 hover:bg-emerald-800',
@@ -25,7 +25,7 @@ export const buttonVariants = ({ variant = 'primary', size = 'md', className }: 
     };
     
     return cn(
-          'inline-flex items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 disabled:pointer-events-none disabled:opacity-50 cursor-pointer no-underline',
+          'inline-flex items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-agent-blue disabled:pointer-events-none disabled:opacity-50 cursor-pointer no-underline',
           variants[variant],
           sizes[size],
           className

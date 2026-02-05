@@ -23,7 +23,7 @@ export default function ExamplesPage() {
           <h2 className="text-2xl font-semibold mb-6 border-b border-neutral-800 pb-2">Buttons</h2>
           <div className="flex flex-wrap gap-4 items-center">
             <Button variant="agent">Agent Variant</Button>
-            <Button variant="primary">Primary (Amber)</Button>
+            <Button variant="primary">Primary (Agent Blue)</Button>
             <Button variant="secondary">Secondary</Button>
             <Button variant="outline">Outline</Button>
             <Button variant="destructive">Destructive</Button>

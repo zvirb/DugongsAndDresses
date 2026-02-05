@@ -7,7 +7,7 @@ interface BadgeProps extends HTMLAttributes<HTMLDivElement> {
 
 const Badge = forwardRef<HTMLDivElement, BadgeProps>(({ className, variant = "default", ...props }, ref) => {
     const variants = {
-        default: "border-transparent bg-amber-600 text-black hover:bg-amber-600/80",
+        default: "border-transparent bg-agent-blue text-white shadow-[0_0_10px_rgba(43,43,238,0.2)]",
         secondary: "border-transparent bg-neutral-100 text-neutral-900 hover:bg-neutral-100/80",
         destructive: "border-transparent bg-red-900 text-red-100 hover:bg-red-900/80",
         outline: "text-neutral-100 border-neutral-100",
@@ -18,7 +18,7 @@ const Badge = forwardRef<HTMLDivElement, BadgeProps>(({ className, variant = "de
 
     return (
         <div ref={ref} className={cn(
-            "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2",
+            "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-agent-blue focus:ring-offset-2",
             variants[variant],
             className
         )} {...props} />

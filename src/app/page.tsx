@@ -5,8 +5,8 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-agent-navy font-sans">
       <div className="flex-1 flex flex-col md:flex-row">
         <Link href="/dm" className="flex-1 flex flex-col items-center justify-center bg-neutral-900/50 hover:bg-neutral-800 transition-all border-b md:border-b-0 md:border-r border-white/5 group">
-          <span className="text-neutral-500 text-xs uppercase tracking-[0.3em] mb-4 group-hover:text-amber-500 transition-colors">Command Center</span>
-          <span className="text-amber-500 text-5xl font-black italic tracking-tighter uppercase">DM STATION</span>
+          <span className="text-neutral-500 text-xs uppercase tracking-[0.3em] mb-4 group-hover:text-agent-blue transition-colors">Command Center</span>
+          <span className="text-agent-blue text-5xl font-black italic tracking-tighter uppercase">DM STATION</span>
         </Link>
         
         <div className="flex-1 flex flex-col">

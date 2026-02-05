@@ -1,4 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dugongs & Dresses (GEMINI)
+
+The **Dugongs & Dresses** project (Code: **GEMINI**) is a next-generation Dungeons & Dragons campaign management platform. It bridges the gap between physical tabletop play and AI-assisted storytelling through a hybrid digital environment.
+
+## Design System: Agent Mesh
+The project uses the **Agent Mesh** design system, characterized by:
+- **Neon Blue**: `#2b2bee`
+- **Dark Navy**: `#101022`
+- **Font**: [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk)
+- **High Contrast**: Performance-oriented UI with glowing accents and technical aesthetics.
+
+## Key Features
+- **DM Control Station**: Central hub for campaign orchestration.
+- **Player Mobile App**: Thumb-friendly hero interface for real-time tracking.
+- **Public Display**: Passive spectator view with dynamic feedback.
+- **AI Bridge**: Structured context aggregation for LLMs like Gemini 1.5 Pro.
+
+## Tech Stack
+- **Framework**: Next.js 15+ (App Router)
+- **Styling**: Tailwind CSS 4.0
+- **Database**: SQLite with Prisma ORM
+- **Testing**: Vitest + React Testing Library
 
 ## Getting Started
 
