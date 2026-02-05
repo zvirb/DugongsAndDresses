@@ -1,15 +1,11 @@
 <#
 .SYNOPSIS
-    Ralph Wiggum Loop v2 - "I'm a unit test!"
+    Ralph Wiggum Loop v3 - "I'm helping!" (Conglomerate Edition)
     
 .DESCRIPTION
-    An enhanced iterative loop that executes tasks from a plan, commits changes to Git,
-    and maintains fresh context for the agent.
-    
-    Principles from the "Ralph Wiggum Technique":
-    1. Loop until done.
-    2. Fresh context every run (CLI ensures this).
-    3. Persistent state via Files & Git.
+    An enhanced iterative loop for building the Phoenix Frontend Vision.
+    It reads `docs/plan.md`, finds the next task, and delegates it to the AI agent.
+    It includes specific logic for "Reference UI" context injection.
     
 .EXAMPLE
     .\ralph_loop.ps1 -PlanFile "docs/plan.md" -AutoCommit $true
@@ -20,20 +16,37 @@ param (
     [bool]$AutoCommit = $true
 )
 
-# Resolve absolute path
 $AbsolutePath = Join-Path (Get-Location) $PlanFile
 $ProjectRoot = Get-Location
+$ReferenceDir = Join-Path $ProjectRoot "docs\referenceUInew"
 
-function Get-ProjectContext {
-    # Lightweight context gathering to help the stateless agent
-    $files = Get-ChildItem -Recurse -Depth 2 -File | Where-Object { $_.Name -notmatch "git|node_modules|ralph_loop" } | Select-Object -ExpandProperty Name
-    return "Current Project Files: $($files -join ', ')"
+# Track retries to prevent infinite failure loops
+$global:TaskRetries = @{}
+
+function Get-ReferenceContext {
+    param([string]$TaskDescription)
+    
+    # Try to find a matching folder in referenceUInew based on task keywords
+    if (Test-Path $ReferenceDir) {
+        $dirs = Get-ChildItem -Path $ReferenceDir -Directory
+        foreach ($dir in $dirs) {
+            # Simple keyword matching: if the dir name is in the task text
+            # E.g. "Energy Grid" task matches "a2ui_energy_grid_widget_1"
+            $normalizedTask = $TaskDescription -replace "[^a-zA-Z0-9]", "" -replace " ", ""
+            $normalizedDir = $dir.Name -replace "[^a-zA-Z0-9]", "" -replace "_", ""
+            
+            if ($normalizedDir -match $normalizedTask -or $normalizedTask -match $normalizedDir) {
+                Write-Host "[Context] Matched Reference UI: $($dir.Name)" -ForegroundColor Cyan
+                return "REFERENCE UI FOUND: I have found a relevant UI prototype at 'docs/referenceUInew/$($dir.Name)'. You MUST read 'code.html' in that directory and use it as the source of truth for the implementation."
+            }
+        }
+    }
+    return ""
 }
 
-Write-Host "Starting Ralph Wiggum Loop (Enhanced)..." -ForegroundColor Cyan
+Write-Host "Starting Ralph Wiggum Loop (Conglomerate Edition)..." -ForegroundColor Cyan
 Write-Host "Target Plan: $AbsolutePath" -ForegroundColor Gray
 
-# Ensure git is ready if needed
 if ($AutoCommit) {
     git init | Out-Null
     Write-Host "Git persistence enabled." -ForegroundColor DarkGray
@@ -49,7 +62,7 @@ while ($true) {
     $content = Get-Content $AbsolutePath
     $targetTask = $null
     
-    # 1. FIND TASK
+    # 1. FIND NEXT UNCHECKED TASK
     foreach ($line in $content) {
         if ($line -match "^\s*[-\*]\s*\[\s*\]\s*(.+)$") {
             $targetTask = $matches[1].Trim()
@@ -58,52 +71,114 @@ while ($true) {
     }
 
     if ($targetTask) {
-        Write-Host "`n[Ralph] Found Task: $targetTask" -ForegroundColor Yellow
+        # Check Retries
+        if (-not $global:TaskRetries.ContainsKey($targetTask)) {
+            $global:TaskRetries[$targetTask] = 0
+        }
+        
+        if ($global:TaskRetries[$targetTask] -ge 3) {
+            Write-Host "Skipping Task (Too many failures): $targetTask" -ForegroundColor Red
+            # Mark as skipped in file? Or just log? For now, we wait longer.
+            Start-Sleep -Seconds 60
+            continue
+        }
+
+        Write-Host "`n[Ralph] Iteration $($global:TaskRetries[$targetTask] + 1) for Task: $targetTask" -ForegroundColor Yellow
         
         # 2. PREPARE CONTEXT
-        $context = Get-ProjectContext
+        $refContext = Get-ReferenceContext -TaskDescription $targetTask
         
-        # 3. CONSTRUCT ROBUST PROMPT
-        # We explicitly tell Gemini to:
-        # A) Do the work
-        # B) Update the plan file (CRITICAL for loop progression)
-        $metaInstructions = "SYSTEM CONTEXT: You are an autonomous agent working in '$ProjectRoot'. $context " +
+        # 3. CONSTRUCT PROMPT
+        $metaInstructions = "SYSTEM CONTEXT: You are an autonomous frontend engineer working in '$ProjectRoot'. " +
+                            "$refContext " +
                             "YOUR GOAL: Complete the task: '$targetTask'. " +
-                            "IMPORTANT: You must modifying the code/files to complete the task. " +
+                            "STYLE GUIDE: Use the 'Agent Mesh' design system (Neon Blue #2b2bee, Dark Navy #101022, Space Grotesk font). " +
+                            "IMPORTANT: You must modify the code/files to complete the task. " +
                             "COMPLETION PROTOCOL: When finished, you MUST read '$AbsolutePath' and mark the task as done by changing '- [ ] $targetTask' to '- [x] $targetTask'. " +
-                            "If you fail to mark it as done, I will ask you to do it again forever."
+                            "If you fail to mark it as done, the loop will repeat."
+
+        # Sanitize prompt to avoid command-line parsing issues with double quotes
+        $metaInstructions = $metaInstructions -replace '"', "'"
 
         Write-Host "Running Agent..." -ForegroundColor DarkMagenta
         
-        # 4. EXECUTE AGENT (Fresh Context)
+        # 4. EXECUTE AGENT
         try {
             $start = Get-Date
-            & gemini --yolo "$metaInstructions"
+            $geminiArgs = @(
+                "--approval-mode=yolo",
+                "--prompt", $metaInstructions
+            )
+            
+            Write-Host "Debug: Calling gemini with $($geminiArgs.Count) arguments." -ForegroundColor DarkGray
+            # Write-Host "Debug: Prompt length: $($metaInstructions.Length)" -ForegroundColor DarkGray
+            
+            # Bypass the gemini.ps1 wrapper to avoid argument quoting issues
+            $geminiCliPath = "$env:APPDATA\npm\node_modules\@google\gemini-cli\dist\index.js"
+            & node $geminiCliPath @geminiArgs
+            
             $duration = (Get-Date) - $start
             
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "Agent finished in $($duration.TotalSeconds)s." -ForegroundColor Green
+            # Check if task was actually marked done
+            $newContent = Get-Content $AbsolutePath
+            $isDone = $false
+            $escapedTask = [regex]::Escape($targetTask)
+            foreach ($line in $newContent) {
+                if ($line -match "^\s*[-\*]\s*\[x\]\s*$escapedTask") {
+                    $isDone = $true
+                    break
+                }
+            }
+
+            if ($isDone) {
+                Write-Host "Task Completed in $($duration.TotalSeconds)s!" -ForegroundColor Green
+                $global:TaskRetries.Remove($targetTask) # Clear retry count
                 
-                # 5. PERSIST STATE (Git)
                 if ($AutoCommit) {
                     git add .
-                    git commit -m "Ralph: Completed '$targetTask'" | Out-Null
-                    Write-Host "[Git] State saved." -ForegroundColor DarkGray
+                    # Only commit if there are changes to avoid empty commit errors
+                    if ($(git status --porcelain)) {
+                        git commit -m "Ralph: Completed '$targetTask'" | Out-Null
+                        Write-Host "[Git] Changes committed." -ForegroundColor DarkGray
+                    }
+                    
+                    Write-Host "[Git] Syncing with remote..." -ForegroundColor DarkGray
+                    git pull --rebase origin main
+                    git push origin main
+                    Write-Host "[Git] State saved and synced." -ForegroundColor Green
                 }
             } else {
-                Write-Host "Agent crashed (Exit Code: $LASTEXITCODE). Retrying..." -ForegroundColor Red
+                Write-Host "Agent finished but task is NOT marked done in plan.md." -ForegroundColor Red
+                $global:TaskRetries[$targetTask]++
             }
         }
         catch {
             Write-Host "Execution Error: $_" -ForegroundColor Red
+            $global:TaskRetries[$targetTask]++
         }
 
-        # Short cool-down
         Start-Sleep -Seconds 2
     }
     else {
-        # 6. IDLE STATE
-        Write-Host "`r[Ralph] All tasks checked. Waiting for new tasks..." -NoNewline -ForegroundColor DarkGray
-        Start-Sleep -Seconds 5
+        # Check if we have any completed tasks to reset
+        $currentContent = Get-Content $AbsolutePath
+        $hasCompletedTasks = $false
+        foreach ($line in $currentContent) {
+            if ($line -match "^\s*[-\*]\s*\[x\]") {
+                $hasCompletedTasks = $true
+                break
+            }
+        }
+
+        if ($hasCompletedTasks) {
+             Write-Host "`n[Ralph] All tasks completed! Resetting plan for next loop..." -ForegroundColor Cyan
+             $resetContent = $currentContent -replace "\[x\]", "[ ]"
+             Set-Content -Path $AbsolutePath -Value $resetContent
+             Write-Host "[Ralph] Plan reset. Restarting loop..." -ForegroundColor Green
+             Start-Sleep -Seconds 2
+        } else {
+             Write-Host "`r[Ralph] All tasks checked. Waiting for new tasks..." -NoNewline -ForegroundColor DarkGray
+             Start-Sleep -Seconds 5
+        }
     }
 }

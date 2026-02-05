@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
+import { Button } from './ui/Button';
 
 type RollMode = 'NORMAL' | 'ADVANTAGE' | 'DISADVANTAGE';
 
@@ -9,7 +11,7 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
     const [isRolling, setIsRolling] = useState(false);
     const [mode, setMode] = useState<RollMode>('NORMAL');
 
-    const rollDice = async (sides: number) => {
+    const rollDice = useCallback(async (sides: number) => {
         setIsRolling(true);
         let result = 0;
         let details = '';
@@ -35,53 +37,60 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
 
         await logAction(campaignId, logMessage, 'Roll');
         setIsRolling(false);
-        // Reset to normal after roll? Optional. Keeping sticky for now.
+    }, [mode, campaignId]);
+
+    const getDiceVariant = () => {
+        if (mode === 'ADVANTAGE') return 'success';
+        if (mode === 'DISADVANTAGE') return 'destructive';
+        return 'primary';
     };
 
     return (
-        <div className="bg-neutral-800 p-4 rounded-lg border border-neutral-700">
-            <div className="flex justify-between items-center mb-3">
-                <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-wider">Dice Tray</h3>
-
+        <Card className="border-neutral-700 bg-neutral-800">
+            <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-sm font-bold text-neutral-400 uppercase tracking-wider">Dice Tray</CardTitle>
                 <div className="flex bg-neutral-900 rounded p-1 gap-1">
-                    <button
+                    <Button
+                        size="sm"
+                        variant={mode === 'NORMAL' ? 'secondary' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${mode === 'NORMAL' ? 'bg-neutral-600 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
+                        className={`h-7 px-2 text-xs ${mode === 'NORMAL' ? 'bg-neutral-600 text-white' : ''}`}
                     >
                         Normal
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${mode === 'ADVANTAGE' ? 'bg-green-800 text-green-100' : 'text-neutral-500 hover:text-green-800'}`}
+                        className={`h-7 px-2 text-xs ${mode === 'ADVANTAGE' ? '' : 'hover:text-green-500'}`}
                     >
                         Adv
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${mode === 'DISADVANTAGE' ? 'bg-red-800 text-red-100' : 'text-neutral-500 hover:text-red-800'}`}
+                        className={`h-7 px-2 text-xs ${mode === 'DISADVANTAGE' ? '' : 'hover:text-red-500'}`}
                     >
                         Dis
-                    </button>
+                    </Button>
                 </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-                {[4, 6, 8, 10, 12, 20].map(d => (
-                    <button
-                        key={d}
-                        disabled={isRolling}
-                        onClick={() => rollDice(d)}
-                        className={`
-                font-bold py-2 rounded transition-colors disabled:opacity-50
-                ${mode === 'ADVANTAGE' ? 'bg-green-900/40 hover:bg-green-900 text-green-400 border border-green-800' :
-                                mode === 'DISADVANTAGE' ? 'bg-red-900/40 hover:bg-red-900 text-red-400 border border-red-800' :
-                                    'bg-neutral-700 hover:bg-neutral-600 text-amber-500'}
-            `}
-                    >
-                        d{d}
-                    </button>
-                ))}
-            </div>
-        </div>
+            </CardHeader>
+            <CardContent className="p-4 pt-2">
+                <div className="grid grid-cols-3 gap-2">
+                    {[4, 6, 8, 10, 12, 20].map(d => (
+                        <Button
+                            key={d}
+                            disabled={isRolling}
+                            onClick={() => rollDice(d)}
+                            variant={getDiceVariant()}
+                            className="font-bold w-full"
+                        >
+                            d{d}
+                        </Button>
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
     );
 }

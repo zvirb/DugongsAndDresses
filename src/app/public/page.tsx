@@ -42,13 +42,28 @@ export default async function PublicPage() {
                         />
 
                         <div className="relative z-10 p-6 flex flex-col h-full">
-                            <div className="mb-4">
-                                <h2 className={`text-3xl font-bold mb-1 leading-none ${char.activeTurn ? 'text-amber-500' : 'text-stone-400'}`}>
-                                    {char.name}
-                                </h2>
-                                <p className="text-stone-500 text-lg italic">{char.race} {char.class} <span className="text-xs bg-stone-800 px-1 rounded ml-2">Lvl {char.level}</span></p>
-                            </div>
+                            {/* Character Image Background/Overlay */}
+                            {char.imageUrl && (
+                                <div className="absolute inset-0 z-[-1] opacity-30">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={char.imageUrl} alt={char.name} className="w-full h-full object-cover grayscale mix-blend-overlay" />
+                                </div>
+                            )}
 
+                            <div className="mb-4 flex items-start gap-4">
+                                {char.imageUrl && (
+                                    <div className="w-16 h-16 rounded-full border-2 border-stone-600 overflow-hidden shrink-0 shadow-lg">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={char.imageUrl} alt={char.name} className="w-full h-full object-cover" />
+                                    </div>
+                                )}
+                                <div>
+                                    <h2 className={`text-3xl font-bold mb-1 leading-none ${char.activeTurn ? 'text-amber-500' : 'text-stone-400'}`}>
+                                        {char.name}
+                                    </h2>
+                                    <p className="text-stone-500 text-lg italic">{char.race} {char.class} <span className="text-xs bg-stone-800 px-1 rounded ml-2">Lvl {char.level}</span></p>
+                                </div>
+                            </div>
                             <div className="mt-auto flex justify-between items-end border-t border-stone-800 pt-4">
                                 <div className="text-center">
                                     <span className="block text-xs text-stone-600 uppercase tracking-widest mb-1">Health</span>

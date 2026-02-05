@@ -73,3 +73,51 @@ export async function setNextTurn(campaignId: string, currentCharacterId: string
     revalidatePath('/dm');
     revalidatePath('/public');
 }
+
+export async function activateCampaign(campaignId: string) {
+    // Deactivate all
+    await prisma.campaign.updateMany({
+        data: { active: false }
+    });
+
+    // Activate target
+    await prisma.campaign.update({
+        where: { id: campaignId },
+        data: { active: true }
+    });
+
+    revalidatePath('/dm');
+    revalidatePath('/public');
+}
+
+export async function updateCharacterImage(characterId: string, imageUrl: string) {
+    await prisma.character.update({
+        where: { id: characterId },
+        data: { imageUrl }
+    });
+    revalidatePath('/public');
+    revalidatePath('/dm');
+}
+
+// Very basic file upload handler (Local FS only)
+import { writeFile } from 'fs/promises';
+import { join } from 'path';
+
+export async function uploadAvatar(formData: FormData) {
+    const file = formData.get('file') as File;
+    const characterId = formData.get('characterId') as string;
+
+    if (!file || !characterId) return;
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Safe filename
+    const filename = `${characterId}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+    const path = join(process.cwd(), 'public/avatars', filename);
+
+    await writeFile(path, buffer);
+
+    const imageUrl = `/avatars/${filename}`;
+    await updateCharacterImage(characterId, imageUrl);
+}

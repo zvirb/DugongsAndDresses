@@ -25,6 +25,7 @@ model Character {
   race        String?
   class       String?
   level       Int      @default(1)
+  imageUrl    String?  // URL to avatar image
   
   // Stats
   hp          Int

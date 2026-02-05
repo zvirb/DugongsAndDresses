@@ -15,6 +15,7 @@ export interface CharacterWithState {
     campaignId: string;
     activeTurn: boolean;
     initiativeRoll: number;
+    imageUrl: string | null;
 }
 
 export interface LogEntry {

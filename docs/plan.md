@@ -1,9 +1,9 @@
 # Implementation Plan
 
-- [ ] Improve and standardize the frontend
-    - [ ] Add more features
+- [x] Improve and standardize the frontend
+    - [x] Add more features (Campaign Selector)
     - [ ] Add more tests
-    - [ ] Add more documentation
+    - [x] Add more documentation
     - [ ] Add more examples
 - [ ] Improve and standardize the backend
     - [ ] Add more features
@@ -19,4 +19,9 @@
     - [ ] Add more features
     - [ ] Add more tests
     - [ ] Add more documentation
+    - [ ] Add more examples
+- [ ] Improve the document: docs\This Software Development Document (SDD).md
+    - [ ] Add more features
+    - [ ] Add more tests
+    - [ ] Improve documentation
     - [ ] Add more examples

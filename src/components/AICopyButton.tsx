@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from './ui/Button';
 
 type Log = {
     id: string;
@@ -60,14 +61,13 @@ Given the above context, suggest the next narrative beat or DM response.`;
     };
 
     return (
-        <button
+        <Button
+            variant={copied ? "success" : "primary"}
+            size="sm"
             onClick={handleCopy}
-            className={`text-xs px-3 py-1 rounded font-bold transition-all ${copied
-                ? 'bg-green-600 text-white'
-                : 'bg-indigo-600 hover:bg-indigo-500 text-indigo-100'
-                }`}
+            className="text-xs font-bold transition-all"
         >
             {copied ? 'Copied Context!' : 'Copy AI Context'}
-        </button>
+        </Button>
     );
 }
