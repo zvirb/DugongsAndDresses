@@ -1,16 +1,11 @@
-import { prisma } from "@/lib/prisma";
 import AutoRefresh from "@/components/AutoRefresh";
 import { CharacterWithState } from "@/types";
+import { getPublicCampaign } from "@/lib/queries";
 
 export const dynamic = 'force-dynamic';
 
 export default async function PublicPage() {
-    const campaigns = await prisma.campaign.findMany({
-        where: { active: true },
-        include: { characters: { where: { type: 'PLAYER' } } }
-    });
-
-    const campaign = campaigns[0];
+    const campaign = await getPublicCampaign();
 
     if (!campaign) return <div className="p-10">Waiting for DM...</div>;
 

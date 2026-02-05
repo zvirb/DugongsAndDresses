@@ -5,11 +5,11 @@
     - [x] Add more tests
     - [x] Add more documentation
     - [x] Add more examples
-- [ ] Improve and standardize the backend
-    - [ ] Add more features
-    - [ ] Add more tests
-    - [ ] Add more documentation
-    - [ ] Add more examples
+- [x] Improve and standardize the backend
+    - [x] Add more features (Standardized Queries & Actions)
+    - [x] Add more tests (Action Wrapper tests)
+    - [x] Add more documentation (JSDoc)
+    - [x] Add more examples (Service layer pattern)
 - [ ] Improve and standardize the database
     - [ ] Add more features
     - [ ] Add more tests

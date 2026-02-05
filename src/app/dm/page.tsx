@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { createCampaign } from "../actions";
 import DiceRoller from "@/components/DiceRoller";
@@ -12,22 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
+import { getCampaigns, getActiveCampaign } from "@/lib/queries";
 
 export const dynamic = 'force-dynamic';
 
 export default async function DMPage() {
-    const campaignList = await prisma.campaign.findMany({
-        select: { id: true, name: true, active: true }
-    });
-
-    const activeCampaignId = campaignList.find(c => c.active)?.id || campaignList[0]?.id;
-
-    const campaign = activeCampaignId
-        ? await prisma.campaign.findUnique({
-            where: { id: activeCampaignId },
-            include: { characters: true, logs: { take: 10, orderBy: { timestamp: 'desc' } } }
-        })
-        : null;
+    const campaignList = await getCampaigns();
+    const campaign = await getActiveCampaign();
 
     if (!campaign) {
         return (
