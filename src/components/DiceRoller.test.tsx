@@ -78,4 +78,29 @@ describe('DiceRoller', () => {
       )
     })
   })
+
+  it('displays rolling state and disables buttons while rolling', async () => {
+    render(<DiceRoller campaignId={campaignId} />)
+    const d20Button = screen.getByText('d20')
+    fireEvent.click(d20Button)
+
+    // Should show "Rolling..." immediately
+    expect(screen.getByText('Rolling...')).toBeInTheDocument()
+
+    // All buttons should be disabled
+    const d4Button = screen.getByText('d4')
+    expect(d4Button).toBeDisabled()
+
+    // The rolling button itself should be disabled
+    expect(screen.getByText('Rolling...')).toBeDisabled()
+
+    // Wait for roll to finish
+    await waitFor(() => {
+      expect(actions.logAction).toHaveBeenCalled()
+    })
+
+    // After roll, "Rolling..." should be gone and buttons enabled
+    expect(screen.queryByText('Rolling...')).not.toBeInTheDocument()
+    expect(screen.getByText('d20')).not.toBeDisabled()
+  })
 })
