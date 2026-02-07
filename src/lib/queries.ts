@@ -15,20 +15,68 @@ export async function getCampaigns() {
  * If no campaign is explicitly active, it defaults to the most recent one.
  */
 export async function getActiveCampaign() {
-  const campaigns = await getCampaigns();
-  const activeCampaignId = campaigns.find(c => c.active)?.id || campaigns[0]?.id;
-
-  if (!activeCampaignId) return null;
-
-  return prisma.campaign.findUnique({
-    where: { id: activeCampaignId },
-    include: {
+  const activeCampaign = await prisma.campaign.findFirst({
+    where: { active: true },
+    select: {
+      id: true,
+      name: true,
       characters: {
-        orderBy: { name: 'asc' }
+        orderBy: { name: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          initiativeRoll: true,
+          activeTurn: true,
+          hp: true,
+          maxHp: true,
+          type: true,
+          conditions: true,
+          armorClass: true,
+          imageUrl: true
+        }
       },
       logs: {
         take: 20,
-        orderBy: { timestamp: 'desc' }
+        orderBy: { timestamp: 'desc' },
+        select: {
+          id: true,
+          timestamp: true,
+          content: true
+        }
+      }
+    }
+  });
+
+  if (activeCampaign) return activeCampaign;
+
+  return prisma.campaign.findFirst({
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      characters: {
+        orderBy: { name: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          initiativeRoll: true,
+          activeTurn: true,
+          hp: true,
+          maxHp: true,
+          type: true,
+          conditions: true,
+          armorClass: true,
+          imageUrl: true
+        }
+      },
+      logs: {
+        take: 20,
+        orderBy: { timestamp: 'desc' },
+        select: {
+          id: true,
+          timestamp: true,
+          content: true
+        }
       }
     }
   });
@@ -40,10 +88,23 @@ export async function getActiveCampaign() {
 export async function getPublicCampaign() {
   return prisma.campaign.findFirst({
     where: { active: true },
-    include: {
+    select: {
+      name: true,
       characters: {
         where: { type: 'PLAYER' },
-        orderBy: { name: 'asc' }
+        orderBy: { name: 'asc' },
+        select: {
+          id: true,
+          activeTurn: true,
+          imageUrl: true,
+          level: true,
+          armorClass: true,
+          name: true,
+          race: true,
+          class: true,
+          hp: true,
+          maxHp: true
+        }
       }
     }
   });
@@ -54,7 +115,23 @@ export async function getPublicCampaign() {
  */
 export async function getCharacterWithLogs(id: string) {
   const character = await prisma.character.findUnique({
-    where: { id }
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      hp: true,
+      maxHp: true,
+      name: true,
+      race: true,
+      class: true,
+      level: true,
+      activeTurn: true,
+      imageUrl: true,
+      armorClass: true,
+      campaignId: true,
+      speed: true,
+      initiative: true
+    }
   });
 
   if (!character) return null;
@@ -62,7 +139,12 @@ export async function getCharacterWithLogs(id: string) {
   const logs = await prisma.logEntry.findMany({
     where: { campaignId: character.campaignId },
     take: 10,
-    orderBy: { timestamp: 'desc' }
+    orderBy: { timestamp: 'desc' },
+    select: {
+      id: true,
+      content: true,
+      timestamp: true
+    }
   });
 
   return { ...character, logs };
