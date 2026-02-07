@@ -123,24 +123,24 @@ export default async function DMPage() {
                         </CardHeader>
                         <CardContent className="flex-1 p-4 overflow-y-auto space-y-4">
                             {campaign.characters.map((char) => (
-                                <Card key={char.id} className="bg-agent-navy/50 border-agent-blue/20">
+                                <Card key={char.id} className={`bg-agent-navy/50 transition-all duration-300 ${char.activeTurn ? 'border-agent-blue shadow-[0_0_15px_rgba(43,43,238,0.5)] z-10' : 'border-agent-blue/20'}`}>
                                     <CardContent className="p-3">
                                         <div className="flex justify-between items-center mb-2">
-                                            <span className="font-bold text-white">{char.name}</span>
+                                            <span className={`font-bold ${char.activeTurn ? 'text-agent-blue' : 'text-white'}`}>{char.name}</span>
                                             <Badge variant={char.type === 'NPC' ? 'npc' : 'player'}>{char.type}</Badge>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 text-sm text-neutral-300">
                                             <div>
                                                 <div className="flex justify-between items-center">
-                                                    <span>HP</span>
-                                                    <span className="text-white font-mono">{char.hp}/{char.maxHp}</span>
+                                                    <span className={char.activeTurn ? 'text-agent-blue' : ''}>HP</span>
+                                                    <span className={`font-mono ${char.activeTurn ? 'text-white drop-shadow-[0_0_8px_rgba(43,43,238,0.8)]' : 'text-white'}`}>{char.hp}/{char.maxHp}</span>
                                                 </div>
                                                 <HPControls characterId={char.id} currentHp={char.hp} />
                                             </div>
                                             <div>
                                                 <div className="flex justify-between">
-                                                    <span>AC</span>
-                                                    <span className="text-white font-bold">{char.armorClass}</span>
+                                                    <span className={char.activeTurn ? 'text-agent-blue' : ''}>AC</span>
+                                                    <span className={`font-bold ${char.activeTurn ? 'text-white drop-shadow-[0_0_8px_rgba(43,43,238,0.8)]' : 'text-white'}`}>{char.armorClass}</span>
                                                 </div>
                                                 <AvatarSelector characterId={char.id} currentUrl={char.imageUrl} />
                                                 <div className="text-xs text-neutral-400 mt-1 truncate">

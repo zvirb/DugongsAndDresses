@@ -52,14 +52,14 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
     const getDiceVariant = () => {
         if (mode === 'ADVANTAGE') return 'success';
         if (mode === 'DISADVANTAGE') return 'destructive';
-        return 'primary';
+        return 'agent';
     };
 
     return (
-        <Card className="border-white/5 bg-black/40">
+        <Card variant="agent">
             <CardHeader className="p-4 flex flex-col gap-4 space-y-0">
                 <div className="flex justify-between items-center">
-                    <CardTitle className="text-sm font-black text-neutral-500 uppercase tracking-[0.2em]">Dice Tray</CardTitle>
+                    <CardTitle className="text-sm font-black text-agent-blue uppercase tracking-[0.2em]">Dice Tray</CardTitle>
                     {rollingDie !== null && <span className="text-xs text-agent-blue animate-pulse">Rolling...</span>}
                 </div>
 
@@ -67,9 +67,9 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 <div className="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded-xl">
                     <Button
                         size="sm"
-                        variant={mode === 'NORMAL' ? 'secondary' : 'ghost'}
+                        variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'NORMAL' ? 'bg-neutral-700 text-white shadow-lg' : 'text-neutral-500'}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'NORMAL' ? '' : 'text-neutral-500'}`}
                     >
                         Normal
                     </Button>
@@ -77,7 +77,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         size="sm"
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'ADVANTAGE' ? 'shadow-lg shadow-emerald-900/20' : 'text-neutral-500 hover:text-emerald-500'}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'ADVANTAGE' ? '' : 'text-neutral-500 hover:text-emerald-500'}`}
                     >
                         Adv
                     </Button>
@@ -85,7 +85,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         size="sm"
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'DISADVANTAGE' ? 'shadow-lg shadow-red-900/20' : 'text-neutral-500 hover:text-red-500'}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'DISADVANTAGE' ? '' : 'text-neutral-500 hover:text-red-500'}`}
                     >
                         Dis
                     </Button>
@@ -99,7 +99,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                             disabled={rollingDie !== null}
                             onClick={() => rollDice(d)}
                             variant={getDiceVariant()}
-                            className="font-black text-xl h-16 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg"
+                            className="font-black text-xl h-16 w-full rounded-xl active:scale-[0.96] transition-transform"
                         >
                             {rollingDie === d ? 'Rolling...' : `d${d}`}
                         </Button>

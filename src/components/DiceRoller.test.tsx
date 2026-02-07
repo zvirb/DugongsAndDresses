@@ -96,15 +96,18 @@ describe('DiceRoller', () => {
     const d20Button = screen.getByText('d20')
     fireEvent.click(d20Button)
 
-    // Should show "Rolling..." immediately
-    expect(screen.getByText('Rolling...')).toBeInTheDocument()
+    // Should show "Rolling..." immediately (both in header and on button)
+    const rollingTexts = screen.getAllByText('Rolling...')
+    expect(rollingTexts.length).toBeGreaterThan(0)
 
     // All buttons should be disabled
     const d4Button = screen.getByText('d4')
     expect(d4Button).toBeDisabled()
 
     // The rolling button itself should be disabled
-    expect(screen.getByText('Rolling...')).toBeDisabled()
+    // Find the button among rolling texts
+    const rollingButton = rollingTexts.find(el => el.tagName === 'BUTTON')
+    expect(rollingButton).toBeDisabled()
 
     // Wait for roll to finish
     await waitFor(() => {
