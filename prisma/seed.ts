@@ -276,7 +276,7 @@ const characterTemplates: CharacterTemplate[] = [
     armorClass: 15,
     initiative: 5,
     initiativeRoll: 23,
-    speed: 40, // Fly speed implied
+    speed: 40,
     attributes: { str: 4, dex: 20, con: 10, int: 12, wis: 10, cha: 16 },
     activeTurn: false,
   },
@@ -339,8 +339,6 @@ async function main() {
 
   // Validate and Filter Characters
   const validCharacters = characterTemplates.filter((char) => {
-    // Assuming the script is run from the project root
-    // Adjust path if imageUrl starts with slash
     const relativePath = char.imageUrl.startsWith('/')
       ? `public${char.imageUrl}`
       : `public/${char.imageUrl}`
