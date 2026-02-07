@@ -1,6 +1,6 @@
 'use client';
 
-import { setNextTurn, updateInitiative } from "@/app/actions";
+import { advanceTurn, updateInitiative } from "@/app/actions";
 import { useTransition } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -17,20 +17,21 @@ type Participant = {
 export default function TurnTracker({ initialParticipants, campaignId }: { initialParticipants: Participant[], campaignId: string }) {
     const [isPending, startTransition] = useTransition();
 
-    // Sort by initiative desc
-    const sortedParticipants = [...initialParticipants].sort((a, b) => b.initiativeRoll - a.initiativeRoll);
+    // Sort by initiative desc, then ID asc (stable sort matching server)
+    const sortedParticipants = [...initialParticipants].sort((a, b) => {
+        if (b.initiativeRoll !== a.initiativeRoll) {
+            return b.initiativeRoll - a.initiativeRoll;
+        }
+        return a.id.localeCompare(b.id);
+    });
 
     const handleNextTurn = () => {
-        // Find current active index
-        const currentIndex = sortedParticipants.findIndex(p => p.activeTurn);
-        const nextIndex = (currentIndex + 1) % sortedParticipants.length;
-        const nextChar = sortedParticipants[nextIndex];
+        // Find current active participant ID for optimistic concurrency check
+        const currentActive = sortedParticipants.find(p => p.activeTurn);
 
-        if (nextChar) {
-            startTransition(async () => {
-                await setNextTurn(campaignId, nextChar.id);
-            });
-        }
+        startTransition(async () => {
+            await advanceTurn(campaignId, currentActive?.id);
+        });
     };
 
     const updateInit = (id: string, val: string) => {
