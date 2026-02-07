@@ -13,7 +13,7 @@ function secureRoll(sides: number): number {
     return (array[0] % sides) + 1;
 }
 
-export default function DiceRoller({ campaignId }: { campaignId: string }) {
+export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaignId: string, rollerName?: string }) {
     const [rollingDie, setRollingDie] = useState<number | null>(null);
     const [mode, setMode] = useState<RollMode>('NORMAL');
 
@@ -43,11 +43,11 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
             }
         }
 
-        const logMessage = `Rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
+        const logMessage = `**${rollerName}** rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
 
         await logAction(campaignId, logMessage, 'Roll');
         setRollingDie(null);
-    }, [mode, campaignId]);
+    }, [mode, campaignId, rollerName]);
 
     const getDiceVariant = () => {
         if (mode === 'ADVANTAGE') return 'success';

@@ -36,7 +36,7 @@ describe('DiceRoller', () => {
 
     const callArguments = vi.mocked(actions.logAction).mock.calls[0]
     expect(callArguments[0]).toBe(campaignId)
-    expect(callArguments[1]).toContain('Rolled 1d20')
+    expect(callArguments[1]).toContain('**DM** rolled 1d20')
     expect(callArguments[2]).toBe('Roll')
   })
 
@@ -58,7 +58,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining('Rolled 1d20 advantage'),
+        expect.stringContaining('**DM** rolled 1d20 advantage'),
         'Roll'
       )
     })
@@ -73,7 +73,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining('Rolled 1d20 disadvantage'),
+        expect.stringContaining('**DM** rolled 1d20 disadvantage'),
         'Roll'
       )
     })
