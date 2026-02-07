@@ -1,6 +1,7 @@
 import AutoRefresh from "@/components/AutoRefresh";
 import { CharacterWithState } from "@/types";
 import { getPublicCampaign } from "@/lib/queries";
+import { Badge } from "@/components/ui/Badge";
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,7 @@ export default async function PublicPage() {
             </header>
 
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {campaign.characters.map((char: CharacterWithState) => (
+                {campaign.characters.map((char) => (
                     <div
                         key={char.id}
                         className={`
@@ -53,7 +54,7 @@ export default async function PublicPage() {
                         {/* Active Turn Scanner Effect */}
                         {char.activeTurn && (
                             <div className="absolute inset-0 pointer-events-none">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-agent-blue shadow-[0_0_15px_#2b2bee] animate-[scan_3s_linear_infinite]" />
+                                <div className="absolute top-0 left-0 w-full h-1 bg-agent-blue shadow-[0_0_15px_#2b2bee] animate-scan" />
                                 <div className="absolute inset-0 border-2 border-agent-blue/50 rounded-2xl animate-pulse" />
                             </div>
                         )}
@@ -74,12 +75,12 @@ export default async function PublicPage() {
                                         LVL {char.level}
                                     </Badge>
                                     <div className="text-right">
-                                        <span className="block text-[10px] text-neutral-500 uppercase font-black tracking-widest">Defense</span>
+                                        <span className="block text-[10px] text-neutral-400 uppercase font-black tracking-widest">Defense</span>
                                         <span className={`text-3xl font-black ${char.activeTurn ? 'text-agent-blue' : 'text-white'}`}>{char.armorClass}</span>
                                     </div>
                                 </div>
                                 
-                                <h2 className={`text-4xl font-black italic tracking-tighter uppercase mb-1 leading-none ${char.activeTurn ? 'text-white' : 'text-neutral-400'}`}>
+                                <h2 className={`text-4xl font-black italic tracking-tighter uppercase mb-1 leading-none ${char.activeTurn ? 'text-white' : 'text-neutral-300'}`}>
                                     {char.name}
                                 </h2>
                                 <p className="text-agent-blue text-xs font-bold uppercase tracking-widest mb-6">
@@ -89,12 +90,12 @@ export default async function PublicPage() {
 
                             <div className="mt-8">
                                 <div className="flex justify-between items-end mb-2">
-                                    <span className="text-[10px] text-neutral-500 uppercase font-black tracking-[0.2em]">Vitality Status</span>
+                                    <span className="text-[10px] text-neutral-400 uppercase font-black tracking-[0.2em]">Vitality Status</span>
                                     <div className="text-right">
-                                        <span className={`text-4xl font-black italic tracking-tighter ${char.hp <= 0 ? 'text-red-500' : 'text-white'}`}>
+                                        <span className={`text-4xl font-black italic tracking-tighter ${char.hp <= 0 ? 'text-red-400' : 'text-white'}`}>
                                             {char.hp}
                                         </span>
-                                        <span className="text-sm text-neutral-600 font-bold ml-1">/ {char.maxHp}</span>
+                                        <span className="text-sm text-neutral-400 font-bold ml-1">/ {char.maxHp}</span>
                                     </div>
                                 </div>
                                 
@@ -102,7 +103,7 @@ export default async function PublicPage() {
                                 <div className="h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
                                     <div 
                                         className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                                            char.hp <= char.maxHp * 0.2 ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'bg-agent-blue'
+                                            char.hp <= char.maxHp * 0.2 ? 'bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.6)]' : 'bg-agent-blue'
                                         }`}
                                         style={{ width: `${Math.min(100, (char.hp / char.maxHp) * 100)}%` }}
                                     />
@@ -116,7 +117,7 @@ export default async function PublicPage() {
             {/* Current Turn Indicator (Bottom) */}
             <div className="fixed bottom-0 left-0 w-full bg-agent-navy/90 border-t-2 border-agent-blue/50 p-6 text-center backdrop-blur-xl z-30">
                 {(() => {
-                    const activeChar = campaign.characters.find((c: CharacterWithState) => c.activeTurn);
+                    const activeChar = campaign.characters.find((c) => c.activeTurn);
                     return activeChar ? (
                         <div className="flex items-center justify-center gap-8 overflow-hidden">
                             <div className="h-px bg-agent-blue/50 flex-1 hidden md:block" />
@@ -126,20 +127,12 @@ export default async function PublicPage() {
                             <div className="h-px bg-agent-blue/50 flex-1 hidden md:block" />
                         </div>
                     ) : (
-                        <h3 className="text-xl text-neutral-600 font-bold uppercase tracking-[0.5em] animate-pulse italic">
+                        <h3 className="text-xl text-neutral-400 font-bold uppercase tracking-[0.5em] animate-pulse italic">
                             Awaiting Initiative...
                         </h3>
                     );
                 })()}
             </div>
-
-            <style jsx global>{`
-                @keyframes scan {
-                    0% { transform: translateY(0); opacity: 0; }
-                    50% { opacity: 1; }
-                    100% { transform: translateY(400px); opacity: 0; }
-                }
-            `}</style>
         </div>
     );
 }

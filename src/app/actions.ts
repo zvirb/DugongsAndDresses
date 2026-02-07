@@ -121,8 +121,9 @@ export async function activateCampaign(campaignId: string): Promise<ActionResult
     return actionWrapper("activateCampaign", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
 
-        // Deactivate all
+        // Deactivate all active campaigns
         await prisma.campaign.updateMany({
+            where: { active: true },
             data: { active: false }
         });
 
