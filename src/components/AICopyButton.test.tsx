@@ -49,14 +49,14 @@ describe('AICopyButton', () => {
     const copiedText = vi.mocked(navigator.clipboard.writeText).mock.calls[0][0]
     
     expect(copiedText).toContain('== INITIATIVE ORDER ==')
-    expect(copiedText).toContain('-> Grom (Init: 10)')
-    expect(copiedText).toContain('   Goblin (Init: 5)')
+    expect(copiedText).toContain('▶ ACTIVE: Grom (Init: 10)')
+    expect(copiedText).toContain('  Goblin (Init: 5)')
     
     expect(copiedText).toContain('== CHARACTERS ==')
-    expect(copiedText).toContain('- Grom (PLAYER): 20/25 HP | AC 14 | Orc Barbarian Lvl 3 | [Healthy]')
-    expect(copiedText).toContain('- Goblin (NPC): 5/10 HP | AC 12 | Goblin Rogue Lvl 1 | [Healthy]')
+    expect(copiedText).toContain('- Grom [PLAYER] | HP: 20/25 | AC: 14 | Orc Barbarian (Lvl 3) | Status: Healthy')
+    expect(copiedText).toContain('- Goblin [NPC] | HP: 5/10 | AC: 12 | Goblin Rogue (Lvl 1) | Status: Healthy')
     
-    expect(copiedText).toContain('== RECENT LOGS ==')
+    expect(copiedText).toContain('== RECENT LOGS (Newest Last) ==')
     expect(copiedText).toContain('Goblin attacks Grom')
     expect(copiedText).toContain('Grom counterattacks')
   })
