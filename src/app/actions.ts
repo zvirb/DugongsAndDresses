@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
+import { stringifyAttributes } from "@/lib/safe-json";
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
@@ -20,13 +21,13 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
                         {
                             name: "Grom", type: "PLAYER", race: "Orc", class: "Barbarian",
                             hp: 25, maxHp: 25, armorClass: 14, initiative: 2,
-                            attributes: JSON.stringify({ str: 16, dex: 12 }),
+                            attributes: stringifyAttributes({ str: 16, dex: 12 }),
                             initiativeRoll: 0
                         },
                         {
                             name: "Elara", type: "PLAYER", race: "Elf", class: "Wizard",
                             hp: 12, maxHp: 12, armorClass: 11, initiative: 3,
-                            attributes: JSON.stringify({ int: 17, dex: 14 }),
+                            attributes: stringifyAttributes({ int: 17, dex: 14 }),
                             initiativeRoll: 0
                         }
                     ]
