@@ -81,26 +81,68 @@ export async function updateInitiative(characterId: string, roll: number): Promi
     });
 }
 
-export async function setNextTurn(campaignId: string, currentCharacterId: string): Promise<ActionResult> {
-    return actionWrapper("setNextTurn", async () => {
+export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
+    return actionWrapper("advanceTurn", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
-        if (!currentCharacterId) throw new Error("Character ID is required");
 
-        // 1. Unset current turn
-        await prisma.character.updateMany({
-            where: { campaignId, activeTurn: true },
-            data: { activeTurn: false }
+        // 1. Fetch all characters to determine order
+        const characters = await prisma.character.findMany({
+            where: { campaignId },
+            orderBy: [
+                { initiativeRoll: 'desc' },
+                { id: 'asc' } // Stable sort
+            ],
+            select: {
+                id: true,
+                activeTurn: true
+            }
         });
 
-        // 2. Set new turn
-        const character = await prisma.character.update({
-            where: { id: currentCharacterId },
-            data: { activeTurn: true }
-        });
+        if (characters.length === 0) {
+            throw new Error("No characters in campaign");
+        }
+
+        // 2. Find current active character
+        const currentIndex = characters.findIndex(c => c.activeTurn);
+
+        // 3. Concurrency Check: If expectedActiveId is provided, verify it matches DB
+        if (expectedActiveId && currentIndex !== -1) {
+            const currentActive = characters[currentIndex];
+            if (currentActive.id !== expectedActiveId) {
+                // State mismatch: Turn already advanced or changed.
+                // Return the actual active character (no-op)
+                const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
+                return actualActive;
+            }
+        }
+
+        // 4. Calculate Next Index (Looping)
+        let nextIndex = 0;
+        if (currentIndex !== -1) {
+            nextIndex = (currentIndex + 1) % characters.length;
+        }
+
+        const nextCharId = characters[nextIndex].id;
+
+        // 5. Update Database (Transaction for atomicity)
+        const [_, newActiveChar] = await prisma.$transaction([
+            // Unset current
+            prisma.character.updateMany({
+                where: { campaignId, activeTurn: true },
+                data: { activeTurn: false }
+            }),
+            // Set next
+            prisma.character.update({
+                where: { id: nextCharId },
+                data: { activeTurn: true }
+            })
+        ]);
 
         revalidatePath('/dm');
         revalidatePath('/public');
-        return character;
+        revalidatePath('/player');
+
+        return newActiveChar;
     });
 }
 
