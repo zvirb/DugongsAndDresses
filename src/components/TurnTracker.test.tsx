@@ -5,7 +5,7 @@ import * as actions from '@/app/actions'
 
 // Mock the server actions
 vi.mock('@/app/actions', () => ({
-  setNextTurn: vi.fn(),
+  advanceTurn: vi.fn(),
   updateInitiative: vi.fn(),
 }))
 
@@ -36,25 +36,22 @@ describe('TurnTracker', () => {
     expect(screen.getByText('Taking Turn...')).toBeInTheDocument()
     // Grom is the one with activeTurn: true in the mock data
     const gromSection = screen.getByText('Grom').closest('div')
-    // We can't easily check for classes without knowing exactly how cn() results look in jsdom,
-    // but we can check if the text "Taking Turn..." is near Grom.
     expect(screen.getByText('Grom').nextSibling?.textContent).toBe('Taking Turn...')
   })
 
-  it('calls setNextTurn when Next Turn is clicked', async () => {
+  it('calls advanceTurn with current active ID when Next Turn is clicked', async () => {
     render(<TurnTracker initialParticipants={participants} campaignId={campaignId} />)
     
     const nextTurnButton = screen.getByText('Next Turn')
     fireEvent.click(nextTurnButton)
 
-    // Current active is Grom (index 1 in sorted list [Elara, Grom, Goblin]).
-    // Next should be Goblin (index 2).
+    // Current active is Grom (id='1').
     await waitFor(() => {
-      expect(actions.setNextTurn).toHaveBeenCalledWith(campaignId, '3')
+      expect(actions.advanceTurn).toHaveBeenCalledWith(campaignId, '1')
     })
   })
 
-  it('loops back to the first participant when the last one finishes their turn', async () => {
+  it('calls advanceTurn with correct current active ID even for last participant', async () => {
     const lastActiveParticipants = [
         { id: '1', name: 'Grom', initiativeRoll: 10, type: 'PLAYER', activeTurn: false },
         { id: '2', name: 'Elara', initiativeRoll: 15, type: 'PLAYER', activeTurn: false },
@@ -64,10 +61,9 @@ describe('TurnTracker', () => {
     
     fireEvent.click(screen.getByText('Next Turn'))
 
-    // Current active is Goblin (index 2 in sorted list [Elara, Grom, Goblin]).
-    // Next should be Elara (index 0).
+    // Current active is Goblin (id='3').
     await waitFor(() => {
-      expect(actions.setNextTurn).toHaveBeenCalledWith(campaignId, '2')
+      expect(actions.advanceTurn).toHaveBeenCalledWith(campaignId, '3')
     })
   })
 
