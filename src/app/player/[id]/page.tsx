@@ -6,7 +6,6 @@ import PlayerActionForm from "@/components/PlayerActionForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
-import { LogEntry } from "@/types";
 
 export const dynamic = 'force-dynamic';
 
@@ -138,7 +137,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                         <CardContent className="p-0">
                             <div className="max-h-48 overflow-y-auto font-mono text-[10px] divide-y divide-white/5">
                                 {character.logs.length > 0 ? (
-                                    character.logs.map((log: LogEntry) => (
+                                    character.logs.map((log) => (
                                         <div key={log.id} className="p-3 flex gap-3">
                                             <span className="text-agent-blue shrink-0">[{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]</span>
                                             <span className="text-neutral-300">{log.content}</span>

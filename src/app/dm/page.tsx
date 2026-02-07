@@ -6,7 +6,7 @@ import AICopyButton from "@/components/AICopyButton";
 import HPControls from "@/components/HPControls";
 import CampaignSelector from "@/components/CampaignSelector";
 import AvatarSelector from "@/components/AvatarSelector";
-import { LogEntry, CharacterWithState } from "@/types";
+import { LogEntry } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -28,7 +28,10 @@ export default async function DMPage() {
                         <p className="text-neutral-400">No active campaign found. Start your adventure below.</p>
                     </CardHeader>
                     <CardContent>
-                        <form action={createCampaign} className="flex flex-col gap-4">
+                        <form action={async (formData) => {
+                            "use server"
+                            await createCampaign(formData)
+                        }} className="flex flex-col gap-4">
                             <Input
                                 type="text"
                                 name="name"
@@ -80,14 +83,14 @@ export default async function DMPage() {
                                 logs={campaign.logs}
                                 characters={campaign.characters}
                                 turnOrder={campaign.characters
-                                    .sort((a: CharacterWithState, b: CharacterWithState) => b.initiativeRoll - a.initiativeRoll)
-                                    .map((c: CharacterWithState) => ({ name: c.name, init: c.initiativeRoll, current: c.activeTurn }))
+                                    .sort((a, b) => b.initiativeRoll - a.initiativeRoll)
+                                    .map((c) => ({ name: c.name, init: c.initiativeRoll, current: c.activeTurn }))
                                 }
                             />
                         </CardHeader>
                         <CardContent className="flex-1 p-0 overflow-hidden relative">
                             <div className="absolute inset-0 p-4 overflow-y-auto space-y-2 font-mono text-sm text-neutral-300">
-                                {campaign.logs.map((log: LogEntry) => (
+                                {campaign.logs.map((log) => (
                                     <div key={log.id} className="border-b border-agent-blue/10 pb-1 last:border-0">
                                         <span className="text-neutral-500 text-xs">[{new Date(log.timestamp).toLocaleTimeString()}]</span> {log.content}
                                     </div>
@@ -118,7 +121,7 @@ export default async function DMPage() {
                             <CardTitle className="text-agent-blue">Characters</CardTitle>
                         </CardHeader>
                         <CardContent className="flex-1 p-4 overflow-y-auto space-y-4">
-                            {campaign.characters.map((char: CharacterWithState) => (
+                            {campaign.characters.map((char) => (
                                 <Card key={char.id} className="bg-agent-navy/50 border-agent-blue/20">
                                     <CardContent className="p-3">
                                         <div className="flex justify-between items-center mb-2">

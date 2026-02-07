@@ -1,6 +1,7 @@
 import AutoRefresh from "@/components/AutoRefresh";
-import { CharacterWithState } from "@/types";
+import ScanAnimationStyles from "@/components/ScanAnimationStyles";
 import { getPublicCampaign } from "@/lib/queries";
+import { Badge } from "@/components/ui/Badge";
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,7 @@ export default async function PublicPage() {
             </header>
 
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {campaign.characters.map((char: CharacterWithState) => (
+                {campaign.characters.map((char) => (
                     <div
                         key={char.id}
                         className={`
@@ -116,7 +117,7 @@ export default async function PublicPage() {
             {/* Current Turn Indicator (Bottom) */}
             <div className="fixed bottom-0 left-0 w-full bg-agent-navy/90 border-t-2 border-agent-blue/50 p-6 text-center backdrop-blur-xl z-30">
                 {(() => {
-                    const activeChar = campaign.characters.find((c: CharacterWithState) => c.activeTurn);
+                    const activeChar = campaign.characters.find((c) => c.activeTurn);
                     return activeChar ? (
                         <div className="flex items-center justify-center gap-8 overflow-hidden">
                             <div className="h-px bg-agent-blue/50 flex-1 hidden md:block" />
@@ -133,13 +134,7 @@ export default async function PublicPage() {
                 })()}
             </div>
 
-            <style jsx global>{`
-                @keyframes scan {
-                    0% { transform: translateY(0); opacity: 0; }
-                    50% { opacity: 1; }
-                    100% { transform: translateY(400px); opacity: 0; }
-                }
-            `}</style>
+            <ScanAnimationStyles />
         </div>
     );
 }
