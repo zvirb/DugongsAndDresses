@@ -7,7 +7,7 @@ import { Button } from './ui/Button';
 
 type RollMode = 'NORMAL' | 'ADVANTAGE' | 'DISADVANTAGE';
 
-export default function DiceRoller({ campaignId }: { campaignId: string }) {
+export default function DiceRoller({ campaignId, rollerName = 'DM' }: { campaignId: string, rollerName?: string }) {
     const [isRolling, setIsRolling] = useState(false);
     const [mode, setMode] = useState<RollMode>('NORMAL');
 
@@ -33,11 +33,11 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
             }
         }
 
-        const logMessage = `Rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
+        const logMessage = `**${rollerName}** rolls 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
 
         await logAction(campaignId, logMessage, 'Roll');
         setIsRolling(false);
-    }, [mode, campaignId]);
+    }, [mode, campaignId, rollerName]);
 
     const getDiceVariant = () => {
         if (mode === 'ADVANTAGE') return 'success';

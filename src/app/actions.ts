@@ -34,6 +34,9 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
             }
         });
 
+        // Log creation
+        await logAction(campaign.id, `Campaign **${campaign.name}** created.`, "Story");
+
         revalidatePath('/dm');
         revalidatePath('/public');
         return campaign;
@@ -61,6 +64,15 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             where: { id: characterId },
             data: { hp: { increment: delta } }
         });
+
+        if (delta !== 0) {
+            const verb = delta > 0 ? "recovers" : "takes";
+            const amount = Math.abs(delta);
+            const suffix = delta > 0 ? "HP" : "damage";
+            const content = `**${character.name}** ${verb} **${amount}** ${suffix}.`;
+            await logAction(character.campaignId, content, "Combat");
+        }
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -76,6 +88,10 @@ export async function updateInitiative(characterId: string, roll: number): Promi
             where: { id: characterId },
             data: { initiativeRoll: roll }
         });
+
+        const content = `**${character.name}** rolls **${roll}** for initiative.`;
+        await logAction(character.campaignId, content, "Combat");
+
         revalidatePath('/dm');
         return character;
     });
@@ -98,6 +114,9 @@ export async function setNextTurn(campaignId: string, currentCharacterId: string
             data: { activeTurn: true }
         });
 
+        const content = `Turn advances to **${character.name}**.`;
+        await logAction(campaignId, content, "Story");
+
         revalidatePath('/dm');
         revalidatePath('/public');
         return character;
@@ -119,6 +138,9 @@ export async function activateCampaign(campaignId: string): Promise<ActionResult
             data: { active: true }
         });
 
+        const content = `Campaign **${campaign.name}** activated.`;
+        await logAction(campaignId, content, "Story");
+
         revalidatePath('/dm');
         revalidatePath('/public');
         return campaign;
@@ -134,6 +156,10 @@ export async function updateCharacterImage(characterId: string, imageUrl: string
             where: { id: characterId },
             data: { imageUrl }
         });
+
+        const content = `**${character.name}** updates their appearance.`;
+        await logAction(character.campaignId, content, "Story");
+
         revalidatePath('/public');
         revalidatePath('/dm');
         return character;

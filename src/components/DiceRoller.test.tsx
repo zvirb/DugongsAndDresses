@@ -36,8 +36,24 @@ describe('DiceRoller', () => {
 
     const callArguments = vi.mocked(actions.logAction).mock.calls[0]
     expect(callArguments[0]).toBe(campaignId)
-    expect(callArguments[1]).toContain('Rolled 1d20')
+    // Default rollerName is 'DM'
+    expect(callArguments[1]).toContain('**DM** rolls 1d20')
     expect(callArguments[2]).toBe('Roll')
+  })
+
+  it('uses custom rollerName in log', async () => {
+    const rollerName = "Grom";
+    render(<DiceRoller campaignId={campaignId} rollerName={rollerName} />)
+    const d20Button = screen.getByText('d20')
+    fireEvent.click(d20Button)
+
+    await waitFor(() => {
+        expect(actions.logAction).toHaveBeenCalledWith(
+            campaignId,
+            expect.stringContaining(`**${rollerName}** rolls 1d20`),
+            'Roll'
+        )
+    })
   })
 
   it('switches modes correctly', () => {
@@ -58,7 +74,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining('Rolled 1d20 advantage'),
+        expect.stringContaining(' advantage'),
         'Roll'
       )
     })
@@ -73,7 +89,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining('Rolled 1d20 disadvantage'),
+        expect.stringContaining(' disadvantage'),
         'Roll'
       )
     })
