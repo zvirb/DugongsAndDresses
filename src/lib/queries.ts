@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "./prisma";
 
 /**
@@ -35,7 +36,11 @@ export async function getActiveCampaign() {
           imageUrl: true,
           level: true,
           class: true,
-          race: true
+          race: true,
+          attributes: true,
+          inventory: true,
+          speed: true,
+          initiative: true
         }
       },
       logs: {
@@ -73,7 +78,11 @@ export async function getActiveCampaign() {
           imageUrl: true,
           level: true,
           class: true,
-          race: true
+          race: true,
+          attributes: true,
+          inventory: true,
+          speed: true,
+          initiative: true
         }
       },
       logs: {
@@ -121,7 +130,7 @@ export async function getPublicCampaign() {
 /**
  * Fetches a single character by ID with recent logs for their campaign.
  */
-export async function getCharacterWithLogs(id: string) {
+export const getCharacterWithLogs = cache(async function getCharacterWithLogs(id: string) {
   const character = await prisma.character.findUnique({
     where: { id },
     select: {
@@ -138,7 +147,10 @@ export async function getCharacterWithLogs(id: string) {
       armorClass: true,
       campaignId: true,
       speed: true,
-      initiative: true
+      initiative: true,
+      attributes: true,
+      inventory: true,
+      conditions: true
     }
   });
 
@@ -156,4 +168,4 @@ export async function getCharacterWithLogs(id: string) {
   });
 
   return { ...character, logs };
-}
+});

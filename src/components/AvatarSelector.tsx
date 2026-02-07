@@ -49,9 +49,30 @@ const PRESETS = [
     '/avatars/wizard_male_1770266164795.png',
 ];
 
-export default function AvatarSelector({ characterId, currentUrl }: { characterId: string, currentUrl: string | null }) {
-    const [isOpen, setIsOpen] = useState(false);
+import * as Popover from '@radix-ui/react-popover';
+
+// ... (PRESETS array remains the same)
+
+export default function AvatarSelector({
+    characterId,
+    isOpen: controlledIsOpen,
+    onOpenChange
+}: {
+    characterId: string,
+    isOpen?: boolean,
+    onOpenChange?: (open: boolean) => void
+}) {
+    const [internalIsOpen, setInternalIsOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
+
+    const isOpen = controlledIsOpen ?? internalIsOpen;
+    const setIsOpen = (open: boolean) => {
+        if (onOpenChange) {
+            onOpenChange(open);
+        } else {
+            setInternalIsOpen(open);
+        }
+    };
 
     const handlePresetSelect = (url: string) => {
         startTransition(async () => {
@@ -75,17 +96,20 @@ export default function AvatarSelector({ characterId, currentUrl }: { characterI
     };
 
     return (
-        <div className="relative inline-block mt-2">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="text-xs bg-neutral-800 hover:bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-neutral-300 flex items-center gap-2"
-                disabled={isPending}
-            >
-                {isPending ? 'Updating...' : 'Change Avatar'}
-            </button>
-
-            {isOpen && (
-                <div className="absolute top-full left-0 z-50 mt-2 w-64 bg-neutral-800 border-2 border-neutral-600 rounded-lg shadow-xl p-4">
+        <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+            <Popover.Trigger asChild>
+                <button
+                    className="mt-2 text-xs bg-neutral-800 hover:bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-neutral-300 flex items-center gap-2"
+                    disabled={isPending}
+                >
+                    {isPending ? 'Updating...' : 'Change Avatar'}
+                </button>
+            </Popover.Trigger>
+            <Popover.Portal>
+                <Popover.Content
+                    className="z-50 w-64 bg-neutral-800 border-2 border-neutral-600 rounded-lg shadow-xl p-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+                    sideOffset={5}
+                >
                     <h4 className="text-sm font-bold text-white mb-2">Choose Avatar</h4>
 
                     {/* Presets */}
@@ -113,14 +137,17 @@ export default function AvatarSelector({ characterId, currentUrl }: { characterI
                         />
                     </div>
 
-                    <button
-                        onClick={() => setIsOpen(false)}
-                        className="mt-3 w-full text-xs text-center text-neutral-500 hover:text-neutral-300"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            )}
-        </div>
+                    <Popover.Close asChild>
+                        <button
+                            className="mt-3 w-full text-xs text-center text-neutral-500 hover:text-neutral-300"
+                            aria-label="Close"
+                        >
+                            Cancel
+                        </button>
+                    </Popover.Close>
+                    <Popover.Arrow className="fill-neutral-600" />
+                </Popover.Content>
+            </Popover.Portal>
+        </Popover.Root>
     );
 }

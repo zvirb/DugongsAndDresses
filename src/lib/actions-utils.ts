@@ -1,7 +1,7 @@
 /**
  * Standard response format for all server actions.
  */
-export type ActionResult<T = any> = {
+export type ActionResult<T = unknown> = {
   success: boolean;
   data?: T;
   error?: string;

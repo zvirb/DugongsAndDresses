@@ -5,6 +5,20 @@ import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
 import { stringifyAttributes } from "@/lib/safe-json";
 
+export interface CharacterInput {
+    name: string;
+    type: string;
+    race?: string;
+    class?: string;
+    level?: number;
+    hp: number;
+    maxHp: number;
+    armorClass: number;
+    speed?: number;
+    initiative?: number;
+    attributes?: Record<string, number>;
+}
+
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
         const name = formData.get("name") as string;
@@ -12,30 +26,34 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
             throw new Error("Campaign name is required");
         }
 
+        const charactersJson = formData.get("characters") as string;
+        const characters: CharacterInput[] = charactersJson ? JSON.parse(charactersJson) : [];
+
         const campaign = await prisma.campaign.create({
             data: {
                 name: name.trim(),
                 active: true,
-                characters: {
-                    create: [
-                        {
-                            name: "Grom", type: "PLAYER", race: "Orc", class: "Barbarian",
-                            hp: 25, maxHp: 25, armorClass: 14, initiative: 2,
-                            attributes: stringifyAttributes({ str: 16, dex: 12 }),
-                            initiativeRoll: 0
-                        },
-                        {
-                            name: "Elara", type: "PLAYER", race: "Elf", class: "Wizard",
-                            hp: 12, maxHp: 12, armorClass: 11, initiative: 3,
-                            attributes: stringifyAttributes({ int: 17, dex: 14 }),
-                            initiativeRoll: 0
-                        }
-                    ]
-                }
+                ...(characters.length > 0 ? {
+                    characters: {
+                        create: characters.map(c => ({
+                            name: c.name,
+                            type: c.type || "PLAYER",
+                            race: c.race || null,
+                            class: c.class || null,
+                            level: c.level || 1,
+                            hp: c.hp,
+                            maxHp: c.maxHp,
+                            armorClass: c.armorClass,
+                            speed: c.speed || 30,
+                            initiative: c.initiative || 0,
+                            attributes: c.attributes ? stringifyAttributes(c.attributes) : "{}",
+                            initiativeRoll: 0,
+                        }))
+                    }
+                } : {})
             }
         });
 
-        // Log creation
         await logAction(campaign.id, `Campaign **${campaign.name}** created.`, "Story");
 
         revalidatePath('/dm');
@@ -102,12 +120,11 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
     return actionWrapper("advanceTurn", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
 
-        // 1. Fetch all characters to determine order
         const characters = await prisma.character.findMany({
             where: { campaignId },
             orderBy: [
                 { initiativeRoll: 'desc' },
-                { id: 'asc' } // Stable sort
+                { id: 'asc' }
             ],
             select: {
                 id: true,
@@ -119,21 +136,16 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             throw new Error("No characters in campaign");
         }
 
-        // 2. Find current active character
         const currentIndex = characters.findIndex(c => c.activeTurn);
 
-        // 3. Concurrency Check: If expectedActiveId is provided, verify it matches DB
         if (expectedActiveId && currentIndex !== -1) {
             const currentActive = characters[currentIndex];
             if (currentActive.id !== expectedActiveId) {
-                // State mismatch: Turn already advanced or changed.
-                // Return the actual active character (no-op)
                 const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
                 return actualActive;
             }
         }
 
-        // 4. Calculate Next Index (Looping)
         let nextIndex = 0;
         if (currentIndex !== -1) {
             nextIndex = (currentIndex + 1) % characters.length;
@@ -141,64 +153,30 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
 
         const nextCharId = characters[nextIndex].id;
 
-        // 5. Update Database (Transaction for atomicity)
-        const [_, newActiveChar] = await prisma.$transaction([
-            // Unset current
+        const [, newActiveChar] = await prisma.$transaction([
             prisma.character.updateMany({
                 where: { campaignId, activeTurn: true },
                 data: { activeTurn: false }
             }),
-            // Set next
             prisma.character.update({
                 where: { id: nextCharId },
                 data: { activeTurn: true }
             })
         ]);
 
-        const character = await prisma.character.findUnique({ where: { id: nextCharId } });
-
-        if (character) {
-            // await logAction(campaignId, `It is now **${character.name}**'s turn.`, "Combat");
-            // The logAction call was commented out or missing in HEAD/Main comparison locally, but present in HEAD snippet as:
-            // await logAction(campaignId, `It is now **${character.name}**'s turn.`, "Combat");
-            // Wait, looking at the view_file content:
-            /*
-            171:         await logAction(campaignId, `It is now **${character.name}**'s turn.`, "Combat");
-            172: 
-            173:         const content = `Turn advances to **${character.name}**.`;
-            174:         await logAction(campaignId, content, "Story");
-            */
-            // It seems logical to keep the Story log.
-            // PR #15 "Enhanced Action Logging" probably standardized this. I will assume the HEAD content for the whole file.
-
-            // In the provided file content, lines 171-174 were NOT in conflict markers.
-            // So I will just write back the file content using HEAD blocks where conflict existed.
-            // The view_file output showed NO conflict markers around advanceTurn.
-            // The main conflicts were in updateHP and updateInitiative.
-
-            // Re-reading actions.ts view_file output:
-            // Lines 69-84: Conflict in updateHP.
-            // Lines 102-107: Conflict in updateInitiative.
-            // Lines 171-174: No conflict markers.
-        }
-
-        // I will use the function exactly as in the view_file but resolving conflicts with HEAD.
         return newActiveChar;
     });
 }
-// I'll rewrite the whole file content to be safe, resolving only the marked conflicts.
 
 export async function activateCampaign(campaignId: string): Promise<ActionResult> {
     return actionWrapper("activateCampaign", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
 
-        // Deactivate all active campaigns
         await prisma.campaign.updateMany({
             where: { active: true },
             data: { active: false }
         });
 
-        // Activate target
         const campaign = await prisma.campaign.update({
             where: { id: campaignId },
             data: { active: true }
@@ -245,7 +223,6 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult> {
             throw new Error("File and Character ID are required");
         }
 
-        // Basic validation
         const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         if (!validTypes.includes(file.type)) {
             throw new Error("Invalid file type. Only JPEG, PNG, WEBP, and GIF are allowed.");
@@ -259,11 +236,9 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult> {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Ensure directory exists
         const uploadDir = join(process.cwd(), 'public/avatars');
         await mkdir(uploadDir, { recursive: true });
 
-        // Safe filename
         const filename = `${characterId}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
         const path = join(uploadDir, filename);
 
@@ -273,5 +248,172 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult> {
         await updateCharacterImage(characterId, imageUrl);
 
         return { imageUrl };
+    });
+}
+
+// --- Character Management ---
+
+export async function createCharacter(formData: FormData): Promise<ActionResult> {
+    return actionWrapper("createCharacter", async () => {
+        const campaignId = formData.get("campaignId") as string;
+        const name = formData.get("name") as string;
+        if (!campaignId || !name) throw new Error("Campaign ID and name are required");
+
+        const character = await prisma.character.create({
+            data: {
+                campaignId,
+                name: name.trim(),
+                type: (formData.get("type") as string) || "PLAYER",
+                race: (formData.get("race") as string) || null,
+                class: (formData.get("class") as string) || null,
+                level: parseInt(formData.get("level") as string) || 1,
+                hp: parseInt(formData.get("hp") as string) || 10,
+                maxHp: parseInt(formData.get("maxHp") as string) || 10,
+                armorClass: parseInt(formData.get("armorClass") as string) || 10,
+                speed: parseInt(formData.get("speed") as string) || 30,
+                initiative: parseInt(formData.get("initiative") as string) || 0,
+                attributes: stringifyAttributes({
+                    str: parseInt(formData.get("str") as string) || 10,
+                    dex: parseInt(formData.get("dex") as string) || 10,
+                    con: parseInt(formData.get("con") as string) || 10,
+                    int: parseInt(formData.get("int") as string) || 10,
+                    wis: parseInt(formData.get("wis") as string) || 10,
+                    cha: parseInt(formData.get("cha") as string) || 10,
+                }),
+                initiativeRoll: 0,
+            }
+        });
+
+        await logAction(campaignId, `**${character.name}** joins the adventure.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        revalidatePath('/player');
+        return character;
+    });
+}
+
+export async function updateCharacter(characterId: string, formData: FormData): Promise<ActionResult> {
+    return actionWrapper("updateCharacter", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const nameVal = formData.get("name") as string;
+        const typeVal = formData.get("type") as string;
+        const raceVal = formData.get("race") as string;
+        const classVal = formData.get("class") as string;
+
+        const character = await prisma.character.update({
+            where: { id: characterId },
+            data: {
+                name: nameVal || undefined,
+                type: typeVal || undefined,
+                race: raceVal !== null ? (raceVal.trim() || null) : undefined,
+                class: classVal !== null ? (classVal.trim() || null) : undefined,
+                level: formData.get("level") ? parseInt(formData.get("level") as string) : undefined,
+                hp: formData.get("hp") ? parseInt(formData.get("hp") as string) : undefined,
+                maxHp: formData.get("maxHp") ? parseInt(formData.get("maxHp") as string) : undefined,
+                armorClass: formData.get("armorClass") ? parseInt(formData.get("armorClass") as string) : undefined,
+                speed: formData.get("speed") ? parseInt(formData.get("speed") as string) : undefined,
+                initiative: formData.get("initiative") ? parseInt(formData.get("initiative") as string) : undefined,
+                attributes: formData.get("str") ? stringifyAttributes({
+                    str: parseInt(formData.get("str") as string) || 10,
+                    dex: parseInt(formData.get("dex") as string) || 10,
+                    con: parseInt(formData.get("con") as string) || 10,
+                    int: parseInt(formData.get("int") as string) || 10,
+                    wis: parseInt(formData.get("wis") as string) || 10,
+                    cha: parseInt(formData.get("cha") as string) || 10,
+                }) : undefined,
+            }
+        });
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        revalidatePath('/player');
+        return character;
+    });
+}
+
+export async function deleteCharacter(characterId: string): Promise<ActionResult> {
+    return actionWrapper("deleteCharacter", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.delete({
+            where: { id: characterId }
+        });
+
+        await logAction(character.campaignId, `**${character.name}** has been removed.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        revalidatePath('/player');
+        return character;
+    });
+}
+
+// --- Conditions Management ---
+
+export async function updateConditions(characterId: string, conditions: string[]): Promise<ActionResult> {
+    return actionWrapper("updateConditions", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.update({
+            where: { id: characterId },
+            data: { conditions: JSON.stringify(conditions) }
+        });
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        revalidatePath('/player');
+        return character;
+    });
+}
+
+// --- Inventory Management ---
+
+export async function addInventoryItem(characterId: string, item: string): Promise<ActionResult> {
+    return actionWrapper("addInventoryItem", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+        if (!item || !item.trim()) throw new Error("Item name is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const inventory: string[] = JSON.parse(character.inventory || "[]");
+        inventory.push(item.trim());
+
+        const updated = await prisma.character.update({
+            where: { id: characterId },
+            data: { inventory: JSON.stringify(inventory) }
+        });
+
+        await logAction(character.campaignId, `**${character.name}** receives **${item.trim()}**.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        return updated;
+    });
+}
+
+export async function removeInventoryItem(characterId: string, item: string): Promise<ActionResult> {
+    return actionWrapper("removeInventoryItem", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const inventory: string[] = JSON.parse(character.inventory || "[]");
+        const idx = inventory.indexOf(item);
+        if (idx !== -1) inventory.splice(idx, 1);
+
+        const updated = await prisma.character.update({
+            where: { id: characterId },
+            data: { inventory: JSON.stringify(inventory) }
+        });
+
+        await logAction(character.campaignId, `**${character.name}** loses **${item}**.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        return updated;
     });
 }

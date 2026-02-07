@@ -57,12 +57,17 @@ export const CampaignService = {
   },
 
   /**
-   * Creates a new campaign with default player characters.
+   * Creates a new campaign, optionally with characters.
    * @param name The name of the new campaign.
+   * @param characters Optional array of character data to create with the campaign.
    * @returns The created campaign.
    * @throws Error if name is empty.
    */
-  async create(name: string) {
+  async create(name: string, characters?: Array<{
+    name: string; type: string; race?: string; class?: string; level?: number;
+    hp: number; maxHp: number; armorClass: number; speed?: number; initiative?: number;
+    attributes?: string;
+  }>) {
     if (!name || name.trim().length === 0) {
       throw new Error("Campaign name is required");
     }
@@ -71,22 +76,24 @@ export const CampaignService = {
       data: {
         name: name.trim(),
         active: true,
-        characters: {
-          create: [
-            {
-              name: "Grom", type: "PLAYER", race: "Orc", class: "Barbarian",
-              hp: 25, maxHp: 25, armorClass: 14, initiative: 2,
-              attributes: JSON.stringify({ str: 16, dex: 12 }),
-              initiativeRoll: 0
-            },
-            {
-              name: "Elara", type: "PLAYER", race: "Elf", class: "Wizard",
-              hp: 12, maxHp: 12, armorClass: 11, initiative: 3,
-              attributes: JSON.stringify({ int: 17, dex: 14 }),
-              initiativeRoll: 0
-            }
-          ]
-        }
+        ...(characters && characters.length > 0 ? {
+          characters: {
+            create: characters.map(c => ({
+              name: c.name,
+              type: c.type || "PLAYER",
+              race: c.race || null,
+              class: c.class || null,
+              level: c.level || 1,
+              hp: c.hp,
+              maxHp: c.maxHp,
+              armorClass: c.armorClass,
+              speed: c.speed || 30,
+              initiative: c.initiative || 0,
+              attributes: c.attributes || "{}",
+              initiativeRoll: 0,
+            }))
+          }
+        } : {})
       }
     });
   },

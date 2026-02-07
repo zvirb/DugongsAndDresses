@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { prisma } from './prisma';
 
 describe('Database Standardization', () => {
@@ -74,7 +74,7 @@ describe('Database Standardization', () => {
         const character = await prisma.character.findFirst({
             where: { campaignId: campaign.id }
         });
-        
+
         expect(character?.attributes).toBe('{}');
         expect(character?.conditions).toBe('[]');
     });

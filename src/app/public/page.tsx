@@ -29,7 +29,7 @@ export default async function PublicPage() {
                         CAMPAIGN <span className="text-agent-blue">VITALIS</span>
                     </h1>
                     <p className="text-agent-blue font-bold tracking-[0.4em] uppercase text-xl mt-2">
-                        {campaign.name} // Active Encounter Data
+                        {campaign.name} {"//"} Active Encounter Data
                     </p>
                 </div>
                 <div className="text-right">
@@ -83,7 +83,7 @@ export default async function PublicPage() {
                                     {char.name}
                                 </h2>
                                 <p className="text-agent-blue text-2xl font-bold uppercase tracking-widest mb-6">
-                                    {char.race} // {char.class}
+                                    {char.race} {"//"} {char.class}
                                 </p>
                             </div>
 
@@ -131,6 +131,6 @@ export default async function PublicPage() {
                     );
                 })()}
             </div>
-        </div>
+        </div >
     );
 }

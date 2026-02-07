@@ -23,7 +23,7 @@ describe('TurnTracker', () => {
 
   it('renders all participants sorted by initiative', () => {
     render(<TurnTracker initialParticipants={participants} campaignId={campaignId} />)
-    
+
     const names = screen.getAllByText(/Grom|Elara|Goblin/).map(el => el.textContent)
     // Should be Elara (15), Grom (10), Goblin (5)
     expect(names[0]).toBe('Elara')
@@ -35,13 +35,12 @@ describe('TurnTracker', () => {
     render(<TurnTracker initialParticipants={participants} campaignId={campaignId} />)
     expect(screen.getByText('Taking Turn...')).toBeInTheDocument()
     // Grom is the one with activeTurn: true in the mock data
-    const gromSection = screen.getByText('Grom').closest('div')
     expect(screen.getByText('Grom').nextSibling?.textContent).toBe('Taking Turn...')
   })
 
   it('calls advanceTurn with current active ID when Next Turn is clicked', async () => {
     render(<TurnTracker initialParticipants={participants} campaignId={campaignId} />)
-    
+
     const nextTurnButton = screen.getByText('Next Turn')
     fireEvent.click(nextTurnButton)
 
@@ -53,12 +52,12 @@ describe('TurnTracker', () => {
 
   it('calls advanceTurn with correct current active ID even for last participant', async () => {
     const lastActiveParticipants = [
-        { id: '1', name: 'Grom', initiativeRoll: 10, type: 'PLAYER', activeTurn: false },
-        { id: '2', name: 'Elara', initiativeRoll: 15, type: 'PLAYER', activeTurn: false },
-        { id: '3', name: 'Goblin', initiativeRoll: 5, type: 'NPC', activeTurn: true },
+      { id: '1', name: 'Grom', initiativeRoll: 10, type: 'PLAYER', activeTurn: false },
+      { id: '2', name: 'Elara', initiativeRoll: 15, type: 'PLAYER', activeTurn: false },
+      { id: '3', name: 'Goblin', initiativeRoll: 5, type: 'NPC', activeTurn: true },
     ]
     render(<TurnTracker initialParticipants={lastActiveParticipants} campaignId={campaignId} />)
-    
+
     fireEvent.click(screen.getByText('Next Turn'))
 
     // Current active is Goblin (id='3').
@@ -69,7 +68,7 @@ describe('TurnTracker', () => {
 
   it('calls updateInitiative on blur', async () => {
     render(<TurnTracker initialParticipants={participants} campaignId={campaignId} />)
-    
+
     const inputs = screen.getAllByRole('spinbutton')
     fireEvent.change(inputs[0], { target: { value: '20' } })
     fireEvent.blur(inputs[0])

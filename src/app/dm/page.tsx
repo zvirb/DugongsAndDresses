@@ -1,16 +1,13 @@
 import Link from "next/link";
-import { createCampaign } from "../actions";
 import DiceRoller from "@/components/DiceRoller";
 import TurnTracker from "@/components/TurnTracker";
 import AICopyButton from "@/components/AICopyButton";
-import HPControls from "@/components/HPControls";
+import CharacterManager from "@/components/CharacterManager";
 import CampaignSelector from "@/components/CampaignSelector";
-import AvatarSelector from "@/components/AvatarSelector";
-import { LogEntry } from "@/types";
+import CampaignWizard from "@/components/CampaignWizard";
+import QuickActions from "@/components/QuickActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button, buttonVariants } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
+import { buttonVariants } from "@/components/ui/Button";
 import { getCampaigns, getActiveCampaign } from "@/lib/queries";
 
 export const dynamic = 'force-dynamic';
@@ -19,36 +16,11 @@ export default async function DMPage() {
     const campaignList = await getCampaigns();
     const campaign = await getActiveCampaign();
 
-
     if (!campaign) {
-        return (
-            <div className="p-10 text-center flex flex-col items-center justify-center min-h-screen bg-agent-navy text-white">
-                <Card variant="agent" className="max-w-md w-full">
-                    <CardHeader>
-                        <CardTitle className="text-3xl font-bold text-agent-blue mb-2">Welcome, Dungeon Master</CardTitle>
-                        <p className="text-neutral-400">No active campaign found. Start your adventure below.</p>
-                    </CardHeader>
-                    <CardContent>
-                        <form action={async (formData) => {
-                            "use server"
-                            await createCampaign(formData)
-                        }} className="flex flex-col gap-4">
-                            <Input
-                                type="text"
-                                name="name"
-                                placeholder="Campaign Name (e.g. The Lost Mine)"
-                                defaultValue="New Adventure"
-                                className="bg-neutral-900 border-neutral-600"
-                            />
-                            <Button type="submit" size="lg" className="w-full">
-                                Begin Campaign
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
-        );
+        return <CampaignWizard />;
     }
+
+    const characterNames = campaign.characters.map(c => c.name);
 
     return (
         <div className="min-h-screen bg-agent-navy text-neutral-100 p-4 font-sans">
@@ -100,57 +72,17 @@ export default async function DMPage() {
                         </CardContent>
                     </Card>
 
-                    <Card variant="agent">
-                        <CardHeader className="py-2 px-4">
-                            <CardTitle className="text-sm text-neutral-400">Quick Actions</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                            <div className="grid grid-cols-4 gap-2">
-                                <Button variant="destructive" size="sm" className="w-full">Attack</Button>
-                                <Button variant="secondary" size="sm" className="w-full text-blue-300 border-blue-900/50 hover:bg-blue-900/30">Skill Check</Button>
-                                <Button variant="secondary" size="sm" className="w-full text-purple-300 border-purple-900/50 hover:bg-purple-900/30">Cast Spell</Button>
-                                <Button variant="ghost" size="sm" className="w-full border border-neutral-600">Log Note</Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <QuickActions campaignId={campaign.id} characterNames={characterNames} />
                 </div>
 
-                {/* Right Column: Stat Blocks */}
+                {/* Right Column: Characters */}
                 <div className="col-span-3 h-full">
                     <Card variant="agent" className="h-full flex flex-col overflow-hidden">
                         <CardHeader className="py-3 px-4 border-b border-agent-blue/20">
                             <CardTitle className="text-agent-blue">Characters</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex-1 p-4 overflow-y-auto space-y-4">
-                            {campaign.characters.map((char) => (
-                                <Card key={char.id} className="bg-agent-navy/50 border-agent-blue/20">
-                                    <CardContent className="p-3">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="font-bold text-white">{char.name}</span>
-                                            <Badge variant={char.type === 'NPC' ? 'npc' : 'player'}>{char.type}</Badge>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2 text-sm text-neutral-300">
-                                            <div>
-                                                <div className="flex justify-between items-center">
-                                                    <span>HP</span>
-                                                    <span className="text-white font-mono">{char.hp}/{char.maxHp}</span>
-                                                </div>
-                                                <HPControls characterId={char.id} currentHp={char.hp} />
-                                            </div>
-                                            <div>
-                                                <div className="flex justify-between">
-                                                    <span>AC</span>
-                                                    <span className="text-white font-bold">{char.armorClass}</span>
-                                                </div>
-                                                <AvatarSelector characterId={char.id} currentUrl={char.imageUrl} />
-                                                <div className="text-xs text-neutral-400 mt-1 truncate">
-                                                    {char.conditions !== '[]' ? char.conditions : 'Normal'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                        <CardContent className="flex-1 p-4 overflow-y-auto">
+                            <CharacterManager characters={campaign.characters} campaignId={campaign.id} />
                         </CardContent>
                     </Card>
                 </div>

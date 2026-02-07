@@ -60,7 +60,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             <CardHeader className="p-4 flex flex-col gap-4 space-y-0">
                 <div className="flex justify-between items-center">
                     <CardTitle className="text-sm font-black text-neutral-500 uppercase tracking-[0.2em]">Dice Tray</CardTitle>
-                    {rollingDie !== null && <span className="text-xs text-agent-blue animate-pulse">Rolling...</span>}
+                    {rollingDie !== null && <span className="text-xs text-agent-blue animate-pulse">Rolling d{rollingDie}...</span>}
                 </div>
 
                 {/* Mode Toggles - Full width touch targets */}

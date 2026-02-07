@@ -10,7 +10,7 @@ describe('safe-json', () => {
 
     it('returns empty object for invalid JSON', () => {
       // Suppress console.error for this test
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
       expect(parseAttributes('{ invalid }')).toEqual({});
       consoleSpy.mockRestore();
     });
@@ -27,9 +27,9 @@ describe('safe-json', () => {
     });
 
     it('returns empty object for empty input', () => {
-        expect(parseAttributes(null)).toEqual({});
-        expect(parseAttributes(undefined)).toEqual({});
-        expect(parseAttributes("")).toEqual({});
+      expect(parseAttributes(null)).toEqual({});
+      expect(parseAttributes(undefined)).toEqual({});
+      expect(parseAttributes("")).toEqual({});
     });
   });
 
@@ -40,7 +40,7 @@ describe('safe-json', () => {
     });
 
     it('returns empty array for invalid JSON', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
       expect(parseConditions('{ invalid }')).toEqual([]);
       consoleSpy.mockRestore();
     });
@@ -53,16 +53,16 @@ describe('safe-json', () => {
   });
 
   describe('stringifyAttributes', () => {
-      it('stringifies valid attributes', () => {
-          const input = { str: 10, dex: 15 };
-          expect(stringifyAttributes(input)).toBe(JSON.stringify(input));
-      });
+    it('stringifies valid attributes', () => {
+      const input = { str: 10, dex: 15 };
+      expect(stringifyAttributes(input)).toBe(JSON.stringify(input));
+    });
 
-      it('handles invalid input by returning {}', () => {
-         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-         // @ts-ignore - intentional type violation
-         expect(stringifyAttributes({ str: "invalid" })).toBe("{}");
-         consoleSpy.mockRestore();
-      });
+    it('handles invalid input by returning {}', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+      // @ts-expect-error - intentional type violation
+      expect(stringifyAttributes({ str: "invalid" })).toBe("{}");
+      consoleSpy.mockRestore();
+    });
   });
 });

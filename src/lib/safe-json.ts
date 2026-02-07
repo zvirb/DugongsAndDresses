@@ -97,6 +97,23 @@ export function parseParticipants(json: string | null | undefined): Participants
 }
 
 /**
+ * Safely parses a JSON string into an inventory (string array).
+ * Returns an empty array if parsing fails.
+ */
+export function parseInventory(json: string | null | undefined): string[] {
+  if (!json) return [];
+  try {
+    const parsed = JSON.parse(json);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(item => typeof item === 'string');
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Safely stringifies Attributes.
  * Validates against schema before stringifying.
  */
