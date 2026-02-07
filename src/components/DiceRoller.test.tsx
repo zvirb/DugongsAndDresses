@@ -36,8 +36,22 @@ describe('DiceRoller', () => {
 
     const callArguments = vi.mocked(actions.logAction).mock.calls[0]
     expect(callArguments[0]).toBe(campaignId)
-    expect(callArguments[1]).toContain('Rolled 1d20')
+    expect(callArguments[1]).toContain('DM rolled 1d20')
     expect(callArguments[2]).toBe('Roll')
+  })
+
+  it('uses provided rollerName', async () => {
+    const rollerName = "Grom"
+    render(<DiceRoller campaignId={campaignId} rollerName={rollerName} />)
+    const d20Button = screen.getByText('d20')
+    fireEvent.click(d20Button)
+
+    await waitFor(() => {
+      expect(actions.logAction).toHaveBeenCalled()
+    })
+
+    const callArguments = vi.mocked(actions.logAction).mock.calls[0]
+    expect(callArguments[1]).toContain('Grom rolled 1d20')
   })
 
   it('switches modes correctly', () => {
@@ -45,8 +59,6 @@ describe('DiceRoller', () => {
     
     const advButton = screen.getByText('Adv')
     fireEvent.click(advButton)
-    // Check if the button has some active state - in this case it changes variant
-    // We can't easily check the variant via text, but we can check if it's called with the correct mode
   })
 
   it('logs with Advantage when Adv mode is selected', async () => {
@@ -58,7 +70,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining('Rolled 1d20 advantage'),
+        expect.stringContaining('rolled 1d20 advantage'),
         'Roll'
       )
     })
@@ -73,7 +85,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining('Rolled 1d20 disadvantage'),
+        expect.stringContaining('rolled 1d20 disadvantage'),
         'Roll'
       )
     })

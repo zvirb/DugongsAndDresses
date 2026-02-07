@@ -7,7 +7,7 @@ import { Button } from './ui/Button';
 
 type RollMode = 'NORMAL' | 'ADVANTAGE' | 'DISADVANTAGE';
 
-export default function DiceRoller({ campaignId }: { campaignId: string }) {
+export default function DiceRoller({ campaignId, rollerName = 'DM' }: { campaignId: string, rollerName?: string }) {
     const [isRolling, setIsRolling] = useState(false);
     const [mode, setMode] = useState<RollMode>('NORMAL');
 
@@ -33,11 +33,11 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
             }
         }
 
-        const logMessage = `Rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
+        const logMessage = `${rollerName} rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
 
         await logAction(campaignId, logMessage, 'Roll');
         setIsRolling(false);
-    }, [mode, campaignId]);
+    }, [mode, campaignId, rollerName]);
 
     const getDiceVariant = () => {
         if (mode === 'ADVANTAGE') return 'success';
@@ -46,15 +46,20 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
     };
 
     return (
-        <Card className="border-neutral-700 bg-neutral-800">
-            <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-sm font-bold text-neutral-400 uppercase tracking-wider">Dice Tray</CardTitle>
-                <div className="flex bg-neutral-900 rounded p-1 gap-1">
+        <Card className="border-white/5 bg-black/40">
+            <CardHeader className="p-4 flex flex-col gap-4 space-y-0">
+                <div className="flex justify-between items-center">
+                    <CardTitle className="text-sm font-black text-neutral-500 uppercase tracking-[0.2em]">Dice Tray</CardTitle>
+                    {isRolling && <span className="text-xs text-agent-blue animate-pulse">Rolling...</span>}
+                </div>
+
+                {/* Mode Toggles - Full width touch targets */}
+                <div className="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded-xl">
                     <Button
                         size="sm"
                         variant={mode === 'NORMAL' ? 'secondary' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`h-7 px-2 text-xs ${mode === 'NORMAL' ? 'bg-neutral-600 text-white' : ''}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'NORMAL' ? 'bg-neutral-700 text-white shadow-lg' : 'text-neutral-500'}`}
                     >
                         Normal
                     </Button>
@@ -62,7 +67,7 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
                         size="sm"
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
-                        className={`h-7 px-2 text-xs ${mode === 'ADVANTAGE' ? '' : 'hover:text-green-500'}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'ADVANTAGE' ? 'shadow-lg shadow-emerald-900/20' : 'text-neutral-500 hover:text-emerald-500'}`}
                     >
                         Adv
                     </Button>
@@ -70,21 +75,21 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
                         size="sm"
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
-                        className={`h-7 px-2 text-xs ${mode === 'DISADVANTAGE' ? '' : 'hover:text-red-500'}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'DISADVANTAGE' ? 'shadow-lg shadow-red-900/20' : 'text-neutral-500 hover:text-red-500'}`}
                     >
                         Dis
                     </Button>
                 </div>
             </CardHeader>
-            <CardContent className="p-4 pt-2">
-                <div className="grid grid-cols-3 gap-2">
+            <CardContent className="p-4 pt-0">
+                <div className="grid grid-cols-3 gap-3">
                     {[4, 6, 8, 10, 12, 20].map(d => (
                         <Button
                             key={d}
                             disabled={isRolling}
                             onClick={() => rollDice(d)}
                             variant={getDiceVariant()}
-                            className="font-bold w-full"
+                            className="font-black text-xl h-16 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg"
                         >
                             d{d}
                         </Button>

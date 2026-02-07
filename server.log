@@ -1,0 +1,18 @@
+
+> temp-app@0.1.0 dev
+> next dev -p 3001
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.2:3001
+
+✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✓ Ready in 1098ms
+○ Compiling /player/[id] ...
+ GET /player/dd69e1d2-40de-4825-a6af-ea9436da4482 200 in 7.5s (compile: 6.5s, render: 970ms)
+ GET /avatars/fighter_male.png 404 in 1357ms (compile: 1131ms, render: 226ms)
