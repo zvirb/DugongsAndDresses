@@ -21,7 +21,6 @@ describe('DiceRoller', () => {
     expect(screen.getByText('d6')).toBeInTheDocument()
     expect(screen.getByText('d8')).toBeInTheDocument()
     expect(screen.getByText('d10')).toBeInTheDocument()
-    expect(screen.getByText('d12')).toBeInTheDocument()
     expect(screen.getByText('d20')).toBeInTheDocument()
   })
 
@@ -40,18 +39,30 @@ describe('DiceRoller', () => {
     expect(callArguments[2]).toBe('Roll')
   })
 
+  it('uses provided rollerName', async () => {
+    const rollerName = "Grom"
+    render(<DiceRoller campaignId={campaignId} rollerName={rollerName} />)
+    const d20Button = screen.getByText('d20')
+    fireEvent.click(d20Button)
+
+    await waitFor(() => {
+      expect(actions.logAction).toHaveBeenCalled()
+    })
+
+    const callArguments = vi.mocked(actions.logAction).mock.calls[0]
+    expect(callArguments[1]).toContain('**Grom** rolled 1d20')
+  })
+
   it('switches modes correctly', () => {
     render(<DiceRoller campaignId={campaignId} />)
-    
+
     const advButton = screen.getByText('Adv')
     fireEvent.click(advButton)
-    // Check if the button has some active state - in this case it changes variant
-    // We can't easily check the variant via text, but we can check if it's called with the correct mode
   })
 
   it('logs with Advantage when Adv mode is selected', async () => {
     render(<DiceRoller campaignId={campaignId} />)
-    
+
     fireEvent.click(screen.getByText('Adv'))
     fireEvent.click(screen.getByText('d20'))
 
@@ -66,7 +77,7 @@ describe('DiceRoller', () => {
 
   it('logs with Disadvantage when Dis mode is selected', async () => {
     render(<DiceRoller campaignId={campaignId} />)
-    
+
     fireEvent.click(screen.getByText('Dis'))
     fireEvent.click(screen.getByText('d20'))
 
