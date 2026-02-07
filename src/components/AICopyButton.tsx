@@ -32,17 +32,28 @@ export default function AICopyButton({ logs, characters, turnOrder }: {
 
     const generateContext = () => {
         const charSummary = characters.map(c => {
-            const conditionText = c.conditions === '[]' ? 'Healthy' : c.conditions;
+            let conditionText = c.conditions;
+            try {
+                const parsed = JSON.parse(c.conditions);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    conditionText = parsed.join(', ');
+                } else {
+                     conditionText = 'Healthy';
+                }
+            } catch (e) {
+                 conditionText = c.conditions === '[]' ? 'Healthy' : c.conditions;
+            }
+
             const details = [
-                `AC ${c.armorClass}`,
-                `${c.race || 'Unknown'} ${c.class || 'Unknown'} Lvl ${c.level}`
+                `AC: ${c.armorClass}`,
+                `${c.race || '?'} ${c.class || '?'} (Lvl ${c.level})`
             ].join(' | ');
 
-            return `- ${c.name} (${c.type}): ${c.hp}/${c.maxHp} HP | ${details} | [${conditionText}]`;
+            return `- ${c.name} [${c.type}] | HP: ${c.hp}/${c.maxHp} | ${details} | Status: ${conditionText}`;
         }).join('\n');
 
         const turnSummary = turnOrder.map(t =>
-            `${t.current ? '-> ' : '   '}${t.name} (Init: ${t.init})`
+            `${t.current ? '▶ ACTIVE: ' : '  '}${t.name} (Init: ${t.init})`
         ).join('\n');
 
         const logSummary = logs.slice(0, 5).map(l =>
@@ -57,11 +68,11 @@ ${turnSummary}
 == CHARACTERS ==
 ${charSummary}
 
-== RECENT LOGS ==
+== RECENT LOGS (Newest Last) ==
 ${logSummary}
 
 == INSTRUCTIONS ==
-Given the above context, suggest the next narrative beat or DM response.`;
+Based on the current state, suggest a brief narrative description of the scene or the next DM prompt. Keep it concise.`;
     };
 
     const handleCopy = async () => {
