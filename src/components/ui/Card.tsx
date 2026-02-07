@@ -9,9 +9,9 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, variant = 'defa
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border shadow",
-      variant === 'default' && "border-neutral-700 bg-neutral-800 text-neutral-100",
-      variant === 'agent' && "border-agent-blue/30 bg-agent-navy text-white shadow-[0_0_20px_rgba(43,43,238,0.15)]",
+      "rounded-lg border shadow-sm transition-all duration-300",
+      variant === 'default' && "border-neutral-700/50 bg-neutral-900/60 backdrop-blur-md text-neutral-100",
+      variant === 'agent' && "border-agent-blue/50 bg-agent-navy/90 backdrop-blur-xl text-white shadow-[0_0_20px_rgba(43,43,238,0.2)]",
       className
     )}
     {...props}
@@ -31,7 +31,7 @@ CardHeader.displayName = "CardHeader";
 const CardTitle = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLHeadingElement>>(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
+    className={cn("font-semibold leading-none tracking-tight font-sans", className)}
     {...props}
   />
 ));
