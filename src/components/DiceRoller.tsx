@@ -7,10 +7,6 @@ import { Button } from './ui/Button';
 
 type RollMode = 'NORMAL' | 'ADVANTAGE' | 'DISADVANTAGE';
 
-<<<<<<< HEAD
-export default function DiceRoller({ campaignId, rollerName = 'DM' }: { campaignId: string, rollerName?: string }) {
-    const [isRolling, setIsRolling] = useState(false);
-=======
 function secureRoll(sides: number): number {
     const array = new Uint32Array(1);
     window.crypto.getRandomValues(array);
@@ -19,7 +15,6 @@ function secureRoll(sides: number): number {
 
 export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaignId: string, rollerName?: string }) {
     const [rollingDie, setRollingDie] = useState<number | null>(null);
->>>>>>> main
     const [mode, setMode] = useState<RollMode>('NORMAL');
 
     const rollDice = useCallback(async (sides: number) => {
@@ -48,17 +43,10 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             }
         }
 
-<<<<<<< HEAD
-        const logMessage = `${rollerName} rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
-
-        await logAction(campaignId, logMessage, 'Roll');
-        setIsRolling(false);
-=======
-        const logMessage = `**${rollerName}** rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
+        const logMessage = `**${rollerName}** rolls 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
 
         await logAction(campaignId, logMessage, 'Roll');
         setRollingDie(null);
->>>>>>> main
     }, [mode, campaignId, rollerName]);
 
     const getDiceVariant = () => {
@@ -72,7 +60,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             <CardHeader className="p-4 flex flex-col gap-4 space-y-0">
                 <div className="flex justify-between items-center">
                     <CardTitle className="text-sm font-black text-neutral-500 uppercase tracking-[0.2em]">Dice Tray</CardTitle>
-                    {isRolling && <span className="text-xs text-agent-blue animate-pulse">Rolling...</span>}
+                    {rollingDie !== null && <span className="text-xs text-agent-blue animate-pulse">Rolling...</span>}
                 </div>
 
                 {/* Mode Toggles - Full width touch targets */}

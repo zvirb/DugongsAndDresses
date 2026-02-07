@@ -14,8 +14,10 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
         e.preventDefault();
         if (!intent) return;
 
-        const content = `**${characterName}** attempts: ${intent}${roll ? ` (Roll: **${roll}**)` : ""}`;
-        
+        const content = roll
+            ? `**${characterName}** attempts: **${intent}**. Result: **${roll}**`
+            : `**${characterName}** attempts: **${intent}**`;
+
         startTransition(async () => {
             await logAction(campaignId, content, "PlayerAction");
             setIntent("");
@@ -35,7 +37,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                     className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-14 text-lg rounded-xl"
                 />
             </div>
-            
+
             <div className="flex flex-col gap-4">
                 <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
