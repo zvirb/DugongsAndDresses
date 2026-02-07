@@ -61,6 +61,14 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             where: { id: characterId },
             data: { hp: { increment: delta } }
         });
+
+        const absDelta = Math.abs(delta);
+        const content = delta > 0
+            ? `**${character.name}** heals **${absDelta}** HP.`
+            : `**${character.name}** takes **${absDelta}** damage.`;
+
+        await logAction(character.campaignId, content, "Combat");
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -76,6 +84,9 @@ export async function updateInitiative(characterId: string, roll: number): Promi
             where: { id: characterId },
             data: { initiativeRoll: roll }
         });
+
+        await logAction(character.campaignId, `**${character.name}** rolls initiative: **${roll}**.`, "Combat");
+
         revalidatePath('/dm');
         return character;
     });
@@ -138,6 +149,8 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             })
         ]);
 
+        await logAction(campaignId, `It is now **${character.name}**'s turn.`, "Combat");
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -150,8 +163,9 @@ export async function activateCampaign(campaignId: string): Promise<ActionResult
     return actionWrapper("activateCampaign", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
 
-        // Deactivate all
+        // Deactivate all active campaigns
         await prisma.campaign.updateMany({
+            where: { active: true },
             data: { active: false }
         });
 

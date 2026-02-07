@@ -7,23 +7,33 @@ import { Button } from './ui/Button';
 
 type RollMode = 'NORMAL' | 'ADVANTAGE' | 'DISADVANTAGE';
 
-export default function DiceRoller({ campaignId }: { campaignId: string }) {
-    const [isRolling, setIsRolling] = useState(false);
+function secureRoll(sides: number): number {
+    const array = new Uint32Array(1);
+    window.crypto.getRandomValues(array);
+    return (array[0] % sides) + 1;
+}
+
+export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaignId: string, rollerName?: string }) {
+    const [rollingDie, setRollingDie] = useState<number | null>(null);
     const [mode, setMode] = useState<RollMode>('NORMAL');
 
     const rollDice = useCallback(async (sides: number) => {
-        setIsRolling(true);
+        setRollingDie(sides);
+
+        // Add visual delay for click confidence
+        await new Promise(resolve => setTimeout(resolve, 600));
+
         let result = 0;
         let details = '';
 
         // Base roll
-        const roll1 = Math.floor(Math.random() * sides) + 1;
+        const roll1 = secureRoll(sides);
 
         if (mode === 'NORMAL') {
             result = roll1;
             details = `[${roll1}]`;
         } else {
-            const roll2 = Math.floor(Math.random() * sides) + 1;
+            const roll2 = secureRoll(sides);
             if (mode === 'ADVANTAGE') {
                 result = Math.max(roll1, roll2);
                 details = `(Adv: [${roll1}, ${roll2}])`;
@@ -33,11 +43,11 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
             }
         }
 
-        const logMessage = `Rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
+        const logMessage = `**${rollerName}** rolled 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
 
         await logAction(campaignId, logMessage, 'Roll');
-        setIsRolling(false);
-    }, [mode, campaignId]);
+        setRollingDie(null);
+    }, [mode, campaignId, rollerName]);
 
     const getDiceVariant = () => {
         if (mode === 'ADVANTAGE') return 'success';
@@ -81,12 +91,12 @@ export default function DiceRoller({ campaignId }: { campaignId: string }) {
                     {[4, 6, 8, 10, 12, 20].map(d => (
                         <Button
                             key={d}
-                            disabled={isRolling}
+                            disabled={rollingDie !== null}
                             onClick={() => rollDice(d)}
                             variant={getDiceVariant()}
                             className="font-bold w-full"
                         >
-                            d{d}
+                            {rollingDie === d ? 'Rolling...' : `d${d}`}
                         </Button>
                     ))}
                 </div>
