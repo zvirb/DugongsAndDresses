@@ -19,6 +19,7 @@ export default async function DMPage() {
     const campaignList = await getCampaigns();
     const campaign = await getActiveCampaign();
 
+
     if (!campaign) {
         return (
             <div className="p-10 text-center flex flex-col items-center justify-center min-h-screen bg-agent-navy text-white">

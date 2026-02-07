@@ -32,7 +32,10 @@ export async function getActiveCampaign() {
           type: true,
           conditions: true,
           armorClass: true,
-          imageUrl: true
+          imageUrl: true,
+          level: true,
+          class: true,
+          race: true
         }
       },
       logs: {
@@ -41,7 +44,8 @@ export async function getActiveCampaign() {
         select: {
           id: true,
           timestamp: true,
-          content: true
+          content: true,
+          type: true
         }
       }
     }
@@ -66,7 +70,10 @@ export async function getActiveCampaign() {
           type: true,
           conditions: true,
           armorClass: true,
-          imageUrl: true
+          imageUrl: true,
+          level: true,
+          class: true,
+          race: true
         }
       },
       logs: {
@@ -75,7 +82,8 @@ export async function getActiveCampaign() {
         select: {
           id: true,
           timestamp: true,
-          content: true
+          content: true,
+          type: true
         }
       }
     }
