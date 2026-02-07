@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/Badge";
 import AutoRefresh from "@/components/AutoRefresh";
-import { CharacterWithState } from "@/types";
 import { getPublicCampaign } from "@/lib/queries";
 
 export const dynamic = 'force-dynamic';
@@ -23,7 +22,7 @@ export default async function PublicPage() {
             </div>
 
             <AutoRefresh />
-            
+
             <header className="relative z-10 flex justify-between items-end mb-12 border-b-2 border-agent-blue/30 pb-4">
                 <div>
                     <h1 className="text-6xl font-black italic tracking-tighter text-white uppercase leading-none">
@@ -41,7 +40,7 @@ export default async function PublicPage() {
             </header>
 
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {campaign.characters.map((char: CharacterWithState) => (
+                {campaign.characters.map((char) => (
                     <div
                         key={char.id}
                         className={`
@@ -79,7 +78,7 @@ export default async function PublicPage() {
                                         <span className={`text-5xl font-black ${char.activeTurn ? 'text-agent-blue' : 'text-white'}`}>{char.armorClass}</span>
                                     </div>
                                 </div>
-                                
+
                                 <h2 className={`text-5xl font-black italic tracking-tighter uppercase mb-1 leading-none ${char.activeTurn ? 'text-white' : 'text-neutral-400'}`}>
                                     {char.name}
                                 </h2>
@@ -98,13 +97,12 @@ export default async function PublicPage() {
                                         <span className="text-2xl text-neutral-600 font-bold ml-1">/ {char.maxHp}</span>
                                     </div>
                                 </div>
-                                
+
                                 {/* Health Bar */}
                                 <div className="h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
-                                    <div 
-                                        className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                                            char.hp <= char.maxHp * 0.2 ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'bg-agent-blue'
-                                        }`}
+                                    <div
+                                        className={`h-full rounded-full transition-all duration-1000 ease-out ${char.hp <= char.maxHp * 0.2 ? 'bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.6)]' : 'bg-agent-blue'
+                                            }`}
                                         style={{ width: `${Math.min(100, (char.hp / char.maxHp) * 100)}%` }}
                                     />
                                 </div>
@@ -117,7 +115,7 @@ export default async function PublicPage() {
             {/* Current Turn Indicator (Bottom) */}
             <div className="fixed bottom-0 left-0 w-full bg-agent-navy/90 border-t-2 border-agent-blue/50 p-6 text-center backdrop-blur-xl z-30">
                 {(() => {
-                    const activeChar = campaign.characters.find((c: CharacterWithState) => c.activeTurn);
+                    const activeChar = campaign.characters.find((c) => c.activeTurn);
                     return activeChar ? (
                         <div className="flex items-center justify-center gap-8 overflow-hidden">
                             <div className="h-px bg-agent-blue/50 flex-1 hidden md:block" />

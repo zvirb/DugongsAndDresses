@@ -4,12 +4,18 @@ import AICopyButton from './AICopyButton'
 
 describe('AICopyButton', () => {
   const logs = [
-    { id: '1', content: 'Goblin attacks Grom', timestamp: new Date('2026-02-05T10:00:00') },
-    { id: '2', content: 'Grom counterattacks', timestamp: new Date('2026-02-05T10:01:00') },
+    { id: '1', content: 'Goblin attacks Grom', timestamp: new Date('2026-02-05T10:00:00'), type: 'Combat' },
+    { id: '2', content: 'Grom counterattacks', timestamp: new Date('2026-02-05T10:01:00'), type: 'Combat' },
   ]
   const characters = [
-    { id: '1', name: 'Grom', hp: 20, maxHp: 25, type: 'PLAYER', conditions: '[]' },
-    { id: '2', name: 'Goblin', hp: 5, maxHp: 10, type: 'NPC', conditions: '[]' },
+    {
+        id: '1', name: 'Grom', hp: 20, maxHp: 25, type: 'PLAYER', conditions: '[]',
+        armorClass: 14, level: 3, class: 'Barbarian', race: 'Orc'
+    },
+    {
+        id: '2', name: 'Goblin', hp: 5, maxHp: 10, type: 'NPC', conditions: '[]',
+        armorClass: 12, level: 1, class: 'Rogue', race: 'Goblin'
+    },
   ]
   const turnOrder = [
     { name: 'Grom', init: 10, current: true },
@@ -47,8 +53,8 @@ describe('AICopyButton', () => {
     expect(copiedText).toContain('   Goblin (Init: 5)')
     
     expect(copiedText).toContain('== CHARACTERS ==')
-    expect(copiedText).toContain('- Grom (PLAYER): 20/25 HP [Healthy]')
-    expect(copiedText).toContain('- Goblin (NPC): 5/10 HP [Healthy]')
+    expect(copiedText).toContain('- Grom (PLAYER): 20/25 HP | AC 14 | Orc Barbarian Lvl 3 | [Healthy]')
+    expect(copiedText).toContain('- Goblin (NPC): 5/10 HP | AC 12 | Goblin Rogue Lvl 1 | [Healthy]')
     
     expect(copiedText).toContain('== RECENT LOGS ==')
     expect(copiedText).toContain('Goblin attacks Grom')
