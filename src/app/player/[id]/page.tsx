@@ -6,7 +6,6 @@ import PlayerActionForm from "@/components/PlayerActionForm";
 import DiceRoller from "@/components/DiceRoller";
 import { Card, CardContent } from "@/components/ui/Card";
 import Link from "next/link";
-import { LogEntry } from "@/types";
 
 export const dynamic = 'force-dynamic';
 

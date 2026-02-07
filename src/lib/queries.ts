@@ -15,25 +15,25 @@ export async function getCampaigns() {
  * If no campaign is explicitly active, it defaults to the most recent one.
  */
 export async function getActiveCampaign() {
-  // Try to find an explicitly active campaign first
-  let campaign = await prisma.campaign.findFirst({
+  const activeCampaign = await prisma.campaign.findFirst({
     where: { active: true },
     select: {
       id: true,
+      name: true,
       characters: {
+        orderBy: { name: 'asc' },
         select: {
           id: true,
           name: true,
-          type: true,
+          initiativeRoll: true,
+          activeTurn: true,
           hp: true,
           maxHp: true,
-          armorClass: true,
-          imageUrl: true,
+          type: true,
           conditions: true,
-          initiativeRoll: true,
-          activeTurn: true
-        },
-        orderBy: { name: 'asc' }
+          armorClass: true,
+          imageUrl: true
+        }
       },
       logs: {
         take: 20,
@@ -47,41 +47,39 @@ export async function getActiveCampaign() {
     }
   });
 
-  // Fallback to the most recent campaign if none are active
-  if (!campaign) {
-    campaign = await prisma.campaign.findFirst({
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        characters: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            hp: true,
-            maxHp: true,
-            armorClass: true,
-            imageUrl: true,
-            conditions: true,
-            initiativeRoll: true,
-            activeTurn: true
-          },
-          orderBy: { name: 'asc' }
-        },
-        logs: {
-          take: 20,
-          orderBy: { timestamp: 'desc' },
-          select: {
-            id: true,
-            timestamp: true,
-            content: true
-          }
+  if (activeCampaign) return activeCampaign;
+
+  return prisma.campaign.findFirst({
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      characters: {
+        orderBy: { name: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          initiativeRoll: true,
+          activeTurn: true,
+          hp: true,
+          maxHp: true,
+          type: true,
+          conditions: true,
+          armorClass: true,
+          imageUrl: true
+        }
+      },
+      logs: {
+        take: 20,
+        orderBy: { timestamp: 'desc' },
+        select: {
+          id: true,
+          timestamp: true,
+          content: true
         }
       }
-    });
-  }
-
-  return campaign;
+    }
+  });
 }
 
 /**
@@ -121,14 +119,14 @@ export async function getCharacterWithLogs(id: string) {
     select: {
       id: true,
       type: true,
+      hp: true,
+      maxHp: true,
       name: true,
       race: true,
       class: true,
       level: true,
       activeTurn: true,
       imageUrl: true,
-      hp: true,
-      maxHp: true,
       armorClass: true,
       campaignId: true,
       speed: true,
@@ -144,8 +142,8 @@ export async function getCharacterWithLogs(id: string) {
     orderBy: { timestamp: 'desc' },
     select: {
       id: true,
-      timestamp: true,
-      content: true
+      content: true,
+      timestamp: true
     }
   });
 

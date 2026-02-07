@@ -6,7 +6,7 @@ import AICopyButton from "@/components/AICopyButton";
 import HPControls from "@/components/HPControls";
 import CampaignSelector from "@/components/CampaignSelector";
 import AvatarSelector from "@/components/AvatarSelector";
-import { LogEntry, CharacterWithState } from "@/types";
+import { LogEntry } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -28,7 +28,10 @@ export default async function DMPage() {
                         <p className="text-neutral-400">No active campaign found. Start your adventure below.</p>
                     </CardHeader>
                     <CardContent>
-                        <form action={createCampaign} className="flex flex-col gap-4">
+                        <form action={async (formData) => {
+                            "use server"
+                            await createCampaign(formData)
+                        }} className="flex flex-col gap-4">
                             <Input
                                 type="text"
                                 name="name"
