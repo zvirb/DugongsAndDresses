@@ -14,7 +14,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
         e.preventDefault();
         if (!intent) return;
 
-        const content = `${characterName} attempts: ${intent}${roll ? ` (Roll: ${roll})` : ""}`;
+        const content = `**${characterName}** attempts: ${intent}${roll ? ` (Roll: **${roll}**)` : ""}`;
         
         startTransition(async () => {
             await logAction(campaignId, content, "PlayerAction");
@@ -24,40 +24,38 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Declare Intent</label>
+                <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Declare Intent</label>
                 <Input
                     placeholder="I swing my axe..."
                     value={intent}
                     onChange={(e) => setIntent(e.target.value)}
                     disabled={isPending}
-                    className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-12 text-sm"
+                    className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-14 text-lg rounded-xl"
                 />
             </div>
             
-            <div className="flex gap-4">
-                <div className="flex-1 space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
+            <div className="flex flex-col gap-4">
+                <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
                     <Input
                         type="number"
                         placeholder="Dice Roll"
                         value={roll}
                         onChange={(e) => setRoll(e.target.value)}
                         disabled={isPending}
-                        className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-12 text-sm"
+                        className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-14 text-lg rounded-xl"
                     />
                 </div>
-                <div className="flex items-end">
-                    <Button 
-                        type="submit" 
-                        variant="agent" 
-                        disabled={isPending || !intent}
-                        className="h-12 px-6 rounded-xl uppercase text-xs font-black tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.2)]"
-                    >
-                        {isPending ? "Transmitting..." : "Execute"}
-                    </Button>
-                </div>
+                <Button
+                    type="submit"
+                    variant="agent"
+                    disabled={isPending || !intent}
+                    className="h-16 w-full rounded-xl uppercase text-lg font-black tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.2)] active:scale-[0.98] transition-transform"
+                >
+                    {isPending ? "Transmitting..." : "Execute"}
+                </Button>
             </div>
         </form>
     );

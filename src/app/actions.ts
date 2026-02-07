@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
+import { stringifyAttributes } from "@/lib/safe-json";
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
@@ -20,13 +21,13 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
                         {
                             name: "Grom", type: "PLAYER", race: "Orc", class: "Barbarian",
                             hp: 25, maxHp: 25, armorClass: 14, initiative: 2,
-                            attributes: JSON.stringify({ str: 16, dex: 12 }),
+                            attributes: stringifyAttributes({ str: 16, dex: 12 }),
                             initiativeRoll: 0
                         },
                         {
                             name: "Elara", type: "PLAYER", race: "Elf", class: "Wizard",
                             hp: 12, maxHp: 12, armorClass: 11, initiative: 3,
-                            attributes: JSON.stringify({ int: 17, dex: 14 }),
+                            attributes: stringifyAttributes({ int: 17, dex: 14 }),
                             initiativeRoll: 0
                         }
                     ]
@@ -61,6 +62,14 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             where: { id: characterId },
             data: { hp: { increment: delta } }
         });
+
+        const absDelta = Math.abs(delta);
+        const content = delta > 0
+            ? `**${character.name}** heals **${absDelta}** HP.`
+            : `**${character.name}** takes **${absDelta}** damage.`;
+
+        await logAction(character.campaignId, content, "Combat");
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -76,31 +85,78 @@ export async function updateInitiative(characterId: string, roll: number): Promi
             where: { id: characterId },
             data: { initiativeRoll: roll }
         });
+
+        await logAction(character.campaignId, `**${character.name}** rolls initiative: **${roll}**.`, "Combat");
+
         revalidatePath('/dm');
         return character;
     });
 }
 
-export async function setNextTurn(campaignId: string, currentCharacterId: string): Promise<ActionResult> {
-    return actionWrapper("setNextTurn", async () => {
+export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
+    return actionWrapper("advanceTurn", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
-        if (!currentCharacterId) throw new Error("Character ID is required");
 
-        // 1. Unset current turn
-        await prisma.character.updateMany({
-            where: { campaignId, activeTurn: true },
-            data: { activeTurn: false }
+        // 1. Fetch all characters to determine order
+        const characters = await prisma.character.findMany({
+            where: { campaignId },
+            orderBy: [
+                { initiativeRoll: 'desc' },
+                { id: 'asc' } // Stable sort
+            ],
+            select: {
+                id: true,
+                activeTurn: true
+            }
         });
 
-        // 2. Set new turn
-        const character = await prisma.character.update({
-            where: { id: currentCharacterId },
-            data: { activeTurn: true }
-        });
+        if (characters.length === 0) {
+            throw new Error("No characters in campaign");
+        }
+
+        // 2. Find current active character
+        const currentIndex = characters.findIndex(c => c.activeTurn);
+
+        // 3. Concurrency Check: If expectedActiveId is provided, verify it matches DB
+        if (expectedActiveId && currentIndex !== -1) {
+            const currentActive = characters[currentIndex];
+            if (currentActive.id !== expectedActiveId) {
+                // State mismatch: Turn already advanced or changed.
+                // Return the actual active character (no-op)
+                const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
+                return actualActive;
+            }
+        }
+
+        // 4. Calculate Next Index (Looping)
+        let nextIndex = 0;
+        if (currentIndex !== -1) {
+            nextIndex = (currentIndex + 1) % characters.length;
+        }
+
+        const nextCharId = characters[nextIndex].id;
+
+        // 5. Update Database (Transaction for atomicity)
+        const [_, newActiveChar] = await prisma.$transaction([
+            // Unset current
+            prisma.character.updateMany({
+                where: { campaignId, activeTurn: true },
+                data: { activeTurn: false }
+            }),
+            // Set next
+            prisma.character.update({
+                where: { id: nextCharId },
+                data: { activeTurn: true }
+            })
+        ]);
+
+        await logAction(campaignId, `It is now **${character.name}**'s turn.`, "Combat");
 
         revalidatePath('/dm');
         revalidatePath('/public');
-        return character;
+        revalidatePath('/player');
+
+        return newActiveChar;
     });
 }
 
@@ -108,8 +164,9 @@ export async function activateCampaign(campaignId: string): Promise<ActionResult
     return actionWrapper("activateCampaign", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
 
-        // Deactivate all
+        // Deactivate all active campaigns
         await prisma.campaign.updateMany({
+            where: { active: true },
             data: { active: false }
         });
 
