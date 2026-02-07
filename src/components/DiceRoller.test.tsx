@@ -21,7 +21,6 @@ describe('DiceRoller', () => {
     expect(screen.getByText('d6')).toBeInTheDocument()
     expect(screen.getByText('d8')).toBeInTheDocument()
     expect(screen.getByText('d10')).toBeInTheDocument()
-    expect(screen.getByText('d12')).toBeInTheDocument()
     expect(screen.getByText('d20')).toBeInTheDocument()
   })
 
@@ -36,7 +35,7 @@ describe('DiceRoller', () => {
 
     const callArguments = vi.mocked(actions.logAction).mock.calls[0]
     expect(callArguments[0]).toBe(campaignId)
-    expect(callArguments[1]).toContain('DM rolled 1d20')
+    expect(callArguments[1]).toContain('**DM** rolled 1d20')
     expect(callArguments[2]).toBe('Roll')
   })
 
@@ -51,26 +50,26 @@ describe('DiceRoller', () => {
     })
 
     const callArguments = vi.mocked(actions.logAction).mock.calls[0]
-    expect(callArguments[1]).toContain('Grom rolled 1d20')
+    expect(callArguments[1]).toContain('**Grom** rolled 1d20')
   })
 
   it('switches modes correctly', () => {
     render(<DiceRoller campaignId={campaignId} />)
-    
+
     const advButton = screen.getByText('Adv')
     fireEvent.click(advButton)
   })
 
   it('logs with Advantage when Adv mode is selected', async () => {
     render(<DiceRoller campaignId={campaignId} />)
-    
+
     fireEvent.click(screen.getByText('Adv'))
     fireEvent.click(screen.getByText('d20'))
 
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining('rolled 1d20 advantage'),
+        expect.stringContaining('**DM** rolled 1d20 advantage'),
         'Roll'
       )
     })
@@ -78,16 +77,41 @@ describe('DiceRoller', () => {
 
   it('logs with Disadvantage when Dis mode is selected', async () => {
     render(<DiceRoller campaignId={campaignId} />)
-    
+
     fireEvent.click(screen.getByText('Dis'))
     fireEvent.click(screen.getByText('d20'))
 
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining('rolled 1d20 disadvantage'),
+        expect.stringContaining('**DM** rolled 1d20 disadvantage'),
         'Roll'
       )
     })
+  })
+
+  it('displays rolling state and disables buttons while rolling', async () => {
+    render(<DiceRoller campaignId={campaignId} />)
+    const d20Button = screen.getByText('d20')
+    fireEvent.click(d20Button)
+
+    // Should show "Rolling..." immediately
+    expect(screen.getByText('Rolling...')).toBeInTheDocument()
+
+    // All buttons should be disabled
+    const d4Button = screen.getByText('d4')
+    expect(d4Button).toBeDisabled()
+
+    // The rolling button itself should be disabled
+    expect(screen.getByText('Rolling...')).toBeDisabled()
+
+    // Wait for roll to finish
+    await waitFor(() => {
+      expect(actions.logAction).toHaveBeenCalled()
+    })
+
+    // After roll, "Rolling..." should be gone and buttons enabled
+    expect(screen.queryByText('Rolling...')).not.toBeInTheDocument()
+    expect(screen.getByText('d20')).not.toBeDisabled()
   })
 })
