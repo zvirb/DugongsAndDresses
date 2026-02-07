@@ -1,0 +1,33 @@
+name: Auto Merge
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  check_suite:
+    types:
+      - completed
+  status: {}
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+      statuses: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Merge PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch || echo "Merge failed or not ready yet."
