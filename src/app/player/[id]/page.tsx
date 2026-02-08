@@ -22,7 +22,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     return (
         <main className="flex-1 p-4 space-y-6 pb-32">
             {/* Visual Section */}
-            <div className="relative aspect-square w-full max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-white/5 shadow-2xl">
+            <div className="relative h-48 w-full md:aspect-square md:h-auto max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-white/5 shadow-2xl">
                 {character.imageUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={character.imageUrl} alt={character.name} className="w-full h-full object-cover" />
@@ -46,9 +46,19 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                             <h2 className="text-3xl font-black italic tracking-tighter uppercase leading-none">{character.name}</h2>
                             <p className="text-sm text-neutral-400 font-medium mt-1">{character.race} {character.class}</p>
                         </div>
-                        <div className="text-right">
-                            <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Defense</span>
-                            <span className="text-3xl font-black text-agent-blue">{character.armorClass}</span>
+                        <div className="flex gap-4 text-right items-end">
+                            <div>
+                                <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Def</span>
+                                <span className="text-2xl font-black text-agent-blue">{character.armorClass}</span>
+                            </div>
+                            <div>
+                                <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Spd</span>
+                                <span className="text-2xl font-black text-white">{character.speed}</span>
+                            </div>
+                            <div>
+                                <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Init</span>
+                                <span className="text-2xl font-black text-white">+{character.initiative}</span>
+                            </div>
                         </div>
                      </div>
                 </div>
@@ -61,26 +71,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </CardContent>
             </Card>
 
-            {/* Dice Roller */}
-            <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
-
-            {/* Player Actions */}
-            <div className="space-y-4">
-                <PlayerActionForm characterName={character.name} campaignId={character.campaignId} />
-            </div>
-
-            {/* Attributes Grid */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                    <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">Speed</span>
-                    <span className="text-2xl font-bold">{character.speed} <span className="text-sm font-normal text-neutral-600">ft</span></span>
-                </div>
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                    <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">Initiative</span>
-                    <span className="text-2xl font-bold">+{character.initiative}</span>
-                </div>
-            </div>
-
             {/* Recent Events Log */}
             <div className="space-y-3">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-2">
@@ -89,7 +79,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </h3>
                 <Card variant="agent" className="bg-black/40 border-white/5 overflow-hidden">
                     <CardContent className="p-0">
-                        <div className="max-h-48 overflow-y-auto font-mono text-[10px] divide-y divide-white/5">
+                        <div className="max-h-32 overflow-y-auto font-mono text-[10px] divide-y divide-white/5">
                             {character.logs.length > 0 ? (
                                 character.logs.map((log) => (
                                     <div key={log.id} className="p-3 flex gap-3">
@@ -106,6 +96,14 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Player Actions */}
+            <div className="space-y-4">
+                <PlayerActionForm characterName={character.name} campaignId={character.campaignId} />
+            </div>
+
+            {/* Dice Roller */}
+            <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
 
             {/* Active Turn Banner */}
             {character.activeTurn && (
