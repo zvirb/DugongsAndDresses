@@ -1,6 +1,5 @@
 import Link from "next/link";
 import AutoRefresh from "@/components/AutoRefresh";
-import { getCharacterWithLogs } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import PlayerBottomNav from "./PlayerBottomNav";
 
@@ -11,7 +10,6 @@ interface LayoutProps {
 
 export default async function PlayerLayout({ children, params }: LayoutProps) {
     const { id } = await params;
-    // const character = await getCharacterWithLogs(id);
     const character = {
         name: 'Valerius',
         race: 'Human',

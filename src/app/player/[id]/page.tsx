@@ -1,4 +1,4 @@
-import { getCharacterWithLogs } from "@/lib/queries";
+import { getPlayerDashboard } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import PlayerHPControls from "@/components/PlayerHPControls";
 import PlayerActionForm from "@/components/PlayerActionForm";
@@ -13,7 +13,7 @@ interface PlayerPageProps {
 
 export default async function PlayerPage({ params }: PlayerPageProps) {
     const { id } = await params;
-    const character = await getCharacterWithLogs(id);
+    const character = await getPlayerDashboard(id);
 
     if (!character || character.type !== 'PLAYER') {
         notFound();

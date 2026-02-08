@@ -1,4 +1,4 @@
-import { getCharacterWithLogs } from "@/lib/queries";
+import { getPlayerSkills } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { parseAttributes } from "@/lib/safe-json";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -25,7 +25,7 @@ function calcModifier(score: number): string {
 
 export default async function SkillsPage({ params }: SkillsPageProps) {
     const { id } = await params;
-    const character = await getCharacterWithLogs(id);
+    const character = await getPlayerSkills(id);
 
     if (!character || character.type !== 'PLAYER') {
         notFound();

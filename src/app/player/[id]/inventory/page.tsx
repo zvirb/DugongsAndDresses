@@ -1,4 +1,4 @@
-import { getCharacterWithLogs } from "@/lib/queries";
+import { getPlayerInventory } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { parseInventory } from "@/lib/safe-json";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -11,7 +11,7 @@ interface InventoryPageProps {
 
 export default async function InventoryPage({ params }: InventoryPageProps) {
     const { id } = await params;
-    const character = await getCharacterWithLogs(id);
+    const character = await getPlayerInventory(id);
 
     if (!character || character.type !== 'PLAYER') {
         notFound();

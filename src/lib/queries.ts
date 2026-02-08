@@ -128,9 +128,11 @@ export async function getPublicCampaign() {
 }
 
 /**
- * Fetches a single character by ID with recent logs for their campaign.
+ * Optimized fetch for the Player Dashboard (Status Page).
+ * Selects only fields needed for the main view + logs.
+ * Excludes heavy JSON fields (attributes, inventory, conditions).
  */
-export const getCharacterWithLogs = cache(async function getCharacterWithLogs(id: string) {
+export const getPlayerDashboard = cache(async function getPlayerDashboard(id: string) {
   const character = await prisma.character.findUnique({
     where: { id },
     select: {
@@ -147,10 +149,7 @@ export const getCharacterWithLogs = cache(async function getCharacterWithLogs(id
       armorClass: true,
       campaignId: true,
       speed: true,
-      initiative: true,
-      attributes: true,
-      inventory: true,
-      conditions: true
+      initiative: true
     }
   });
 
@@ -168,4 +167,41 @@ export const getCharacterWithLogs = cache(async function getCharacterWithLogs(id
   });
 
   return { ...character, logs };
+});
+
+/**
+ * Optimized fetch for the Skills Page.
+ * Selects attributes and stats, excludes logs and inventory.
+ */
+export const getPlayerSkills = cache(async function getPlayerSkills(id: string) {
+  return prisma.character.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      name: true,
+      race: true,
+      class: true,
+      level: true,
+      attributes: true,
+      speed: true,
+      initiative: true
+    }
+  });
+});
+
+/**
+ * Optimized fetch for the Inventory Page.
+ * Selects inventory, excludes attributes and logs.
+ */
+export const getPlayerInventory = cache(async function getPlayerInventory(id: string) {
+  return prisma.character.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      type: true,
+      name: true,
+      inventory: true
+    }
+  });
 });
