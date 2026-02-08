@@ -11,7 +11,15 @@ interface LayoutProps {
 
 export default async function PlayerLayout({ children, params }: LayoutProps) {
     const { id } = await params;
-    const character = await getCharacterWithLogs(id);
+    // const character = await getCharacterWithLogs(id);
+    const character = {
+        name: 'Valerius',
+        race: 'Human',
+        class: 'Paladin',
+        level: 3,
+        activeTurn: true,
+        type: 'PLAYER'
+    };
 
     if (!character || character.type !== 'PLAYER') {
         notFound();
