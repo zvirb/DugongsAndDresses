@@ -12,6 +12,12 @@ export const ConditionsSchema = z.array(z.string());
 
 export type Conditions = z.infer<typeof ConditionsSchema>;
 
+// Inventory is an array of strings.
+// e.g. ["Sword", "Shield"]
+export const InventorySchema = z.array(z.string());
+
+export type Inventory = z.infer<typeof InventorySchema>;
+
 // Participants in an encounter.
 export const ParticipantSchema = z.object({
   characterId: z.string(),

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from './ui/Button';
+import { parseConditions } from '@/lib/safe-json';
 
 type Log = {
     id: string;
@@ -32,17 +33,8 @@ export default function AICopyButton({ logs, characters, turnOrder }: {
 
     const generateContext = () => {
         const charSummary = characters.map(c => {
-            let conditionText = c.conditions;
-            try {
-                const parsed = JSON.parse(c.conditions);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    conditionText = parsed.join(', ');
-                } else {
-                     conditionText = 'Healthy';
-                }
-            } catch (e) {
-                 conditionText = c.conditions === '[]' ? 'Healthy' : c.conditions;
-            }
+            const conditions = parseConditions(c.conditions);
+            const conditionText = conditions.length > 0 ? conditions.join(', ') : 'Healthy';
 
             const details = [
                 `AC: ${c.armorClass}`,
