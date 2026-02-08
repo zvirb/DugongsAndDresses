@@ -31,19 +31,19 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
 
         if (mode === 'NORMAL') {
             result = roll1;
-            details = `[${roll1}]`;
+            details = `[**${roll1}**]`;
         } else {
             const roll2 = secureRoll(sides);
             if (mode === 'ADVANTAGE') {
                 result = Math.max(roll1, roll2);
-                details = `(Adv: [${roll1}, ${roll2}])`;
+                details = `(Rolls: **${roll1}**, **${roll2}**)`;
             } else {
                 result = Math.min(roll1, roll2);
-                details = `(Dis: [${roll1}, ${roll2}])`;
+                details = `(Rolls: **${roll1}**, **${roll2}**)`;
             }
         }
 
-        const logMessage = `**${rollerName}** rolls 1d${sides}${mode !== 'NORMAL' ? ` ${mode.toLowerCase()}` : ''}: **${result}** ${details}`;
+        const logMessage = `**${rollerName}** rolls **1d${sides}**${mode !== 'NORMAL' ? ` (${mode})` : ''}. Result: **${result}** ${details}`;
 
         await logAction(campaignId, logMessage, 'Roll');
         setRollingDie(null);
