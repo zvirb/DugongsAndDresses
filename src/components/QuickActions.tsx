@@ -97,7 +97,7 @@ function AttackForm({ characterNames = [], onSubmit, submitting, onCancel }: For
                     disabled={!attacker || !target || submitting}
                     onClick={() => {
                         const dmg = damage ? ` for **${damage}** damage` : '';
-                        onSubmit(`**${attacker}** attacks **${target}**${dmg}.`, 'Combat');
+                        onSubmit(`**${attacker}** strikes at **${target}**${dmg}!`, 'Combat');
                     }}
                 >
                     {submitting ? '...' : 'Log Attack'}
@@ -144,7 +144,7 @@ function SkillCheckForm({ characterNames = [], onSubmit, submitting, onCancel }:
                     onClick={() => {
                         const dcStr = dc ? ` (DC ${dc})` : '';
                         const resultStr = result ? ` — rolled **${result}**` : '';
-                        onSubmit(`**${character}** makes a **${skill}** check${dcStr}${resultStr}.`, 'Roll');
+                        onSubmit(`**${character}** tests their **${skill}**${dcStr}${resultStr}.`, 'Roll');
                     }}
                 >
                     {submitting ? '...' : 'Log Check'}
@@ -185,7 +185,7 @@ function SpellForm({ characterNames = [], onSubmit, submitting, onCancel }: Form
                     disabled={!caster || !spell || submitting}
                     onClick={() => {
                         const tgt = target ? ` on **${target}**` : '';
-                        onSubmit(`**${caster}** casts **${spell}**${tgt}.`, 'Combat');
+                        onSubmit(`**${caster}** incants **${spell}**${tgt}!`, 'Combat');
                     }}
                 >
                     {submitting ? '...' : 'Log Spell'}

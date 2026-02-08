@@ -66,7 +66,7 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
             }
         });
 
-        await logAction(campaign.id, `Campaign **${campaign.name}** created.`, "Story");
+        await logAction(campaign.id, `The world of **${campaign.name}** is born.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -97,10 +97,13 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
         });
 
         if (delta !== 0) {
-            const verb = delta > 0 ? "recovers" : "takes";
             const amount = Math.abs(delta);
-            const suffix = delta > 0 ? "HP" : "damage";
-            const content = `**${character.name}** ${verb} **${amount}** ${suffix}.`;
+            let content = "";
+            if (delta > 0) {
+                content = `**${character.name}** rallies, recovering **${amount}** HP.`;
+            } else {
+                content = `**${character.name}** is struck, taking **${amount}** damage.`;
+            }
             await logAction(character.campaignId, content, "Combat");
         }
 
@@ -126,7 +129,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
         // but maybe the user wants to keep the last roll?
         // Let's NOT sync initiative roll to source as it's ephemeral.
 
-        const content = `**${character.name}** rolls **${roll}** for initiative.`;
+        const content = `**${character.name}** prepares for battle with an initiative of **${roll}**.`;
         await logAction(character.campaignId, content, "Combat");
 
         revalidatePath('/dm');
@@ -188,6 +191,12 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             })
         ]);
 
+        await logAction(campaignId, `It is now **${newActiveChar.name}**'s turn.`, "Combat");
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        revalidatePath('/player');
+
         return newActiveChar;
     });
 }
@@ -206,7 +215,7 @@ export async function activateCampaign(campaignId: string): Promise<ActionResult
             data: { active: true }
         });
 
-        const content = `Campaign **${campaign.name}** activated.`;
+        const content = `The saga of **${campaign.name}** resumes.`;
         await logAction(campaignId, content, "Story");
 
         revalidatePath('/dm');
@@ -225,7 +234,7 @@ export async function updateCharacterImage(characterId: string, imageUrl: string
             data: { imageUrl }
         });
 
-        const content = `**${character.name}** updates their appearance.`;
+        const content = `**${character.name}** reveals a new guise.`;
         await logAction(character.campaignId, content, "Story");
 
         revalidatePath('/public');
@@ -308,7 +317,7 @@ export async function createCharacter(formData: FormData): Promise<ActionResult>
             }
         });
 
-        await logAction(campaignId, `**${character.name}** joins the adventure.`, "Story");
+        await logAction(campaignId, `A new challenger approaches: **${character.name}** joins the party.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -368,7 +377,7 @@ export async function deleteCharacter(characterId: string): Promise<ActionResult
             where: { id: characterId }
         });
 
-        await logAction(character.campaignId, `**${character.name}** has been removed.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** has vanished from existence.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -419,7 +428,7 @@ export async function addInventoryItem(characterId: string, item: string): Promi
         // Sync to Library
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** receives **${item.trim()}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** acquires **${item.trim()}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -469,7 +478,7 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
         // Sync Source
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** loses **${item}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** discards **${item}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
