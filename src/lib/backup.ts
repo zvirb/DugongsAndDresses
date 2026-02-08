@@ -1,0 +1,128 @@
+
+import fs from 'fs';
+import path from 'path';
+import { prisma } from './prisma';
+
+const BACKUP_DIR = '/app/backups';
+
+// Ensure backup directory exists
+if (!fs.existsSync(BACKUP_DIR)) {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+}
+
+export interface BackupData {
+    timestamp: string;
+    campaigns: any[];
+    characters: any[];
+    logs: any[];
+    encounters: any[];
+}
+
+export async function createBackup(): Promise<string> {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `backup-${timestamp}.json`;
+    const filepath = path.join(BACKUP_DIR, filename);
+
+    const campaigns = await prisma.campaign.findMany();
+    const characters = await prisma.character.findMany(); // Includes duplicates from library
+    const logs = await prisma.logEntry.findMany();
+    const encounters = await prisma.encounter.findMany();
+
+    const data: BackupData = {
+        timestamp,
+        campaigns,
+        characters,
+        logs,
+        encounters
+    };
+
+    fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+    return filename;
+}
+
+export function listBackups(): string[] {
+    try {
+        if (!fs.existsSync(BACKUP_DIR)) return [];
+        return fs.readdirSync(BACKUP_DIR)
+            .filter(file => file.endsWith('.json'))
+            .sort()
+            .reverse();
+    } catch (e) {
+        console.error("Failed to list backups:", e);
+        return [];
+    }
+}
+
+export async function restoreBackup(filename: string): Promise<boolean> {
+    const filepath = path.join(BACKUP_DIR, filename);
+    if (!fs.existsSync(filepath)) {
+        throw new Error(`Backup file ${filename} not found`);
+    }
+
+    const data: BackupData = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
+
+    // Transactional Restore
+    // We must handle foreign key constraints carefully.
+    // Order: Delete Leaves -> Delete Roots -> Create Roots -> Create Leaves
+
+    // Deletion Order:
+    // 1. Logs (depend on Campaign)
+    // 2. Encounters (depend on Campaign)
+    // 3. Characters (depend on Campaign, Self-Ref sourceId)
+    //    Note: Character deletion might be tricky due to sourceId self-relations.
+    //    We should set sourceId to null first for all characters? 
+    //    Or just deleteMany? 
+    //    If onDelete: SetNull is set in schema (which it is), deleteMany should work fine.
+    // 4. Campaigns
+
+    try {
+        await prisma.$transaction(async (tx) => {
+            // 1. Clean Slate
+            console.log("Cleaning Database...");
+            await tx.logEntry.deleteMany();
+            await tx.encounter.deleteMany();
+            // Updat sourceId to null to avoid self-referential delete issues if any custom constraints exist
+            // simpler: just deleteMany. Postgres handles SetNull.
+            await tx.character.deleteMany();
+            await tx.campaign.deleteMany();
+
+            // 2. Restore Campaigns
+            console.log(`Restoring ${data.campaigns.length} campaigns...`);
+            if (data.campaigns.length > 0) {
+                await tx.campaign.createMany({ data: data.campaigns });
+            }
+
+            // 3. Restore Characters (First Pass - No SourceId)
+            // We strip sourceId to avoid FK errors if the source hasn't been created yet.
+            console.log(`Restoring ${data.characters.length} characters (Pass 1)...`);
+            if (data.characters.length > 0) {
+                const charsNoSource = data.characters.map(c => {
+                    const { sourceId, ...rest } = c;
+                    return { ...rest, sourceId: null };
+                });
+                await tx.character.createMany({ data: charsNoSource });
+            }
+
+            // 4. Restore Logs & Encounters
+            console.log(`Restoring logs and encounters...`);
+            if (data.logs.length > 0) await tx.logEntry.createMany({ data: data.logs });
+            if (data.encounters.length > 0) await tx.encounter.createMany({ data: data.encounters });
+
+            // 5. Restore Character Links (Pass 2 - SourceId)
+            // We now update characters to restore their sourceId links.
+            console.log("Linking characters (Pass 2)...");
+            const charsWithSource = data.characters.filter(c => c.sourceId);
+            for (const char of charsWithSource) {
+                await tx.character.update({
+                    where: { id: char.id },
+                    data: { sourceId: char.sourceId }
+                });
+            }
+        });
+
+        return true;
+    } catch (e) {
+        console.error("Restore failed:", e);
+        throw e;
+    }
+}

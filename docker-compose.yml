@@ -9,6 +9,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/dugongs?schema=public
       - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - ./backups:/app/backups
     depends_on:
       - db
       - ollama

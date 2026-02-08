@@ -9,6 +9,7 @@ import QuickActions from "@/components/QuickActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
 import { getCampaigns, getActiveCampaign } from "@/lib/queries";
+import BackupManager from "@/components/BackupManager";
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +31,9 @@ export default async function DMPage() {
                     <CampaignSelector campaigns={campaignList} activeId={campaign.id} />
                 </div>
                 <div className="flex items-center space-x-4">
+                    <Link href="/settings" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                        Settings
+                    </Link>
                     <Link href="/public" target="_blank" className={buttonVariants({ variant: "outline", size: "sm" })}>
                         Open Public View
                     </Link>
@@ -86,6 +90,10 @@ export default async function DMPage() {
                         </CardContent>
                     </Card>
                 </div>
+            </div>
+
+            <div className="mt-8 pb-8 max-w-2xl mx-auto">
+                <BackupManager />
             </div>
         </div>
     );

@@ -93,3 +93,11 @@ model Encounter {
 
   @@index([campaignId])
 }
+
+model Settings {
+  id             String  @id @default(uuid())
+  ollamaModel    String  @default("llama3") 
+  enableStoryGen Boolean @default(false)
+  autoBackup     Boolean @default(true)
+  backupCount    Int     @default(10)
+}

@@ -487,3 +487,28 @@ export async function getAvailableCharacters(): Promise<ActionResult> {
         return characters;
     });
 }
+
+// --- Backup Management ---
+import { createBackup, restoreBackup, listBackups } from "@/lib/backup";
+
+export async function createBackupAction(): Promise<ActionResult> {
+    return actionWrapper("createBackup", async () => {
+        const filename = await createBackup();
+        revalidatePath('/dm');
+        return { filename };
+    });
+}
+
+export async function listBackupsAction(): Promise<ActionResult> {
+    return actionWrapper("listBackups", async () => {
+        return listBackups();
+    });
+}
+
+export async function restoreBackupAction(filename: string): Promise<ActionResult> {
+    return actionWrapper("restoreBackup", async () => {
+        await restoreBackup(filename);
+        revalidatePath('/');
+        return { success: true };
+    });
+}
