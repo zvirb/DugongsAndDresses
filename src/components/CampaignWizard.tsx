@@ -24,6 +24,7 @@ interface CharacterDraft {
     int: number;
     wis: number;
     cha: number;
+    sourceId?: string; // Add sourceId for syncing
 }
 
 const defaultCharacter: CharacterDraft = {
@@ -88,6 +89,7 @@ export default function CampaignWizard() {
             int: attrs.int || 10,
             wis: attrs.wis || 10,
             cha: attrs.cha || 10,
+            sourceId: char.id, // Keep the ID for syncing
         });
         setLibraryOpen(false);
     };
@@ -101,6 +103,7 @@ export default function CampaignWizard() {
             level: c.level, hp: c.hp, maxHp: c.maxHp, armorClass: c.armorClass,
             speed: c.speed, initiative: c.initiative,
             attributes: { str: c.str, dex: c.dex, con: c.con, int: c.int, wis: c.wis, cha: c.cha },
+            sourceId: c.sourceId
         }))));
         await createCampaign(formData);
         setSubmitting(false);

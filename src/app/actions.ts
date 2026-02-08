@@ -17,6 +17,7 @@ export interface CharacterInput {
     speed?: number;
     initiative?: number;
     attributes?: Record<string, number>;
+    sourceId?: string;
 }
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
@@ -58,6 +59,7 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
                             initiative: c.initiative || 0,
                             attributes: c.attributes ? stringifyAttributes(c.attributes) : "{}",
                             initiativeRoll: 0,
+                            sourceId: c.sourceId || null
                         }))
                     }
                 } : {})
@@ -102,6 +104,8 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             await logAction(character.campaignId, content, "Combat");
         }
 
+        await syncToSource(character);
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -117,6 +121,10 @@ export async function updateInitiative(characterId: string, roll: number): Promi
             where: { id: characterId },
             data: { initiativeRoll: roll }
         });
+
+        // We probably don't need to sync Initiative Roll to library, as it's combat specific
+        // but maybe the user wants to keep the last roll?
+        // Let's NOT sync initiative roll to source as it's ephemeral.
 
         const content = `**${character.name}** rolls **${roll}** for initiative.`;
         await logAction(character.campaignId, content, "Combat");
@@ -342,12 +350,15 @@ export async function updateCharacter(characterId: string, formData: FormData): 
             }
         });
 
+        await syncToSource(character);
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
         return character;
     });
 }
+
 
 export async function deleteCharacter(characterId: string): Promise<ActionResult> {
     return actionWrapper("deleteCharacter", async () => {
@@ -377,6 +388,8 @@ export async function updateConditions(characterId: string, conditions: string[]
             data: { conditions: stringifyConditions(conditions) }
         });
 
+        await syncToSource(character);
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -391,6 +404,7 @@ export async function addInventoryItem(characterId: string, item: string): Promi
         if (!characterId) throw new Error("Character ID is required");
         if (!item || !item.trim()) throw new Error("Item name is required");
 
+
         const character = await prisma.character.findUnique({ where: { id: characterId } });
         if (!character) throw new Error("Character not found");
 
@@ -402,12 +416,38 @@ export async function addInventoryItem(characterId: string, item: string): Promi
             data: { inventory: stringifyInventory(inventory) }
         });
 
+        // Sync to Library
+        await syncToSource(updated);
+
         await logAction(character.campaignId, `**${character.name}** receives **${item.trim()}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
         return updated;
     });
+}
+
+async function syncToSource(character: any) {
+    if (character.sourceId) {
+        try {
+            await prisma.character.update({
+                where: { id: character.sourceId },
+                data: {
+                    hp: character.hp,
+                    maxHp: character.maxHp,
+                    armorClass: character.armorClass,
+                    level: character.level,
+                    speed: character.speed,
+                    attributes: character.attributes,
+                    inventory: character.inventory,
+                    class: character.class,
+                    race: character.race,
+                }
+            });
+        } catch (e) {
+            console.error("Failed to sync to source:", e);
+        }
+    }
 }
 
 export async function removeInventoryItem(characterId: string, item: string): Promise<ActionResult> {
@@ -425,6 +465,9 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
             where: { id: characterId },
             data: { inventory: stringifyInventory(inventory) }
         });
+
+        // Sync Source
+        await syncToSource(updated);
 
         await logAction(character.campaignId, `**${character.name}** loses **${item}**.`, "Story");
 

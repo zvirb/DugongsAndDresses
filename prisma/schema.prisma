@@ -55,7 +55,13 @@ model Character {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
+  // Sync Logic
+  sourceId    String?
+  source      Character?  @relation("CharacterSource", fields: [sourceId], references: [id], onDelete: SetNull)
+  clones      Character[] @relation("CharacterSource")
+
   @@index([campaignId])
+  @@index([sourceId])
 }
 
 model LogEntry {
