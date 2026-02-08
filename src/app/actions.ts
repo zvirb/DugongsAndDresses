@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
-import { stringifyAttributes } from "@/lib/safe-json";
+import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory } from "@/lib/safe-json";
 
 export interface CharacterInput {
     name: string;
@@ -27,7 +27,17 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
         }
 
         const charactersJson = formData.get("characters") as string;
-        const characters: CharacterInput[] = charactersJson ? JSON.parse(charactersJson) : [];
+        let characters: CharacterInput[] = [];
+        try {
+             if (charactersJson) {
+                 const parsed = JSON.parse(charactersJson);
+                 if (Array.isArray(parsed)) {
+                     characters = parsed;
+                 }
+             }
+        } catch (e) {
+            console.error("Failed to parse characters JSON:", e);
+        }
 
         const campaign = await prisma.campaign.create({
             data: {
@@ -364,7 +374,7 @@ export async function updateConditions(characterId: string, conditions: string[]
 
         const character = await prisma.character.update({
             where: { id: characterId },
-            data: { conditions: JSON.stringify(conditions) }
+            data: { conditions: stringifyConditions(conditions) }
         });
 
         revalidatePath('/dm');
@@ -384,12 +394,12 @@ export async function addInventoryItem(characterId: string, item: string): Promi
         const character = await prisma.character.findUnique({ where: { id: characterId } });
         if (!character) throw new Error("Character not found");
 
-        const inventory: string[] = JSON.parse(character.inventory || "[]");
+        const inventory = parseInventory(character.inventory);
         inventory.push(item.trim());
 
         const updated = await prisma.character.update({
             where: { id: characterId },
-            data: { inventory: JSON.stringify(inventory) }
+            data: { inventory: stringifyInventory(inventory) }
         });
 
         await logAction(character.campaignId, `**${character.name}** receives **${item.trim()}**.`, "Story");
@@ -407,13 +417,13 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
         const character = await prisma.character.findUnique({ where: { id: characterId } });
         if (!character) throw new Error("Character not found");
 
-        const inventory: string[] = JSON.parse(character.inventory || "[]");
+        const inventory = parseInventory(character.inventory);
         const idx = inventory.indexOf(item);
         if (idx !== -1) inventory.splice(idx, 1);
 
         const updated = await prisma.character.update({
             where: { id: characterId },
-            data: { inventory: JSON.stringify(inventory) }
+            data: { inventory: stringifyInventory(inventory) }
         });
 
         await logAction(character.campaignId, `**${character.name}** loses **${item}**.`, "Story");

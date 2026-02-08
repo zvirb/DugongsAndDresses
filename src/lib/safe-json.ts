@@ -1,6 +1,7 @@
 import {
   Attributes, AttributesSchema,
   Conditions, ConditionsSchema,
+  Inventory, InventorySchema,
   Participants, ParticipantsSchema
 } from "./schemas";
 
@@ -81,11 +82,17 @@ export function parseParticipants(json: string | null | undefined): Participants
     if (result.success) {
       return result.data;
     } else {
-      // Recovery: if it's an array, try to parse individual items?
-      // For now, simpler to just return empty or valid ones
+      // Recovery: if it's an array, filter only valid participants
       if (Array.isArray(parsed)) {
-         // Try to validate each item individually
-         // This requires importing ParticipantSchema which is exported
+         // Valid participants must have characterId (string) and initiative (number)
+         // We can use the ParticipantSchema for individual validation if we exported it,
+         // but manual check is simple enough for recovery.
+         const validItems = parsed.filter(item => {
+             return typeof item === 'object' && item !== null &&
+                    typeof item.characterId === 'string' &&
+                    typeof item.initiative === 'number';
+         });
+         return validItems as Participants;
       }
       console.error("Participants schema validation failed:", result.error);
       return [];
@@ -100,14 +107,19 @@ export function parseParticipants(json: string | null | undefined): Participants
  * Safely parses a JSON string into an inventory (string array).
  * Returns an empty array if parsing fails.
  */
-export function parseInventory(json: string | null | undefined): string[] {
+export function parseInventory(json: string | null | undefined): Inventory {
   if (!json) return [];
   try {
     const parsed = JSON.parse(json);
-    if (Array.isArray(parsed)) {
-      return parsed.filter(item => typeof item === 'string');
+    const result = InventorySchema.safeParse(parsed);
+    if (result.success) {
+      return result.data;
+    } else {
+      if (Array.isArray(parsed)) {
+        return parsed.filter(item => typeof item === 'string');
+      }
+      return [];
     }
-    return [];
   } catch {
     return [];
   }
@@ -124,4 +136,40 @@ export function stringifyAttributes(data: Attributes): string {
     return "{}";
   }
   return JSON.stringify(data);
+}
+
+/**
+ * Safely stringifies Conditions.
+ */
+export function stringifyConditions(data: Conditions): string {
+    const result = ConditionsSchema.safeParse(data);
+    if (!result.success) {
+        console.error("Invalid conditions data provided for stringify:", result.error);
+        return "[]";
+    }
+    return JSON.stringify(data);
+}
+
+/**
+ * Safely stringifies Participants.
+ */
+export function stringifyParticipants(data: Participants): string {
+    const result = ParticipantsSchema.safeParse(data);
+    if (!result.success) {
+        console.error("Invalid participants data provided for stringify:", result.error);
+        return "[]";
+    }
+    return JSON.stringify(data);
+}
+
+/**
+ * Safely stringifies Inventory.
+ */
+export function stringifyInventory(data: Inventory): string {
+    const result = InventorySchema.safeParse(data);
+    if (!result.success) {
+        console.error("Invalid inventory data provided for stringify:", result.error);
+        return "[]";
+    }
+    return JSON.stringify(data);
 }
