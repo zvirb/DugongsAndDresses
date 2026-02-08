@@ -2,6 +2,46 @@ import { cache } from "react";
 import { prisma } from "./prisma";
 
 /**
+ * Common selection logic for detailed campaign views (DM view).
+ */
+const CAMPAIGN_DETAILS_SELECT = {
+  id: true,
+  name: true,
+  characters: {
+    orderBy: { name: 'asc' },
+    select: {
+      id: true,
+      name: true,
+      initiativeRoll: true,
+      activeTurn: true,
+      hp: true,
+      maxHp: true,
+      type: true,
+      conditions: true,
+      armorClass: true,
+      imageUrl: true,
+      level: true,
+      class: true,
+      race: true,
+      attributes: true,
+      inventory: true,
+      speed: true,
+      initiative: true
+    }
+  },
+  logs: {
+    take: 20,
+    orderBy: { timestamp: 'desc' },
+    select: {
+      id: true,
+      timestamp: true,
+      content: true,
+      type: true
+    }
+  }
+} as const;
+
+/**
  * Fetches all campaigns ordered by creation date.
  */
 export async function getCampaigns() {
@@ -12,90 +52,30 @@ export async function getCampaigns() {
 }
 
 /**
+ * Fetches detailed data for a specific campaign by ID.
+ */
+export async function getCampaignDetails(id: string) {
+  return prisma.campaign.findUnique({
+    where: { id },
+    select: CAMPAIGN_DETAILS_SELECT
+  });
+}
+
+/**
  * Fetches the currently active campaign including characters and recent logs.
  * If no campaign is explicitly active, it defaults to the most recent one.
  */
 export async function getActiveCampaign() {
   const activeCampaign = await prisma.campaign.findFirst({
     where: { active: true },
-    select: {
-      id: true,
-      name: true,
-      characters: {
-        orderBy: { name: 'asc' },
-        select: {
-          id: true,
-          name: true,
-          initiativeRoll: true,
-          activeTurn: true,
-          hp: true,
-          maxHp: true,
-          type: true,
-          conditions: true,
-          armorClass: true,
-          imageUrl: true,
-          level: true,
-          class: true,
-          race: true,
-          attributes: true,
-          inventory: true,
-          speed: true,
-          initiative: true
-        }
-      },
-      logs: {
-        take: 20,
-        orderBy: { timestamp: 'desc' },
-        select: {
-          id: true,
-          timestamp: true,
-          content: true,
-          type: true
-        }
-      }
-    }
+    select: CAMPAIGN_DETAILS_SELECT
   });
 
   if (activeCampaign) return activeCampaign;
 
   return prisma.campaign.findFirst({
     orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      name: true,
-      characters: {
-        orderBy: { name: 'asc' },
-        select: {
-          id: true,
-          name: true,
-          initiativeRoll: true,
-          activeTurn: true,
-          hp: true,
-          maxHp: true,
-          type: true,
-          conditions: true,
-          armorClass: true,
-          imageUrl: true,
-          level: true,
-          class: true,
-          race: true,
-          attributes: true,
-          inventory: true,
-          speed: true,
-          initiative: true
-        }
-      },
-      logs: {
-        take: 20,
-        orderBy: { timestamp: 'desc' },
-        select: {
-          id: true,
-          timestamp: true,
-          content: true,
-          type: true
-        }
-      }
-    }
+    select: CAMPAIGN_DETAILS_SELECT
   });
 }
 

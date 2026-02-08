@@ -8,13 +8,16 @@ import CampaignWizard from "@/components/CampaignWizard";
 import QuickActions from "@/components/QuickActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
-import { getCampaigns, getActiveCampaign } from "@/lib/queries";
+import { getCampaigns, getCampaignDetails } from "@/lib/queries";
 
 export const dynamic = 'force-dynamic';
 
 export default async function DMPage() {
     const campaignList = await getCampaigns();
-    const campaign = await getActiveCampaign();
+
+    // Determine active campaign from the list to avoid a redundant DB query
+    const activeCampaignRef = campaignList.find(c => c.active) || campaignList[0];
+    const campaign = activeCampaignRef ? await getCampaignDetails(activeCampaignRef.id) : null;
 
     if (!campaign) {
         return <CampaignWizard />;
