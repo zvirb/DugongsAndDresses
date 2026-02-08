@@ -21,8 +21,6 @@ export default async function DMPage() {
         return <CampaignWizard />;
     }
 
-    const characterNames = campaign.characters.map(c => c.name);
-
     return (
         <div className="min-h-screen bg-agent-navy text-neutral-100 p-4 font-sans">
             <header className="flex justify-between items-center mb-6 border-b border-agent-blue/20 pb-4">
@@ -76,7 +74,7 @@ export default async function DMPage() {
                         </CardContent>
                     </Card>
 
-                    <QuickActions campaignId={campaign.id} characterNames={characterNames} />
+                    <QuickActions campaignId={campaign.id} characters={campaign.characters} />
                 </div>
 
                 {/* Right Column: Characters */}
