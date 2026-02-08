@@ -108,7 +108,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
             {/* Active Turn Banner */}
             {character.activeTurn && (
                 <div className="bg-agent-blue p-4 rounded-2xl text-center shadow-[0_0_20px_rgba(43,43,238,0.4)] animate-bounce">
-                    <span className="text-sm font-black uppercase tracking-[0.2em]">Your Turn!</span>
+                    <span className="text-sm font-black uppercase tracking-[0.2em]">YOUR TURN</span>
                 </div>
             )}
         </main>
