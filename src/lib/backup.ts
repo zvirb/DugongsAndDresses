@@ -18,6 +18,16 @@ export interface BackupData {
     encounters: any[];
 }
 
+// Reviver for JSON.parse to convert ISO date strings back to Date objects
+function reviveDates(key: string, value: any) {
+    // Regex for ISO 8601 date format (e.g., 2023-10-27T10:00:00.000Z)
+    const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+    if (typeof value === 'string' && isoDateRegex.test(value)) {
+        return new Date(value);
+    }
+    return value;
+}
+
 export async function createBackup(): Promise<string> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `backup-${timestamp}.json`;
@@ -59,21 +69,12 @@ export async function restoreBackup(filename: string): Promise<boolean> {
         throw new Error(`Backup file ${filename} not found`);
     }
 
-    const data: BackupData = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
+    // Use reviveDates to restore Date objects
+    const data: BackupData = JSON.parse(fs.readFileSync(filepath, 'utf-8'), reviveDates);
 
     // Transactional Restore
     // We must handle foreign key constraints carefully.
     // Order: Delete Leaves -> Delete Roots -> Create Roots -> Create Leaves
-
-    // Deletion Order:
-    // 1. Logs (depend on Campaign)
-    // 2. Encounters (depend on Campaign)
-    // 3. Characters (depend on Campaign, Self-Ref sourceId)
-    //    Note: Character deletion might be tricky due to sourceId self-relations.
-    //    We should set sourceId to null first for all characters? 
-    //    Or just deleteMany? 
-    //    If onDelete: SetNull is set in schema (which it is), deleteMany should work fine.
-    // 4. Campaigns
 
     try {
         await prisma.$transaction(async (tx) => {

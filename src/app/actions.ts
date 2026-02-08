@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
 import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory } from "@/lib/safe-json";
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { createBackup, restoreBackup, listBackups } from "@/lib/backup";
 
 export interface CharacterInput {
     name: string;
@@ -244,9 +247,6 @@ export async function updateCharacterImage(characterId: string, imageUrl: string
 }
 
 // Very basic file upload handler (Local FS only)
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-
 export async function uploadAvatar(formData: FormData): Promise<ActionResult> {
     return actionWrapper("uploadAvatar", async () => {
         const file = formData.get('file') as File;
@@ -498,7 +498,6 @@ export async function getAvailableCharacters(): Promise<ActionResult> {
 }
 
 // --- Backup Management ---
-import { createBackup, restoreBackup, listBackups } from "@/lib/backup";
 
 export async function createBackupAction(): Promise<ActionResult> {
     return actionWrapper("createBackup", async () => {
@@ -519,5 +518,61 @@ export async function restoreBackupAction(filename: string): Promise<ActionResul
         await restoreBackup(filename);
         revalidatePath('/');
         return { success: true };
+    });
+}
+
+// --- Settings Management ---
+
+export async function getSettings(): Promise<ActionResult> {
+    return actionWrapper("getSettings", async () => {
+        let settings = await prisma.settings.findFirst();
+        if (!settings) {
+            settings = await prisma.settings.create({
+                data: {
+                    ollamaModel: "llama3",
+                    enableStoryGen: false,
+                    autoBackup: true,
+                    backupCount: 10
+                }
+            });
+        }
+        return settings;
+    });
+}
+
+export async function updateSettings(formData: FormData): Promise<ActionResult> {
+    return actionWrapper("updateSettings", async () => {
+        const ollamaModel = formData.get("ollamaModel") as string;
+        const enableStoryGen = formData.get("enableStoryGen") === "on";
+        const autoBackup = formData.get("autoBackup") === "on";
+        const backupCount = parseInt(formData.get("backupCount") as string) || 10;
+
+        // Since we only have one settings record, we find first and update it, or create if missing
+        let settings = await prisma.settings.findFirst();
+
+        if (settings) {
+            settings = await prisma.settings.update({
+                where: { id: settings.id },
+                data: {
+                    ollamaModel,
+                    enableStoryGen,
+                    autoBackup,
+                    backupCount
+                }
+            });
+        } else {
+            settings = await prisma.settings.create({
+                data: {
+                    ollamaModel,
+                    enableStoryGen,
+                    autoBackup,
+                    backupCount
+                }
+            });
+        }
+
+        revalidatePath('/settings');
+        revalidatePath('/dm');
+        return settings;
     });
 }
