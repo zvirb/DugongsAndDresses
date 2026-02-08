@@ -118,7 +118,9 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
-        if (!campaignId) throw new Error("Campaign ID is required");
+        if (!campaignId || campaignId.trim().length === 0) {
+            throw new Error("Campaign ID is required");
+        }
 
         const characters = await prisma.character.findMany({
             where: { campaignId },
@@ -138,6 +140,10 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
 
         const currentIndex = characters.findIndex(c => c.activeTurn);
 
+        // --- SENTRY'S GUARD: RACE CONDITION CHECK ---
+        // If the client expects a specific character to be active, but the DB disagrees,
+        // it means another action has already advanced the turn.
+        // We return the ACTUAL active character to sync the client, without advancing again.
         if (expectedActiveId && currentIndex !== -1) {
             const currentActive = characters[currentIndex];
             if (currentActive.id !== expectedActiveId) {
