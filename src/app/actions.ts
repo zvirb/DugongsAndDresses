@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
-import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory } from "@/lib/safe-json";
+import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions } from "@/lib/safe-json";
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { createBackup, restoreBackup, listBackups } from "@/lib/backup";
@@ -537,6 +537,117 @@ export async function getSettings(): Promise<ActionResult> {
             });
         }
         return settings;
+    });
+}
+
+// --- Quick Actions ---
+
+export async function performAttack(attackerId: string, targetId: string, damage: number, attackRoll?: number): Promise<ActionResult> {
+    return actionWrapper("performAttack", async () => {
+        if (!attackerId || !targetId) throw new Error("Attacker and Target IDs are required");
+
+        const attacker = await prisma.character.findUnique({ where: { id: attackerId } });
+        const target = await prisma.character.findUnique({ where: { id: targetId } });
+
+        if (!attacker || !target) throw new Error("Character not found");
+
+        let content = `**${attacker.name}** attacks **${target.name}**`;
+        if (attackRoll) {
+            content += ` (Roll: **${attackRoll}**)`;
+        }
+
+        let updatedTarget = target;
+
+        if (damage > 0) {
+            content += ` and hits for **${damage}** damage!`;
+            updatedTarget = await prisma.character.update({
+                where: { id: targetId },
+                data: { hp: { decrement: damage } }
+            });
+            await syncToSource(updatedTarget);
+        } else {
+            content += `!`;
+        }
+
+        await logAction(attacker.campaignId, content, "Combat");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        return updatedTarget;
+    });
+}
+
+export async function performSkillCheck(characterId: string, skillName: string, dc?: number, roll?: number): Promise<ActionResult> {
+    return actionWrapper("performSkillCheck", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+        if (!skillName) throw new Error("Skill name is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        let content = `**${character.name}** checks **${skillName}**`;
+
+        if (dc) {
+            content += ` (DC ${dc})`;
+        }
+
+        if (roll !== undefined) {
+             content += ` — rolled **${roll}**`;
+             if (dc) {
+                 if (roll >= dc) {
+                     content += ` (SUCCESS)`;
+                 } else {
+                     content += ` (FAILURE)`;
+                 }
+             }
+        }
+
+        await logAction(character.campaignId, content + ".", "Roll");
+        return { success: true };
+    });
+}
+
+export async function castSpell(casterId: string, targetId: string | undefined, spellName: string, condition?: string): Promise<ActionResult> {
+    return actionWrapper("castSpell", async () => {
+        if (!casterId || !spellName) throw new Error("Caster and Spell Name are required");
+
+        const caster = await prisma.character.findUnique({ where: { id: casterId } });
+        if (!caster) throw new Error("Caster not found");
+
+        let targetName = "";
+        let target = null;
+
+        if (targetId) {
+            target = await prisma.character.findUnique({ where: { id: targetId } });
+            if (target) targetName = target.name;
+        }
+
+        let content = `**${caster.name}** casts **${spellName}**`;
+        if (targetName) {
+            content += ` on **${targetName}**`;
+        }
+
+        if (condition && target) {
+            content += ` applying **${condition}**!`;
+
+            const currentConditions = parseConditions(target.conditions);
+            if (!currentConditions.includes(condition)) {
+                currentConditions.push(condition);
+                const updatedTarget = await prisma.character.update({
+                    where: { id: target.id },
+                    data: { conditions: stringifyConditions(currentConditions) }
+                });
+                await syncToSource(updatedTarget);
+            }
+        } else {
+            content += `!`;
+        }
+
+        await logAction(caster.campaignId, content, "Combat");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        return { success: true };
     });
 }
 

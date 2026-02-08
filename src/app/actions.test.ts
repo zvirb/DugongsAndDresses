@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createCampaign, updateHP, updateInitiative, activateCampaign, updateCharacterImage, createCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, advanceTurn } from '@/app/actions';
+import { createCampaign, updateHP, updateInitiative, activateCampaign, updateCharacterImage, createCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, advanceTurn, performAttack, performSkillCheck, castSpell } from '@/app/actions';
 import { prisma } from '@/lib/prisma';
 
 // Mock dependencies
@@ -393,6 +393,74 @@ describe('Server Actions Logging', () => {
               data: { activeTurn: true }
           });
           expect(prisma.logEntry.create).toHaveBeenCalled();
+    });
+  });
+
+  // --- New Actions Tests ---
+
+  it('performAttack logs and updates HP correctly', async () => {
+    vi.mocked(prisma.character.findUnique)
+      .mockResolvedValueOnce({ id: 'char-1', name: 'Attacker', campaignId: 'camp-1' } as any)
+      .mockResolvedValueOnce({ id: 'char-2', name: 'Target', hp: 20 } as any);
+
+    vi.mocked(prisma.character.update).mockResolvedValue({ id: 'char-2', name: 'Target', hp: 15 } as any);
+
+    await performAttack('char-1', 'char-2', 5, 18);
+
+    expect(prisma.character.update).toHaveBeenCalledWith({
+      where: { id: 'char-2' },
+      data: { hp: { decrement: 5 } }
+    });
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**Attacker** attacks **Target** (Roll: **18**) and hits for **5** damage!'),
+        type: 'Combat',
+      },
+    });
+  });
+
+  it('performSkillCheck logs success correctly', async () => {
+    vi.mocked(prisma.character.findUnique).mockResolvedValue({
+      id: 'char-1',
+      name: 'Hero',
+      campaignId: 'camp-1',
+    } as any);
+
+    await performSkillCheck('char-1', 'Athletics', 15, 18);
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**Hero** checks **Athletics** (DC 15) — rolled **18** (SUCCESS).'),
+        type: 'Roll',
+      },
+    });
+  });
+
+  it('castSpell logs and applies condition correctly', async () => {
+    vi.mocked(prisma.character.findUnique)
+      .mockResolvedValueOnce({ id: 'char-1', name: 'Wizard', campaignId: 'camp-1' } as any)
+      .mockResolvedValueOnce({ id: 'char-2', name: 'Goblin', conditions: '[]' } as any);
+
+    vi.mocked(prisma.character.update).mockResolvedValue({} as any);
+
+    await castSpell('char-1', 'char-2', 'Fireball', 'Burning');
+
+    // Check that condition update was called with correct stringified JSON
+    // We can't easily check stringified JSON order, but we can check if it contains "Burning"
+    expect(prisma.character.update).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: 'char-2' },
+      data: { conditions: expect.stringContaining('Burning') }
+    }));
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**Wizard** casts **Fireball** on **Goblin** applying **Burning**!'),
+        type: 'Combat',
+      },
     });
   });
 });
