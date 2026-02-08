@@ -149,24 +149,29 @@ export const getPlayerDashboard = cache(async function getPlayerDashboard(id: st
       armorClass: true,
       campaignId: true,
       speed: true,
-      initiative: true
+      initiative: true,
+      campaign: {
+        select: {
+          logs: {
+            take: 10,
+            orderBy: { timestamp: 'desc' },
+            select: {
+              id: true,
+              content: true,
+              timestamp: true
+            }
+          }
+        }
+      }
     }
   });
 
   if (!character) return null;
 
-  const logs = await prisma.logEntry.findMany({
-    where: { campaignId: character.campaignId },
-    take: 10,
-    orderBy: { timestamp: 'desc' },
-    select: {
-      id: true,
-      content: true,
-      timestamp: true
-    }
-  });
-
-  return { ...character, logs };
+  const { campaign, ...charData } = character;
+  // Although campaign is required by schema, we safely access logs just in case
+  const logs = campaign?.logs || [];
+  return { ...charData, logs };
 });
 
 /**

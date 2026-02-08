@@ -18,9 +18,12 @@ describe('Query Optimization', () => {
     vi.clearAllMocks();
   });
 
-  it('getPlayerDashboard selects optimized fields', async () => {
-    (prisma.character.findUnique as any).mockResolvedValue({ id: '1', campaignId: 'c1' });
-    (prisma.logEntry.findMany as any).mockResolvedValue([]);
+  it('getPlayerDashboard selects optimized fields with nested logs', async () => {
+    (prisma.character.findUnique as any).mockResolvedValue({
+      id: '1',
+      campaignId: 'c1',
+      campaign: { logs: [] }
+    });
 
     await getPlayerDashboard('1');
 
@@ -39,13 +42,32 @@ describe('Query Optimization', () => {
     expect(select.inventory).toBeUndefined();
     expect(select.conditions).toBeUndefined();
 
-    // Verify logs query
-    const logCalls = (prisma.logEntry.findMany as any).mock.calls;
-    const logArgs = logCalls[0][0];
-    expect(logArgs.take).toBe(10);
-    expect(logArgs.select.id).toBe(true);
-    expect(logArgs.select.content).toBe(true);
-    expect(logArgs.select.timestamp).toBe(true);
+    // Verify logs query is nested in campaign
+    expect(select.campaign).toBeDefined();
+    const campaignSelect = select.campaign.select;
+    expect(campaignSelect.logs).toBeDefined();
+
+    const logsArgs = campaignSelect.logs;
+    expect(logsArgs.take).toBe(10);
+    expect(logsArgs.orderBy.timestamp).toBe('desc');
+    expect(logsArgs.select.id).toBe(true);
+    expect(logsArgs.select.content).toBe(true);
+    expect(logsArgs.select.timestamp).toBe(true);
+
+    // Ensure no separate log query
+    expect(prisma.logEntry.findMany).not.toHaveBeenCalled();
+  });
+
+  it('getPlayerDashboard handles missing campaign gracefully', async () => {
+    (prisma.character.findUnique as any).mockResolvedValue({
+      id: '1',
+      campaign: null // Simulate missing campaign (though technically invalid schema)
+    });
+
+    const result = await getPlayerDashboard('1');
+
+    expect(result).toBeDefined();
+    expect(result!.logs).toEqual([]);
   });
 
   it('getPlayerSkills selects only attributes and stats', async () => {
