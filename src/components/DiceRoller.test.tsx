@@ -35,7 +35,7 @@ describe('DiceRoller', () => {
 
     const callArguments = vi.mocked(actions.logAction).mock.calls[0]
     expect(callArguments[0]).toBe(campaignId)
-    expect(callArguments[1]).toContain('**DM** rolls **1d20**')
+    expect(callArguments[1]).toMatch(/\*\*DM\*\* (casts the die \(d20\)\.\.\.|rolls a \*\*CRITICAL (HIT|MISS)\*\*!)/)
     expect(callArguments[2]).toBe('Roll')
   })
 
@@ -48,7 +48,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(`**${rollerName}** rolls **1d20**`),
+        expect.stringMatching(new RegExp(`\\*\\*${rollerName}\\*\\* (casts the die \\(d20\\)\\.\\.\\.|rolls a \\*\\*CRITICAL (HIT|MISS)\\*\\*!)`)),
         'Roll'
       )
     })
