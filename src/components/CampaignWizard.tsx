@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { createCampaign } from '@/app/actions';
+import { createCampaign, getAvailableCharacters } from '@/app/actions';
+import { parseAttributes } from '@/lib/safe-json';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -38,6 +39,11 @@ export default function CampaignWizard() {
     const [current, setCurrent] = useState<CharacterDraft>({ ...defaultCharacter });
     const [submitting, setSubmitting] = useState(false);
 
+    // Library State
+    const [libraryOpen, setLibraryOpen] = useState(false);
+    const [libraryLoading, setLibraryLoading] = useState(false);
+    const [libraryList, setLibraryList] = useState<any[]>([]);
+
     const addCharacter = () => {
         if (!current.name.trim()) return;
         setCharacters(prev => [...prev, { ...current }]);
@@ -46,6 +52,44 @@ export default function CampaignWizard() {
 
     const removeCharacter = (idx: number) => {
         setCharacters(prev => prev.filter((_, i) => i !== idx));
+    };
+
+    const loadLibrary = async () => {
+        setLibraryLoading(true);
+        setLibraryOpen(true);
+        try {
+            const result = await getAvailableCharacters();
+            if (result && Array.isArray(result)) {
+                setLibraryList(result);
+            }
+        } catch (e) {
+            console.error("Failed to load library", e);
+        } finally {
+            setLibraryLoading(false);
+        }
+    };
+
+    const selectFromLibrary = (char: any) => {
+        const attrs = parseAttributes(char.attributes);
+        setCurrent({
+            name: char.name,
+            type: char.type,
+            race: char.race || '',
+            class: char.class || '',
+            level: char.level || 1,
+            hp: char.hp,
+            maxHp: char.maxHp,
+            armorClass: char.armorClass,
+            speed: char.speed,
+            initiative: char.initiative,
+            str: attrs.str || 10,
+            dex: attrs.dex || 10,
+            con: attrs.con || 10,
+            int: attrs.int || 10,
+            wis: attrs.wis || 10,
+            cha: attrs.cha || 10,
+        });
+        setLibraryOpen(false);
     };
 
     const handleCreate = async () => {
@@ -63,7 +107,42 @@ export default function CampaignWizard() {
     };
 
     return (
-        <div className="p-10 flex flex-col items-center justify-center min-h-screen bg-agent-navy text-white">
+        <div className="p-10 flex flex-col items-center justify-center min-h-screen bg-agent-navy text-white relative">
+            {/* Library Modal */}
+            {libraryOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                    <Card variant="agent" className="max-w-2xl w-full max-h-[80vh] flex flex-col">
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Character Library</CardTitle>
+                            <Button variant="ghost" size="sm" onClick={() => setLibraryOpen(false)}>Close</Button>
+                        </CardHeader>
+                        <CardContent className="flex-1 overflow-y-auto">
+                            {libraryLoading ? (
+                                <p className="text-neutral-400">Loading library...</p>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {libraryList.map((char) => (
+                                        <div key={char.id}
+                                            onClick={() => selectFromLibrary(char)}
+                                            className="p-3 bg-neutral-900 rounded-lg border border-neutral-700 hover:border-agent-blue cursor-pointer transition-colors"
+                                        >
+                                            <div className="font-bold text-white">{char.name}</div>
+                                            <div className="text-xs text-neutral-400">
+                                                {char.race} {char.class} (Lv{char.level})
+                                            </div>
+                                            <div className="text-xs text-neutral-500 mt-1">
+                                                HP {char.hp}/{char.maxHp} | AC {char.armorClass}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {libraryList.length === 0 && <p className="text-neutral-500">No saved characters found.</p>}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
             <Card variant="agent" className="max-w-2xl w-full">
                 <CardHeader>
                     <CardTitle className="text-3xl font-bold text-agent-blue mb-2">Campaign Wizard</CardTitle>
@@ -113,7 +192,12 @@ export default function CampaignWizard() {
                             )}
 
                             <div className="border border-neutral-700 rounded-lg p-4 space-y-3">
-                                <h4 className="text-sm font-semibold text-agent-blue">New Character</h4>
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-semibold text-agent-blue">New Character</h4>
+                                    <Button variant="ghost" size="sm" onClick={loadLibrary} className="text-agent-blue hover:text-agent-ice">
+                                        Load from Library
+                                    </Button>
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <label className="block text-xs text-neutral-400 mb-1">Name *</label>

@@ -29,12 +29,12 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
         const charactersJson = formData.get("characters") as string;
         let characters: CharacterInput[] = [];
         try {
-             if (charactersJson) {
-                 const parsed = JSON.parse(charactersJson);
-                 if (Array.isArray(parsed)) {
-                     characters = parsed;
-                 }
-             }
+            if (charactersJson) {
+                const parsed = JSON.parse(charactersJson);
+                if (Array.isArray(parsed)) {
+                    characters = parsed;
+                }
+            }
         } catch (e) {
             console.error("Failed to parse characters JSON:", e);
         }
@@ -431,5 +431,16 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
         revalidatePath('/dm');
         revalidatePath('/player');
         return updated;
+    });
+}
+
+// --- Library Management ---
+
+export async function getAvailableCharacters(): Promise<ActionResult> {
+    return actionWrapper("getAvailableCharacters", async () => {
+        const characters = await prisma.character.findMany({
+            orderBy: { name: 'asc' }
+        });
+        return characters;
     });
 }
