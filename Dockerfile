@@ -32,7 +32,8 @@ RUN apk add --no-cache openssl
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 # Force Prisma to use the directory we expect for SQLite
-ENV DATABASE_URL="file:/app/prisma/dev.db"
+# DATABASE_URL is provided by docker-compose
+# ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs
