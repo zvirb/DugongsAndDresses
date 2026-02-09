@@ -22,7 +22,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     return (
         <main className="flex-1 p-4 space-y-6 pb-32">
             {/* Visual Section */}
-            <div className="relative h-48 w-full md:aspect-square md:h-auto max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-white/5 shadow-2xl">
+            <div className="relative h-32 md:h-auto w-full md:aspect-square max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-white/5 shadow-2xl">
                 {character.imageUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={character.imageUrl} alt={character.name} className="w-full h-full object-cover" />
@@ -79,7 +79,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </h3>
                 <Card variant="agent" className="bg-black/40 border-white/5 overflow-hidden">
                     <CardContent className="p-0">
-                        <div className="max-h-32 overflow-y-auto font-mono text-[10px] divide-y divide-white/5">
+                        <div className="max-h-24 overflow-y-auto font-mono text-[10px] divide-y divide-white/5">
                             {character.logs.length > 0 ? (
                                 character.logs.map((log) => (
                                     <div key={log.id} className="p-3 flex gap-3">

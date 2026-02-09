@@ -73,26 +73,23 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 {/* Mode Toggles - Full width touch targets */}
                 <div className="grid grid-cols-3 gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
                     <Button
-                        size="sm"
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white' : ''}`}
+                        className={`h-14 p-4 text-xs uppercase font-bold tracking-wider ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white' : ''}`}
                     >
                         Normal
                     </Button>
                     <Button
-                        size="sm"
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-neutral-500 hover:text-emerald-400'}`}
+                        className={`h-14 p-4 text-xs uppercase font-bold tracking-wider ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-neutral-500 hover:text-emerald-400'}`}
                     >
                         Adv
                     </Button>
                     <Button
-                        size="sm"
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)]' : 'text-neutral-500 hover:text-red-400'}`}
+                        className={`h-14 p-4 text-xs uppercase font-bold tracking-wider ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)]' : 'text-neutral-500 hover:text-red-400'}`}
                     >
                         Dis
                     </Button>
@@ -106,7 +103,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                             disabled={rollingDie !== null}
                             onClick={() => rollDice(d)}
                             variant={getDiceVariant()}
-                            className="font-black text-xl h-16 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg"
+                            className="font-black text-xl h-16 p-4 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg"
                         >
                             {rollingDie === d ? '...' : `d${d}`}
                         </Button>

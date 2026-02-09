@@ -34,7 +34,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                     value={intent}
                     onChange={(e) => setIntent(e.target.value)}
                     disabled={isPending}
-                    className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-14 text-lg rounded-xl"
+                    className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-16 text-lg rounded-xl"
                 />
             </div>
 
@@ -47,14 +47,14 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                         value={roll}
                         onChange={(e) => setRoll(e.target.value)}
                         disabled={isPending}
-                        className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-14 text-lg rounded-xl"
+                        className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-16 text-lg rounded-xl"
                     />
                 </div>
                 <Button
                     type="submit"
                     variant="agent"
                     disabled={isPending || !intent}
-                    className="h-16 w-full rounded-xl uppercase text-lg font-black tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.2)] active:scale-[0.98] transition-transform"
+                    className="h-16 p-4 w-full rounded-xl uppercase text-lg font-black tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.2)] active:scale-[0.98] transition-transform"
                 >
                     {isPending ? "Transmitting..." : "Execute"}
                 </Button>
