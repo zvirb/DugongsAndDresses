@@ -5,8 +5,8 @@ import AICopyButton from './AICopyButton'
 describe('AICopyButton', () => {
   // Simulate logs ordered by timestamp DESC (Newest First) as per getActiveCampaign
   const logs = [
-    { id: '2', content: 'Grom counterattacks', timestamp: new Date('2026-02-05T10:01:00'), type: 'Combat' },
-    { id: '1', content: 'Goblin attacks Grom', timestamp: new Date('2026-02-05T10:00:00'), type: 'Combat' },
+    { id: '2', content: 'Grom counterattacks', timestamp: new Date('2026-02-05T10:01:00') },
+    { id: '1', content: 'Goblin attacks Grom', timestamp: new Date('2026-02-05T10:00:00') },
   ]
 
   const characters = [

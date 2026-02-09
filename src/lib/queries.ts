@@ -1,6 +1,32 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
 
+// Reusable select constants for consistency and optimization
+const DM_CHAR_SELECT = {
+  id: true,
+  name: true,
+  initiativeRoll: true,
+  activeTurn: true,
+  hp: true,
+  maxHp: true,
+  type: true,
+  conditions: true,
+  armorClass: true,
+  level: true,
+  class: true,
+  race: true,
+  attributes: true,
+  inventory: true,
+  speed: true,
+  initiative: true
+} as const;
+
+const DM_LOG_SELECT = {
+  id: true,
+  timestamp: true,
+  content: true
+} as const;
+
 /**
  * Fetches all campaigns ordered by creation date.
  */
@@ -23,35 +49,12 @@ export async function getActiveCampaign() {
       name: true,
       characters: {
         orderBy: { name: 'asc' },
-        select: {
-          id: true,
-          name: true,
-          initiativeRoll: true,
-          activeTurn: true,
-          hp: true,
-          maxHp: true,
-          type: true,
-          conditions: true,
-          armorClass: true,
-          imageUrl: true,
-          level: true,
-          class: true,
-          race: true,
-          attributes: true,
-          inventory: true,
-          speed: true,
-          initiative: true
-        }
+        select: DM_CHAR_SELECT
       },
       logs: {
         take: 20,
         orderBy: { timestamp: 'desc' },
-        select: {
-          id: true,
-          timestamp: true,
-          content: true,
-          type: true
-        }
+        select: DM_LOG_SELECT
       }
     }
   });
@@ -65,35 +68,12 @@ export async function getActiveCampaign() {
       name: true,
       characters: {
         orderBy: { name: 'asc' },
-        select: {
-          id: true,
-          name: true,
-          initiativeRoll: true,
-          activeTurn: true,
-          hp: true,
-          maxHp: true,
-          type: true,
-          conditions: true,
-          armorClass: true,
-          imageUrl: true,
-          level: true,
-          class: true,
-          race: true,
-          attributes: true,
-          inventory: true,
-          speed: true,
-          initiative: true
-        }
+        select: DM_CHAR_SELECT
       },
       logs: {
         take: 20,
         orderBy: { timestamp: 'desc' },
-        select: {
-          id: true,
-          timestamp: true,
-          content: true,
-          type: true
-        }
+        select: DM_LOG_SELECT
       }
     }
   });
