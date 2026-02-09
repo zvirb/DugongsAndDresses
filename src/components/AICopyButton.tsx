@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from './ui/Button';
-import { parseConditions, parseAttributes } from '@/lib/safe-json';
+import { parseConditions, parseAttributes, parseInventory } from '@/lib/safe-json';
 
 type Log = {
     id: string;
@@ -23,6 +23,8 @@ type Character = {
     race: string | null;
     attributes?: string; // JSON string
     speed?: number;
+    inventory?: string; // JSON string
+    activeTurn?: boolean;
 };
 
 export default function AICopyButton({ logs, characters, turnOrder }: {
@@ -43,15 +45,22 @@ export default function AICopyButton({ logs, characters, turnOrder }: {
                 .map(([k, v]) => `${k.toUpperCase().slice(0, 3)}:${v}`)
                 .join(' ');
 
+            // Parse inventory
+            const inventory = parseInventory(c.inventory);
+            const inventoryText = inventory.length > 0
+                ? inventory.slice(0, 5).join(', ') + (inventory.length > 5 ? '...' : '')
+                : null;
+
             // Construct line parts to avoid trailing spaces and ensure clean formatting
             const parts = [
-                `- ${c.name} [${c.type}]`,
+                `${c.activeTurn ? '▶ ' : '- '}${c.name} [${c.type}]`,
                 `HP: ${c.hp}/${c.maxHp}`,
                 `AC: ${c.armorClass}`,
                 c.speed !== undefined ? `Spd: ${c.speed}` : null,
                 `${c.race || '?'} ${c.class || '?'} (Lvl ${c.level})`,
                 `Status: ${conditionText}`,
-                attrText ? `[${attrText}]` : null
+                attrText ? `[${attrText}]` : null,
+                inventoryText ? `Inv: [${inventoryText}]` : null
             ].filter(item => item !== null && item !== undefined && item !== '');
 
             return parts.join(' | ');
@@ -80,7 +89,8 @@ ${logSummary}
 == INSTRUCTIONS ==
 Based on the current state, suggest a brief narrative description of the scene or the next DM prompt.
 Tone: Technical Fantasy (concise, action-oriented).
-Focus on the ACTIVE turn and recent events.`;
+Focus on the ACTIVE turn, current health/conditions, and recent events.
+Use provided stats (Attributes, Inventory) to inform narrative flavor.`;
     };
 
     const handleCopy = async () => {
