@@ -30,3 +30,21 @@ export type Participant = z.infer<typeof ParticipantSchema>;
 export const ParticipantsSchema = z.array(ParticipantSchema);
 
 export type Participants = z.infer<typeof ParticipantsSchema>;
+
+// Character Input Schema for creation/updates
+export const CharacterInputSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  type: z.string().default("PLAYER"), // Defaults to PLAYER, but allows other strings
+  race: z.string().optional().nullable(),
+  class: z.string().optional().nullable(),
+  level: z.number().int().default(1),
+  hp: z.number().int(),
+  maxHp: z.number().int(),
+  armorClass: z.number().int(),
+  speed: z.number().int().default(30),
+  initiative: z.number().int().default(0),
+  attributes: AttributesSchema.optional(),
+  sourceId: z.string().optional().nullable(),
+});
+
+export type CharacterInput = z.infer<typeof CharacterInputSchema>;
