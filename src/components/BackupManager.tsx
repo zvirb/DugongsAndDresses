@@ -13,7 +13,9 @@ export default function BackupManager() {
     const loadBackups = async () => {
         try {
             const res = await listBackupsAction();
-            if (res && Array.isArray(res)) setBackups(res);
+            if (res.success && Array.isArray(res.data)) {
+                setBackups(res.data);
+            }
         } catch (e) {
             console.error("Failed to load backups", e);
         }
@@ -27,9 +29,14 @@ export default function BackupManager() {
         setLoading(true);
         setStatus('Creating backup...');
         try {
-            await createBackupAction();
-            await loadBackups();
-            setStatus('Backup created successfully.');
+            const res = await createBackupAction();
+            if (res.success) {
+                await loadBackups();
+                setStatus('Backup created successfully.');
+            } else {
+                setStatus('Backup failed.');
+                console.error(res.error);
+            }
         } catch (e) {
             setStatus('Backup failed.');
             console.error(e);
@@ -47,9 +54,15 @@ export default function BackupManager() {
         setLoading(true);
         setStatus(`Restoring ${filename}...`);
         try {
-            await restoreBackupAction(filename);
-            setStatus('Restore complete! Reloading...');
-            setTimeout(() => window.location.assign('/'), 1500);
+            const res = await restoreBackupAction(filename);
+            if (res.success) {
+                setStatus('Restore complete! Reloading...');
+                setTimeout(() => window.location.assign('/'), 1500);
+            } else {
+                setStatus('Restore failed.');
+                console.error(res.error);
+                setLoading(false);
+            }
         } catch (e) {
             setStatus('Restore failed.');
             console.error(e);

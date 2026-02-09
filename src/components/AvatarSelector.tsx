@@ -2,6 +2,7 @@
 
 import { uploadAvatar, updateCharacterImage } from "@/app/actions";
 import { useState, useTransition } from "react";
+import * as Popover from '@radix-ui/react-popover';
 
 const PRESETS = [
     '/avatars/barbarian_archer_female_1770268298470.png',
@@ -48,8 +49,6 @@ const PRESETS = [
     '/avatars/wizard_female_1770266180583.png',
     '/avatars/wizard_male_1770266164795.png',
 ];
-
-import * as Popover from '@radix-ui/react-popover';
 
 // ... (PRESETS array remains the same)
 
