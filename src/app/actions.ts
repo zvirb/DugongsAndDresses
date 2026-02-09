@@ -545,19 +545,32 @@ export async function performAttack(attackerId: string, targetId: string, damage
         if (!attacker || !target) throw new Error("Character not found");
 
         let content = `**${attacker.name}** attacks **${target.name}**`;
-        if (attackRoll) {
+        let isHit = true;
+
+        if (attackRoll !== undefined) {
             content += ` (Roll: **${attackRoll}**)`;
+            // Check against AC if roll is provided
+            if (target.armorClass && attackRoll < target.armorClass) {
+                isHit = false;
+            }
+        } else {
+            // If no roll provided, assume miss if 0 damage
+            if (damage <= 0) isHit = false;
         }
 
         let updatedTarget = target;
 
-        if (damage > 0) {
-            content += ` and strikes for **${damage}** damage!`;
-            updatedTarget = await prisma.character.update({
-                where: { id: targetId },
-                data: { hp: { decrement: damage } }
-            });
-            await syncToSource(updatedTarget);
+        if (isHit) {
+            if (damage > 0) {
+                content += ` and strikes for **${damage}** damage!`;
+                updatedTarget = await prisma.character.update({
+                    where: { id: targetId },
+                    data: { hp: { decrement: damage } }
+                });
+                await syncToSource(updatedTarget);
+            } else {
+                content += ` but deals no damage!`;
+            }
         } else {
             content += ` but misses!`;
         }
