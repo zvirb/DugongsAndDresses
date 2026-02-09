@@ -41,7 +41,7 @@ describe('TurnTracker', () => {
   it('calls advanceTurn with current active ID when Next Turn is clicked', async () => {
     render(<TurnTracker initialParticipants={participants} campaignId={campaignId} />)
 
-    const nextTurnButton = screen.getByText('Next Turn')
+    const nextTurnButton = screen.getByText('Next')
     fireEvent.click(nextTurnButton)
 
     // Current active is Grom (id='1').
@@ -58,7 +58,7 @@ describe('TurnTracker', () => {
     ]
     render(<TurnTracker initialParticipants={lastActiveParticipants} campaignId={campaignId} />)
 
-    fireEvent.click(screen.getByText('Next Turn'))
+    fireEvent.click(screen.getByText('Next'))
 
     // Current active is Goblin (id='3').
     await waitFor(() => {

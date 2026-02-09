@@ -57,9 +57,9 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
     return (
         <div
             className={`
-                relative overflow-hidden rounded-3xl border-4 transition-all duration-700
+                relative overflow-hidden rounded-3xl border-4 transition-all duration-700 backdrop-blur-xl
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_60px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-105 z-20 ring-4 ring-agent-blue/50'
+                    ? 'border-agent-blue shadow-[0_0_80px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-105 z-20 ring-4 ring-agent-blue/50'
                     : 'border-white/5 bg-white/5 grayscale-[0.2] hover:grayscale-0 hover:border-white/10'}
             `}
         >
@@ -114,7 +114,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     {/* Health Bar */}
                     <div className="h-8 bg-white/5 rounded-full overflow-hidden p-1 border-2 border-white/10 shadow-inner"> {/* Increased height */}
                         <div
-                            className={`h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden ${character.hp <= character.maxHp * 0.2 ? 'bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.8)]' : 'bg-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.4)]'
+                            className={`h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-[repeating-linear-gradient(90deg,transparent,transparent_4px,#000_4px,#000_5px)] ${character.hp <= character.maxHp * 0.2 ? 'bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.8)]' : 'bg-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.4)]'
                                 }`}
                             style={{ width: `${hpPercent}%` }}
                         >
