@@ -34,14 +34,14 @@ export default function QuickActions({ campaignId, characters }: QuickActionsPro
     return (
         <Card variant="agent">
             <CardHeader className="py-2 px-4">
-                <CardTitle className="text-sm text-neutral-400">Quick Actions</CardTitle>
+                <CardTitle className="text-sm text-agent-blue uppercase tracking-widest">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0 space-y-3">
                 <div className="grid grid-cols-4 gap-2">
-                    <Button variant="destructive" size="sm" className="w-full" onClick={() => toggle('attack')}>Attack</Button>
-                    <Button variant="secondary" size="sm" className="w-full text-blue-300 border-blue-900/50 hover:bg-blue-900/30" onClick={() => toggle('skill')}>Skill Check</Button>
-                    <Button variant="secondary" size="sm" className="w-full text-purple-300 border-purple-900/50 hover:bg-purple-900/30" onClick={() => toggle('spell')}>Cast Spell</Button>
-                    <Button variant="ghost" size="sm" className="w-full border border-neutral-600" onClick={() => toggle('note')}>Log Note</Button>
+                    <Button variant="destructive" size="sm" className="w-full shadow-md" onClick={() => toggle('attack')}>Attack</Button>
+                    <Button variant="outline" size="sm" className="w-full text-blue-200 border-blue-800 hover:bg-blue-900/50 hover:text-white" onClick={() => toggle('skill')}>Skill Check</Button>
+                    <Button variant="outline" size="sm" className="w-full text-purple-200 border-purple-800 hover:bg-purple-900/50 hover:text-white" onClick={() => toggle('spell')}>Cast Spell</Button>
+                    <Button variant="ghost" size="sm" className="w-full border border-white/10 hover:bg-white/5 hover:text-white" onClick={() => toggle('note')}>Log Note</Button>
                 </div>
 
                 {active === 'attack' && (
@@ -87,33 +87,33 @@ function AttackForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-neutral-900 rounded-lg p-3 border border-red-900/30 space-y-2">
+        <div className="bg-agent-navy/90 rounded-lg p-3 border border-red-900/50 shadow-inner space-y-2">
             <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-2">
-                    <label className="block text-xs text-neutral-400 mb-1">Attacker</label>
-                    <select value={attackerId} onChange={e => setAttackerId(e.target.value)} className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-1 text-sm text-neutral-100">
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Attacker</label>
+                    <select value={attackerId} onChange={e => setAttackerId(e.target.value)} className="flex h-9 w-full rounded-md border border-agent-blue/30 bg-black/50 px-3 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-agent-blue">
                         <option value="">Select...</option>
                         {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                 </div>
                 <div className="col-span-2">
-                    <label className="block text-xs text-neutral-400 mb-1">Target</label>
-                    <select value={targetId} onChange={e => setTargetId(e.target.value)} className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-1 text-sm text-neutral-100">
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Target</label>
+                    <select value={targetId} onChange={e => setTargetId(e.target.value)} className="flex h-9 w-full rounded-md border border-agent-blue/30 bg-black/50 px-3 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-agent-blue">
                         <option value="">Select...</option>
                         {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                 </div>
                 <div className="col-span-2">
-                    <label className="block text-xs text-neutral-400 mb-1">Roll (Optional)</label>
-                    <Input type="number" value={attackRoll} onChange={e => setAttackRoll(e.target.value)} placeholder="e.g. 18" className="bg-neutral-950 border-neutral-700" />
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Roll (Optional)</label>
+                    <Input type="number" value={attackRoll} onChange={e => setAttackRoll(e.target.value)} placeholder="e.g. 18" className="bg-black/50 border-agent-blue/30 text-white focus-visible:ring-agent-blue" />
                 </div>
                 <div className="col-span-2">
-                    <label className="block text-xs text-neutral-400 mb-1">Damage</label>
-                    <Input type="number" value={damage} onChange={e => setDamage(e.target.value)} placeholder="e.g. 8" className="bg-neutral-950 border-neutral-700" />
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Damage</label>
+                    <Input type="number" value={damage} onChange={e => setDamage(e.target.value)} placeholder="e.g. 8" className="bg-black/50 border-agent-blue/30 text-white focus-visible:ring-agent-blue" />
                 </div>
             </div>
             <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 hover:bg-white/5 hover:text-white">Cancel</Button>
                 <Button
                     variant="destructive" size="sm" className="flex-1"
                     disabled={!attackerId || !targetId || submitting}
@@ -145,32 +145,32 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-neutral-900 rounded-lg p-3 border border-blue-900/30 space-y-2">
+        <div className="bg-agent-navy/90 rounded-lg p-3 border border-blue-900/50 shadow-inner space-y-2">
             <div className="grid grid-cols-2 gap-2">
                 <div>
-                    <label className="block text-xs text-neutral-400 mb-1">Character</label>
-                    <select value={characterId} onChange={e => setCharacterId(e.target.value)} className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-1 text-sm text-neutral-100">
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Character</label>
+                    <select value={characterId} onChange={e => setCharacterId(e.target.value)} className="flex h-9 w-full rounded-md border border-agent-blue/30 bg-black/50 px-3 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-agent-blue">
                         <option value="">Select...</option>
                         {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                 </div>
                 <div>
-                    <label className="block text-xs text-neutral-400 mb-1">Skill</label>
-                    <Input value={skill} onChange={e => setSkill(e.target.value)} placeholder="e.g. Perception" className="bg-neutral-950 border-neutral-700" />
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Skill</label>
+                    <Input value={skill} onChange={e => setSkill(e.target.value)} placeholder="e.g. Perception" className="bg-black/50 border-agent-blue/30 text-white focus-visible:ring-agent-blue" />
                 </div>
                 <div>
-                    <label className="block text-xs text-neutral-400 mb-1">DC</label>
-                    <Input type="number" value={dc} onChange={e => setDc(e.target.value)} placeholder="15" className="bg-neutral-950 border-neutral-700" />
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">DC</label>
+                    <Input type="number" value={dc} onChange={e => setDc(e.target.value)} placeholder="15" className="bg-black/50 border-agent-blue/30 text-white focus-visible:ring-agent-blue" />
                 </div>
                 <div>
-                    <label className="block text-xs text-neutral-400 mb-1">Roll Result</label>
-                    <Input type="number" value={result} onChange={e => setResult(e.target.value)} placeholder="18" className="bg-neutral-950 border-neutral-700" />
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Roll Result</label>
+                    <Input type="number" value={result} onChange={e => setResult(e.target.value)} placeholder="18" className="bg-black/50 border-agent-blue/30 text-white focus-visible:ring-agent-blue" />
                 </div>
             </div>
             <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 hover:bg-white/5 hover:text-white">Cancel</Button>
                 <Button
-                    variant="secondary" size="sm" className="flex-1 text-blue-300"
+                    variant="outline" size="sm" className="flex-1 text-blue-200 border-blue-800 hover:bg-blue-900/50 hover:text-white"
                     disabled={!characterId || !skill || submitting}
                     onClick={handleSubmit}
                 >
@@ -200,38 +200,38 @@ function SpellForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-neutral-900 rounded-lg p-3 border border-purple-900/30 space-y-2">
+        <div className="bg-agent-navy/90 rounded-lg p-3 border border-purple-900/50 shadow-inner space-y-2">
             <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-2">
-                    <label className="block text-xs text-neutral-400 mb-1">Caster</label>
-                    <select value={casterId} onChange={e => setCasterId(e.target.value)} className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-1 text-sm text-neutral-100">
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Caster</label>
+                    <select value={casterId} onChange={e => setCasterId(e.target.value)} className="flex h-9 w-full rounded-md border border-agent-blue/30 bg-black/50 px-3 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-agent-blue">
                         <option value="">Select...</option>
                         {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                 </div>
                 <div className="col-span-2">
-                    <label className="block text-xs text-neutral-400 mb-1">Target (Optional)</label>
-                    <select value={targetId} onChange={e => setTargetId(e.target.value)} className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-1 text-sm text-neutral-100">
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Target (Optional)</label>
+                    <select value={targetId} onChange={e => setTargetId(e.target.value)} className="flex h-9 w-full rounded-md border border-agent-blue/30 bg-black/50 px-3 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-agent-blue">
                         <option value="">None</option>
                         {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                 </div>
                 <div className="col-span-2">
-                    <label className="block text-xs text-neutral-400 mb-1">Spell</label>
-                    <Input value={spell} onChange={e => setSpell(e.target.value)} placeholder="e.g. Fireball" className="bg-neutral-950 border-neutral-700" />
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Spell</label>
+                    <Input value={spell} onChange={e => setSpell(e.target.value)} placeholder="e.g. Fireball" className="bg-black/50 border-agent-blue/30 text-white focus-visible:ring-agent-blue" />
                 </div>
                 <div className="col-span-2">
-                    <label className="block text-xs text-neutral-400 mb-1">Apply Condition (Optional)</label>
-                    <select value={condition} onChange={e => setCondition(e.target.value)} className="flex h-9 w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-1 text-sm text-neutral-100">
+                    <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Apply Condition (Optional)</label>
+                    <select value={condition} onChange={e => setCondition(e.target.value)} className="flex h-9 w-full rounded-md border border-agent-blue/30 bg-black/50 px-3 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-agent-blue">
                         <option value="">None</option>
                         {COMMON_CONDITIONS.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
             </div>
             <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 hover:bg-white/5 hover:text-white">Cancel</Button>
                 <Button
-                    variant="secondary" size="sm" className="flex-1 text-purple-300"
+                    variant="outline" size="sm" className="flex-1 text-purple-200 border-purple-800 hover:bg-purple-900/50 hover:text-white"
                     disabled={!casterId || !spell || submitting}
                     onClick={handleSubmit}
                 >
@@ -258,15 +258,15 @@ function NoteForm({ campaignId, onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-neutral-900 rounded-lg p-3 border border-neutral-700 space-y-2">
+        <div className="bg-agent-navy/90 rounded-lg p-3 border border-agent-blue/30 shadow-inner space-y-2">
             <div>
-                <label className="block text-xs text-neutral-400 mb-1">Note</label>
-                <Input value={note} onChange={e => setNote(e.target.value)} placeholder="What happened..." className="bg-neutral-950 border-neutral-700" />
+                <label className="block text-xs text-neutral-400 mb-1 uppercase tracking-wide">Note</label>
+                <Input value={note} onChange={e => setNote(e.target.value)} placeholder="What happened..." className="bg-black/50 border-agent-blue/30 text-white focus-visible:ring-agent-blue" />
             </div>
             <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 hover:bg-white/5 hover:text-white">Cancel</Button>
                 <Button
-                    variant="ghost" size="sm" className="flex-1 border border-neutral-600"
+                    variant="outline" size="sm" className="flex-1 border-white/20 text-neutral-300 hover:bg-white/5 hover:text-white"
                     disabled={!note.trim() || submitting}
                     onClick={handleSubmit}
                 >

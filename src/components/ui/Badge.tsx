@@ -11,9 +11,9 @@ const Badge = forwardRef<HTMLDivElement, BadgeProps>(({ className, variant = "de
         secondary: "border-transparent bg-neutral-100 text-neutral-900 hover:bg-neutral-100/80",
         destructive: "border-transparent bg-red-900 text-red-100 hover:bg-red-900/80",
         outline: "text-neutral-100 border-neutral-100",
-        npc: "border-transparent bg-red-900/50 text-red-200 border border-red-800",
-        player: "border-transparent bg-blue-900/50 text-blue-200 border border-blue-800",
-        agent: "border-transparent bg-agent-blue text-white shadow-[0_0_10px_rgba(43,43,238,0.2)]",
+        npc: "border-transparent bg-red-950/80 text-red-400 border border-red-900/50 shadow-[0_0_10px_rgba(153,27,27,0.4)]",
+        player: "border-transparent bg-agent-navy text-agent-blue border border-agent-blue/50 shadow-[0_0_10px_rgba(43,43,238,0.3)]",
+        agent: "border-transparent bg-agent-blue text-white shadow-[0_0_15px_rgba(43,43,238,0.5)]",
     };
 
     return (

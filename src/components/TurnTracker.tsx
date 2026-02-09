@@ -43,12 +43,12 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
 
     return (
         <div className="flex flex-col h-full">
-            <h2 className="text-lg font-semibold mb-4 text-emerald-400 flex justify-between items-center">
+            <h2 className="text-lg font-semibold mb-4 text-agent-blue flex justify-between items-center uppercase tracking-widest">
                 <span>Initiative</span>
                 <Button
                     onClick={handleNextTurn}
                     disabled={isPending}
-                    variant="success"
+                    variant="agent"
                     size="sm"
                     className="text-xs"
                 >
@@ -63,25 +63,28 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         className={cn(
                             "p-3 rounded flex justify-between items-center border-l-4 transition-all",
                             p.activeTurn
-                                ? 'bg-neutral-700 border-amber-500 shadow-lg shadow-black/50 scale-[1.02]'
-                                : 'bg-neutral-800 border-transparent opacity-80'
+                                ? 'bg-agent-navy border-agent-blue shadow-[0_0_15px_rgba(43,43,238,0.6)] scale-[1.02] ring-1 ring-agent-blue/50'
+                                : 'bg-white/5 border-transparent opacity-60 hover:opacity-100'
                         )}
                     >
                         <div>
                             <span className={cn(
-                                "block font-bold",
+                                "block font-bold uppercase tracking-wide",
                                 p.type === 'NPC' ? 'text-red-400' : 'text-white'
                             )}>
                                 {p.name}
                             </span>
-                            {p.activeTurn && <span className="text-xs text-amber-500 animate-pulse">Taking Turn...</span>}
+                            {p.activeTurn && <span className="text-xs text-agent-blue font-bold animate-pulse uppercase tracking-wider">Taking Turn...</span>}
                         </div>
 
                         {/* Initiative Edit Field */}
                         <div className="w-16">
                             <Input
                                 type="number"
-                                className="text-center font-mono h-8 bg-neutral-900 border-neutral-700 focus-visible:ring-amber-500"
+                                className={cn(
+                                    "text-center font-mono h-8 border-transparent focus-visible:ring-agent-blue",
+                                    p.activeTurn ? "bg-black/40 text-white" : "bg-black/20 text-neutral-400"
+                                )}
                                 defaultValue={p.initiativeRoll}
                                 onBlur={(e) => updateInit(p.id, e.target.value)}
                             />
