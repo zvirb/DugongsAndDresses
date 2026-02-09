@@ -115,4 +115,26 @@ describe('DiceRoller', () => {
     expect(screen.queryByText('ROLLING...')).not.toBeInTheDocument()
     expect(screen.getByText('d20')).not.toBeDisabled()
   })
+
+  it('resets rolling state and re-enables buttons even if logAction fails', async () => {
+    render(<DiceRoller campaignId={campaignId} />)
+
+    // Mock logAction to fail once
+    vi.mocked(actions.logAction).mockRejectedValueOnce(new Error('Network error'))
+
+    const d20Button = screen.getByText('d20')
+    fireEvent.click(d20Button)
+
+    // Should show "ROLLING..." immediately
+    expect(screen.getByText('ROLLING...')).toBeInTheDocument()
+    expect(d20Button).toBeDisabled()
+
+    // Wait for the async action to complete (and fail)
+    await waitFor(() => {
+      expect(screen.queryByText('ROLLING...')).not.toBeInTheDocument()
+    })
+
+    // Buttons should be enabled again
+    expect(d20Button).not.toBeDisabled()
+  })
 })
