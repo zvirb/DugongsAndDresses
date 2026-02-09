@@ -376,23 +376,23 @@ describe('Server Actions Logging', () => {
         expect(prisma.logEntry.create).toHaveBeenCalled();
     });
 
-    it('advances if expectedActiveId is undefined (force)', async () => {
+    it('returns current active if expectedActiveId is undefined but someone is active', async () => {
           // Setup: A (active)
           const characters = [
               { id: '1', name: 'Char1', activeTurn: true, initiativeRoll: 20 },
               { id: '2', name: 'Char2', activeTurn: false, initiativeRoll: 15 },
           ];
           vi.mocked(prisma.character.findMany).mockResolvedValue(characters as any);
-          const updateResult = { id: '2', name: 'Char2', activeTurn: true };
-          vi.mocked(prisma.$transaction).mockResolvedValue([{ count: 1 }, updateResult] as any);
+          vi.mocked(prisma.character.findUnique).mockResolvedValue({ id: '1', name: 'Char1', activeTurn: true } as any);
 
-          await advanceTurn(campaignId, undefined);
+          const result = await advanceTurn(campaignId, undefined);
 
-          expect(prisma.character.update).toHaveBeenCalledWith({
-              where: { id: '2' },
-              data: { activeTurn: true }
-          });
-          expect(prisma.logEntry.create).toHaveBeenCalled();
+          // Should NOT advance
+          expect(prisma.character.update).not.toHaveBeenCalled();
+          expect(prisma.logEntry.create).not.toHaveBeenCalled();
+
+          // Should return current active
+          expect(result).toEqual({ success: true, data: { id: '1', name: 'Char1', activeTurn: true } });
     });
   });
 
