@@ -1,11 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getPlayerDashboard, getPlayerSkills, getPlayerInventory } from './queries';
+
+// Mock react cache before importing queries
+vi.mock('react', () => ({
+  cache: (fn: any) => fn,
+}));
+
+import { getPlayerDashboard, getPlayerSkills, getPlayerInventory, getActiveCampaign } from './queries';
 import { prisma } from './prisma';
 
 vi.mock('./prisma', () => ({
   prisma: {
     character: {
       findUnique: vi.fn(),
+    },
+    campaign: {
+      findFirst: vi.fn(),
     },
     logEntry: {
       findMany: vi.fn(),
@@ -16,6 +25,51 @@ vi.mock('./prisma', () => ({
 describe('Query Optimization', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('getActiveCampaign selects optimized fields', async () => {
+    (prisma.campaign.findFirst as any).mockResolvedValue({
+      id: 'c1',
+      name: 'Test Campaign',
+      characters: [],
+      logs: []
+    });
+
+    await getActiveCampaign();
+
+    const calls = (prisma.campaign.findFirst as any).mock.calls;
+    // getActiveCampaign calls findFirst potentially twice (active, then fallback),
+    // but in test we return value on first call so it should be called once.
+    expect(calls.length).toBeGreaterThan(0);
+    const args = calls[0][0];
+    const select = args.select;
+
+    // Verify Character Selection
+    expect(select.characters).toBeDefined();
+    const charSelect = select.characters.select;
+
+    // Should select needed fields
+    expect(charSelect.id).toBe(true);
+    expect(charSelect.name).toBe(true);
+    expect(charSelect.hp).toBe(true);
+
+    // SHOULD NOT select unused fields
+    expect(charSelect.imageUrl).toBeUndefined();
+
+    // Verify Log Selection
+    expect(select.logs).toBeDefined();
+    const logsArgs = select.logs;
+
+    expect(logsArgs.take).toBe(20);
+    expect(logsArgs.orderBy.timestamp).toBe('desc');
+
+    const logSelect = logsArgs.select;
+    expect(logSelect.id).toBe(true);
+    expect(logSelect.content).toBe(true);
+    expect(logSelect.timestamp).toBe(true);
+
+    // SHOULD NOT select unused fields
+    expect(logSelect.type).toBeUndefined();
   });
 
   it('getPlayerDashboard selects optimized fields with nested logs', async () => {

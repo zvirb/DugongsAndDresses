@@ -8,7 +8,6 @@ type Log = {
     id: string;
     content: string;
     timestamp: Date;
-    type: string;
 };
 
 type Character = {

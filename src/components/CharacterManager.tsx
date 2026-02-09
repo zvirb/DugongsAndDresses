@@ -24,7 +24,6 @@ interface Character {
     armorClass: number;
     speed: number;
     initiative: number;
-    imageUrl: string | null;
     conditions: string;
     attributes: string;
     inventory: string;
