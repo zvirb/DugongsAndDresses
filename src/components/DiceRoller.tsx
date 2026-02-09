@@ -20,40 +20,45 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
     const rollDice = useCallback(async (sides: number) => {
         setRollingDie(sides);
 
-        // Add visual delay for click confidence
-        await new Promise(resolve => setTimeout(resolve, 600));
+        try {
+            // Add visual delay for click confidence
+            await new Promise(resolve => setTimeout(resolve, 600));
 
-        let result = 0;
-        let details = '';
+            let result = 0;
+            let details = '';
 
-        // Base roll
-        const roll1 = secureRoll(sides);
+            // Base roll
+            const roll1 = secureRoll(sides);
 
-        if (mode === 'NORMAL') {
-            result = roll1;
-        } else {
-            const roll2 = secureRoll(sides);
-            if (mode === 'ADVANTAGE') {
-                result = Math.max(roll1, roll2);
-                details = ` (Rolls: **${roll1}**, **${roll2}**)`;
+            if (mode === 'NORMAL') {
+                result = roll1;
             } else {
-                result = Math.min(roll1, roll2);
-                details = ` (Rolls: **${roll1}**, **${roll2}**)`;
+                const roll2 = secureRoll(sides);
+                if (mode === 'ADVANTAGE') {
+                    result = Math.max(roll1, roll2);
+                    details = ` (Rolls: **${roll1}**, **${roll2}**)`;
+                } else {
+                    result = Math.min(roll1, roll2);
+                    details = ` (Rolls: **${roll1}**, **${roll2}**)`;
+                }
             }
+
+            let logMessage = '';
+
+            if (sides === 20 && result === 20) {
+                logMessage = `**${rollerName}** rolls a **CRITICAL HIT**!${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
+            } else if (sides === 20 && result === 1) {
+                logMessage = `**${rollerName}** rolls a **CRITICAL MISS**!${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
+            } else {
+                logMessage = `**${rollerName}** casts the die (d${sides})... **${result}**!${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
+            }
+
+            await logAction(campaignId, logMessage, 'Roll');
+        } catch (error) {
+            console.error('Failed to log roll:', error);
+        } finally {
+            setRollingDie(null);
         }
-
-        let logMessage = '';
-
-        if (sides === 20 && result === 20) {
-            logMessage = `**${rollerName}** rolls a **CRITICAL HIT**! (Result: **20**)${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
-        } else if (sides === 20 && result === 1) {
-            logMessage = `**${rollerName}** rolls a **CRITICAL MISS**! (Result: **1**)${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
-        } else {
-            logMessage = `**${rollerName}** casts the die (d${sides})... **${result}**!${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
-        }
-
-        await logAction(campaignId, logMessage, 'Roll');
-        setRollingDie(null);
     }, [mode, campaignId, rollerName]);
 
     const getDiceVariant = () => {
