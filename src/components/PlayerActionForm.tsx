@@ -15,8 +15,8 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
         if (!intent) return;
 
         const content = roll
-            ? `**${characterName}** attempts to **${intent}**... [Result: **${roll}**]`
-            : `**${characterName}** attempts to **${intent}**...`;
+            ? `**${characterName}** attempts to **${intent}** (Roll: **${roll}**).`
+            : `**${characterName}** attempts to **${intent}**.`;
 
         startTransition(async () => {
             await logAction(campaignId, content, "PlayerAction");
