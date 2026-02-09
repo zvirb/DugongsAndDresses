@@ -6,7 +6,8 @@ import { actionWrapper, ActionResult } from "@/lib/actions-utils";
 import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions } from "@/lib/safe-json";
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { createBackup, restoreBackup, listBackups } from "@/lib/backup";
+import { createBackup, restoreBackup, listBackups, checkAutoBackup } from "@/lib/backup";
+import { generateStory } from "@/lib/ai";
 import { z } from "zod";
 import { CharacterInput, CharacterInputSchema } from "@/lib/schemas";
 import { Character } from "@prisma/client";
@@ -74,6 +75,15 @@ export async function logAction(campaignId: string, content: string, type: strin
         if (!content) throw new Error("Content is required");
 
         const entry = await prisma.logEntry.create({ data: { campaignId, content, type } });
+
+        // Fire-and-forget auto-backup check
+        checkAutoBackup().catch(err => console.error("Auto-backup error:", err));
+
+        // Fire-and-forget AI story generation
+        if (type !== 'AI' && (type === 'Combat' || type === 'Story')) {
+            generateStory(campaignId).catch(err => console.error("Story Gen error:", err));
+        }
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -530,6 +540,24 @@ export async function getSettings(): Promise<ActionResult> {
             });
         }
         return settings;
+    });
+}
+
+export async function saveEncounter(campaignId: string, participants: any[]): Promise<ActionResult> {
+    return actionWrapper("saveEncounter", async () => {
+        if (!campaignId) throw new Error("Campaign ID is required");
+
+        const encounter = await prisma.encounter.create({
+            data: {
+                campaignId,
+                name: `Encounter ${new Date().toLocaleString()}`,
+                status: "Active",
+                participants: JSON.stringify(participants)
+            }
+        });
+
+        revalidatePath('/dm');
+        return encounter;
     });
 }
 

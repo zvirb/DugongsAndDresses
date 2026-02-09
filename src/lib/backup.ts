@@ -127,3 +127,40 @@ export async function restoreBackup(filename: string): Promise<boolean> {
         throw e;
     }
 }
+
+export async function checkAutoBackup() {
+    try {
+        const settings = await prisma.settings.findFirst();
+        if (!settings || !settings.autoBackup) return;
+
+        const backups = listBackups();
+        const today = new Date().toISOString().split('T')[0];
+        // Filename format: backup-YYYY-MM-DDTHH-mm-ss-sssZ.json
+        // Check if any backup contains today's date
+        const hasBackupToday = backups.some(b => b.includes(today));
+
+        if (!hasBackupToday) {
+            console.log("Auto-backup triggered...");
+            await createBackup();
+
+            // Rotate backups if needed
+            const updatedBackups = listBackups();
+            if (updatedBackups.length > settings.backupCount) {
+                const toDelete = updatedBackups.slice(settings.backupCount);
+                for (const file of toDelete) {
+                    try {
+                        const filepath = path.join(BACKUP_DIR, file);
+                        if (fs.existsSync(filepath)) {
+                            fs.unlinkSync(filepath);
+                            console.log(`Rotated old backup: ${file}`);
+                        }
+                    } catch (e) {
+                        console.error(`Failed to delete old backup ${file}:`, e);
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Auto-backup check failed:", e);
+    }
+}

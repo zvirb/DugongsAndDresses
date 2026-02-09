@@ -1,7 +1,7 @@
 'use client';
 
-import { advanceTurn, updateInitiative } from "@/app/actions";
-import { useTransition } from "react";
+import { advanceTurn, updateInitiative, saveEncounter } from "@/app/actions";
+import { useTransition, useState } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ type Participant = {
 
 export default function TurnTracker({ initialParticipants, campaignId }: { initialParticipants: Participant[], campaignId: string }) {
     const [isPending, startTransition] = useTransition();
+    const [saving, setSaving] = useState(false);
 
     // Sort by initiative desc, then ID asc (stable sort matching server)
     const sortedParticipants = [...initialParticipants].sort((a, b) => {
@@ -41,20 +42,45 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
         });
     };
 
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await saveEncounter(campaignId, sortedParticipants);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setSaving(false);
+        }
+    };
+
     return (
         <div className="flex flex-col h-full">
-            <h2 className="text-lg font-semibold mb-4 text-agent-blue flex justify-between items-center uppercase tracking-widest">
-                <span>Initiative</span>
-                <Button
-                    onClick={handleNextTurn}
-                    disabled={isPending}
-                    variant="agent"
-                    size="sm"
-                    className="text-xs"
-                >
-                    {isPending ? 'Syncing...' : 'Next Turn'}
-                </Button>
-            </h2>
+            <div className="flex justify-between items-center mb-4 border-b border-agent-blue/20 pb-2">
+                <h2 className="text-lg font-semibold text-agent-blue uppercase tracking-widest">
+                    Initiative
+                </h2>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={handleSave}
+                        disabled={saving || isPending}
+                        variant="outline"
+                        size="sm"
+                        className="text-[10px] h-7 px-2 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10"
+                        title="Save current state as an Encounter"
+                    >
+                        {saving ? '...' : 'Save'}
+                    </Button>
+                    <Button
+                        onClick={handleNextTurn}
+                        disabled={isPending}
+                        variant="agent"
+                        size="sm"
+                        className="text-[10px] h-7 px-2"
+                    >
+                        {isPending ? '...' : 'Next'}
+                    </Button>
+                </div>
+            </div>
 
             <div className="space-y-2 overflow-y-auto flex-1 pr-1">
                 {sortedParticipants.map(p => (
