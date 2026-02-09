@@ -7,21 +7,9 @@ import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInve
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { createBackup, restoreBackup, listBackups } from "@/lib/backup";
-
-export interface CharacterInput {
-    name: string;
-    type: string;
-    race?: string;
-    class?: string;
-    level?: number;
-    hp: number;
-    maxHp: number;
-    armorClass: number;
-    speed?: number;
-    initiative?: number;
-    attributes?: Record<string, number>;
-    sourceId?: string;
-}
+import { z } from "zod";
+import { CharacterInput, CharacterInputSchema } from "@/lib/schemas";
+import { Character } from "@prisma/client";
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
@@ -35,8 +23,11 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
         try {
             if (charactersJson) {
                 const parsed = JSON.parse(charactersJson);
-                if (Array.isArray(parsed)) {
-                    characters = parsed;
+                const result = z.array(CharacterInputSchema).safeParse(parsed);
+                if (result.success) {
+                    characters = result.data;
+                } else {
+                    console.error("Characters validation failed:", result.error);
                 }
             }
         } catch (e) {
@@ -438,7 +429,7 @@ export async function addInventoryItem(characterId: string, item: string): Promi
     });
 }
 
-async function syncToSource(character: any) {
+async function syncToSource(character: Character) {
     if (character.sourceId) {
         try {
             await prisma.character.update({
