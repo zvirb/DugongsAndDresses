@@ -14,12 +14,16 @@ describe('AICopyButton', () => {
         id: '1', name: 'Grom', hp: 20, maxHp: 25, type: 'PLAYER', conditions: '[]',
         armorClass: 14, level: 3, class: 'Barbarian', race: 'Orc',
         attributes: JSON.stringify({ str: 18, dex: 12 }),
-        speed: 30
+        speed: 30,
+        inventory: JSON.stringify(['Greataxe', 'Potion']),
+        activeTurn: true
     },
     {
         id: '2', name: 'Goblin', hp: 5, maxHp: 10, type: 'NPC', conditions: '[]',
         armorClass: 12, level: 1, class: 'Rogue', race: 'Goblin',
         attributes: '{}',
+        inventory: '[]',
+        activeTurn: false
         // speed missing/undefined to test fallback
     },
   ]
@@ -65,11 +69,13 @@ describe('AICopyButton', () => {
     expect(copiedText).toContain('  Goblin (Init: 5)')
     
     // Characters
-    // Check Grom (with Attributes and Speed)
+    // Check Grom (with Attributes, Speed, Inventory, Active Turn)
     // Note: parseAttributes keys might be uppercase slice(0,3) -> STR, DEX
-    expect(copiedText).toContain('- Grom [PLAYER] | HP: 20/25 | AC: 14 | Spd: 30 | Orc Barbarian (Lvl 3) | Status: Healthy | [STR:18 DEX:12]')
+    // Now it starts with "▶ Grom" instead of "- Grom"
+    expect(copiedText).toContain('▶ Grom [PLAYER] | HP: 20/25 | AC: 14 | Spd: 30 | Orc Barbarian (Lvl 3) | Status: Healthy | [STR:18 DEX:12] | Inv: [Greataxe, Potion]')
     
-    // Check Goblin (no Attributes, no Speed)
+    // Check Goblin (no Attributes, no Speed, empty Inventory, Inactive)
+    // Starts with "- Goblin"
     expect(copiedText).toContain('- Goblin [NPC] | HP: 5/10 | AC: 12 | Goblin Rogue (Lvl 1) | Status: Healthy') // No trailing | [] if empty
 
     // Logs (Chronological: Oldest -> Newest)
