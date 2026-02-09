@@ -168,9 +168,11 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
         // If the client expects a specific character to be active, but the DB disagrees,
         // it means another action has already advanced the turn.
         // We return the ACTUAL active character to sync the client, without advancing again.
-        if (expectedActiveId && currentIndex !== -1) {
+        if (currentIndex !== -1) {
             const currentActive = characters[currentIndex];
-            if (currentActive.id !== expectedActiveId) {
+            // If expectedActiveId is undefined (Client thinks start of combat) but someone is active,
+            // OR if expectedActiveId mismatches the DB active character, return the actual active one.
+            if (!expectedActiveId || currentActive.id !== expectedActiveId) {
                 const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
                 return actualActive;
             }
