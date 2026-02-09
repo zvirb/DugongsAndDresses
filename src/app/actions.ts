@@ -94,9 +94,9 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             const amount = Math.abs(delta);
             let content = "";
             if (delta > 0) {
-                content = `**${character.name}** rallies, recovering **${amount}** HP.`;
+                content = `**${character.name}** rallies, regaining **${amount}** vitality.`;
             } else {
-                content = `**${character.name}** is struck, taking **${amount}** damage.`;
+                content = `**${character.name}** takes **${amount}** damage.`;
             }
             await logAction(character.campaignId, content, "Combat");
         }
@@ -123,7 +123,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
         // but maybe the user wants to keep the last roll?
         // Let's NOT sync initiative roll to source as it's ephemeral.
 
-        const content = `**${character.name}** prepares for battle with an initiative of **${roll}**.`;
+        const content = `**${character.name}** rolls for initiative: **${roll}**.`;
         await logAction(character.campaignId, content, "Combat");
 
         revalidatePath('/dm');
@@ -187,7 +187,7 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             })
         ]);
 
-        await logAction(campaignId, `It is now **${newActiveChar.name}**'s turn.`, "Combat");
+        await logAction(campaignId, `The focus shifts to **${newActiveChar.name}**.`, "Combat");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -310,7 +310,7 @@ export async function createCharacter(formData: FormData): Promise<ActionResult>
             }
         });
 
-        await logAction(campaignId, `A new challenger approaches: **${character.name}** joins the party.`, "Story");
+        await logAction(campaignId, `**${character.name}** enters the fray.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -370,7 +370,7 @@ export async function deleteCharacter(characterId: string): Promise<ActionResult
             where: { id: characterId }
         });
 
-        await logAction(character.campaignId, `**${character.name}** has vanished from existence.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** has fallen.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -421,7 +421,7 @@ export async function addInventoryItem(characterId: string, item: string): Promi
         // Sync to Library
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** acquires **${item.trim()}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** obtains **${item.trim()}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -471,7 +471,7 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
         // Sync Source
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** discards **${item}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** drops **${item}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -552,14 +552,14 @@ export async function performAttack(attackerId: string, targetId: string, damage
         let updatedTarget = target;
 
         if (damage > 0) {
-            content += ` and hits for **${damage}** damage!`;
+            content += ` and strikes for **${damage}** damage!`;
             updatedTarget = await prisma.character.update({
                 where: { id: targetId },
                 data: { hp: { decrement: damage } }
             });
             await syncToSource(updatedTarget);
         } else {
-            content += `!`;
+            content += ` but misses!`;
         }
 
         await logAction(attacker.campaignId, content, "Combat");
@@ -578,19 +578,19 @@ export async function performSkillCheck(characterId: string, skillName: string, 
         const character = await prisma.character.findUnique({ where: { id: characterId } });
         if (!character) throw new Error("Character not found");
 
-        let content = `**${character.name}** checks **${skillName}**`;
+        let content = `**${character.name}** attempts **${skillName}** check`;
 
         if (dc) {
-            content += ` (DC ${dc})`;
+            content += ` (DC **${dc}**)`;
         }
 
         if (roll !== undefined) {
              content += ` — rolled **${roll}**`;
              if (dc) {
                  if (roll >= dc) {
-                     content += ` (SUCCESS)`;
+                     content += ` — **SUCCESS**`;
                  } else {
-                     content += ` (FAILURE)`;
+                     content += ` — **FAILURE**`;
                  }
              }
         }
@@ -615,13 +615,13 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
             if (target) targetName = target.name;
         }
 
-        let content = `**${caster.name}** casts **${spellName}**`;
+        let content = `**${caster.name}** invokes **${spellName}**`;
         if (targetName) {
             content += ` on **${targetName}**`;
         }
 
         if (condition && target) {
-            content += ` applying **${condition}**!`;
+            content += ` inflicting **${condition}**!`;
 
             const currentConditions = parseConditions(target.conditions);
             if (!currentConditions.includes(condition)) {

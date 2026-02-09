@@ -50,7 +50,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             } else if (sides === 20 && result === 1) {
                 logMessage = `**${rollerName}** rolls a **CRITICAL MISS**!${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
             } else {
-                logMessage = `**${rollerName}** casts the die (d${sides})... **${result}**!${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
+                logMessage = `**${rollerName}** rolls d${sides}: **${result}**.${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
             }
 
             await logAction(campaignId, logMessage, 'Roll');
