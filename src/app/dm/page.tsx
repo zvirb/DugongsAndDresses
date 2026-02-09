@@ -53,7 +53,7 @@ export default async function DMPage() {
                 <div className="col-span-6 flex flex-col gap-4 h-full">
                     <Card variant="agent" className="flex-1 flex flex-col overflow-hidden">
                         <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-agent-blue/20">
-                            <CardTitle className="text-agent-blue">Game Log</CardTitle>
+                            <CardTitle className="text-agent-blue uppercase tracking-widest">Game Log</CardTitle>
                             <AICopyButton
                                 logs={campaign.logs}
                                 characters={campaign.characters}
@@ -64,10 +64,10 @@ export default async function DMPage() {
                             />
                         </CardHeader>
                         <CardContent className="flex-1 p-0 overflow-hidden relative">
-                            <div className="absolute inset-0 p-4 overflow-y-auto space-y-2 font-mono text-sm text-neutral-300">
+                            <div className="absolute inset-0 p-4 overflow-y-auto space-y-2 font-mono text-sm text-blue-100">
                                 {campaign.logs.map((log) => (
                                     <div key={log.id} className="border-b border-agent-blue/10 pb-1 last:border-0">
-                                        <span className="text-neutral-500 text-xs">[{new Date(log.timestamp).toLocaleTimeString()}]</span> {log.content}
+                                        <span className="text-agent-blue/70 text-xs">[{new Date(log.timestamp).toLocaleTimeString()}]</span> {log.content}
                                     </div>
                                 ))}
                             </div>
@@ -81,7 +81,7 @@ export default async function DMPage() {
                 <div className="col-span-3 h-full">
                     <Card variant="agent" className="h-full flex flex-col overflow-hidden">
                         <CardHeader className="py-3 px-4 border-b border-agent-blue/20">
-                            <CardTitle className="text-agent-blue">Characters</CardTitle>
+                            <CardTitle className="text-agent-blue uppercase tracking-widest">Characters</CardTitle>
                         </CardHeader>
                         <CardContent className="flex-1 p-4 overflow-y-auto">
                             <CharacterManager characters={campaign.characters} campaignId={campaign.id} />

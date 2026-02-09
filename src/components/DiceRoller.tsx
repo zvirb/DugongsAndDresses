@@ -59,24 +59,24 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
     const getDiceVariant = () => {
         if (mode === 'ADVANTAGE') return 'success';
         if (mode === 'DISADVANTAGE') return 'destructive';
-        return 'primary';
+        return 'agent';
     };
 
     return (
-        <Card className="border-white/5 bg-black/40">
+        <Card variant="agent" className="overflow-hidden">
             <CardHeader className="p-4 flex flex-col gap-4 space-y-0">
                 <div className="flex justify-between items-center">
-                    <CardTitle className="text-sm font-black text-neutral-500 uppercase tracking-[0.2em]">Dice Tray</CardTitle>
-                    {rollingDie !== null && <span className="text-xs text-agent-blue animate-pulse">Rolling d{rollingDie}...</span>}
+                    <CardTitle className="text-sm font-black text-agent-blue uppercase tracking-[0.2em]">Dice Tray</CardTitle>
+                    {rollingDie !== null && <span className="text-xs text-white animate-pulse font-bold tracking-wider">ROLLING...</span>}
                 </div>
 
                 {/* Mode Toggles - Full width touch targets */}
-                <div className="grid grid-cols-3 gap-2 bg-black/20 p-1 rounded-xl">
+                <div className="grid grid-cols-3 gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
                     <Button
                         size="sm"
-                        variant={mode === 'NORMAL' ? 'secondary' : 'ghost'}
+                        variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'NORMAL' ? 'bg-neutral-700 text-white shadow-lg' : 'text-neutral-500'}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white' : ''}`}
                     >
                         Normal
                     </Button>
@@ -84,7 +84,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         size="sm"
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'ADVANTAGE' ? 'shadow-lg shadow-emerald-900/20' : 'text-neutral-500 hover:text-emerald-500'}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-neutral-500 hover:text-emerald-400'}`}
                     >
                         Adv
                     </Button>
@@ -92,7 +92,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         size="sm"
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
-                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'DISADVANTAGE' ? 'shadow-lg shadow-red-900/20' : 'text-neutral-500 hover:text-red-500'}`}
+                        className={`h-12 text-xs uppercase font-bold tracking-wider ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)]' : 'text-neutral-500 hover:text-red-400'}`}
                     >
                         Dis
                     </Button>
@@ -108,7 +108,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                             variant={getDiceVariant()}
                             className="font-black text-xl h-16 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg"
                         >
-                            {rollingDie === d ? 'Rolling...' : `d${d}`}
+                            {rollingDie === d ? '...' : `d${d}`}
                         </Button>
                     ))}
                 </div>
