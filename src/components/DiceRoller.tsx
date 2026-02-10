@@ -7,10 +7,25 @@ import { Button } from './ui/Button';
 
 type RollMode = 'NORMAL' | 'ADVANTAGE' | 'DISADVANTAGE';
 
+// Max value of a 32-bit unsigned integer
+const MAX_UINT32 = 0xFFFFFFFF;
+
 function secureRoll(sides: number): number {
+    // Rejection sampling to avoid modulo bias
+    // We discard values that would bias the result towards smaller numbers
+    const range = MAX_UINT32 + 1;
+    const remainder = range % sides;
+    const limit = MAX_UINT32 - remainder;
+
     const array = new Uint32Array(1);
-    window.crypto.getRandomValues(array);
-    return (array[0] % sides) + 1;
+    let random;
+
+    do {
+        window.crypto.getRandomValues(array);
+        random = array[0];
+    } while (random > limit);
+
+    return (random % sides) + 1;
 }
 
 export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaignId: string, rollerName?: string }) {
@@ -36,21 +51,21 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 const roll2 = secureRoll(sides);
                 if (mode === 'ADVANTAGE') {
                     result = Math.max(roll1, roll2);
-                    details = ` (Rolls: **${roll1}**, **${roll2}**)`;
+                    details = ` (ADVANTAGE) (Rolls: **${roll1}**, **${roll2}**)`;
                 } else {
                     result = Math.min(roll1, roll2);
-                    details = ` (Rolls: **${roll1}**, **${roll2}**)`;
+                    details = ` (DISADVANTAGE) (Rolls: **${roll1}**, **${roll2}**)`;
                 }
             }
 
             let logMessage = '';
 
             if (sides === 20 && result === 20) {
-                logMessage = `**${rollerName}** rolls a **CRITICAL HIT**!${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
+                logMessage = `**${rollerName}** rolls a **CRITICAL HIT**!${details}`;
             } else if (sides === 20 && result === 1) {
-                logMessage = `**${rollerName}** rolls a **CRITICAL MISS**!${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
+                logMessage = `**${rollerName}** rolls a **CRITICAL MISS**!${details}`;
             } else {
-                logMessage = `**${rollerName}** rolls d${sides}: **${result}**.${mode !== 'NORMAL' ? ` (${mode})` : ''}${details}`;
+                logMessage = `**${rollerName}** rolls d${sides}: **${result}**.${details}`;
             }
 
             const resultAction = await logAction(campaignId, logMessage, 'Roll');
