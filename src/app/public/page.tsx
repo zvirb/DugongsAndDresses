@@ -22,7 +22,7 @@ export default async function PublicPage() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#101022_100%)] opacity-80" />
             </div>
 
-            <AutoRefresh intervalMs={2000} />
+            <AutoRefresh intervalMs={3000} />
 
             {/* Content Wrapper with Float Animation */}
             <div className="p-8 pb-60 animate-float h-full overflow-y-auto">
@@ -32,7 +32,7 @@ export default async function PublicPage() {
                         <h1 className="text-8xl font-black italic tracking-tighter text-white uppercase leading-none">
                             CAMPAIGN <span className="text-agent-blue">VITALIS</span>
                         </h1>
-                        <p className="text-agent-blue font-bold tracking-[0.2em] uppercase text-3xl mt-4 truncate max-w-4xl">
+                        <p className="text-agent-blue font-bold tracking-[0.2em] uppercase text-4xl mt-4 truncate max-w-4xl">
                             {campaign.name} {"//"} Active Encounter Data
                         </p>
                     </div>

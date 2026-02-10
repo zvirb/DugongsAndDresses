@@ -87,12 +87,12 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                             LVL {character.level}
                         </Badge>
                         <div className="text-right">
-                            <span className="block text-2xl text-neutral-400 uppercase font-black tracking-widest mb-2">Defense</span> {/* Increased text */}
-                            <span className={`text-7xl font-black leading-none ${character.activeTurn ? 'text-agent-blue' : 'text-white'}`}>{character.armorClass}</span> {/* Increased text */}
+                            <span className="block text-3xl text-neutral-300 uppercase font-black tracking-widest mb-2">Defense</span> {/* Increased text */}
+                            <span className={`text-8xl font-black leading-none ${character.activeTurn ? 'text-agent-blue' : 'text-white'}`}>{character.armorClass}</span> {/* Increased text */}
                         </div>
                     </div>
 
-                    <h2 className={`text-5xl lg:text-6xl font-black italic tracking-tighter uppercase mb-4 leading-none break-words ${character.activeTurn ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-neutral-300'}`}> {/* Increased text */}
+                    <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-4 leading-none break-words ${character.activeTurn ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-neutral-300'}`}> {/* Increased text */}
                         {character.name}
                     </h2>
                     <p className="text-agent-blue text-2xl lg:text-3xl font-bold uppercase tracking-widest mb-10"> {/* Increased text/margin */}
@@ -102,7 +102,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
 
                 <div className="mt-8">
                     <div className="flex justify-between items-end mb-4">
-                        <span className="text-2xl text-neutral-400 uppercase font-black tracking-[0.2em]">Vitality</span> {/* Increased text */}
+                        <span className="text-3xl text-neutral-300 uppercase font-black tracking-[0.2em]">Vitality</span> {/* Increased text */}
                         <div className="text-right flex items-baseline justify-end">
                             <span className={`text-8xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse' : 'text-white'}`}> {/* Increased text */}
                                 {displayHp}
@@ -112,7 +112,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     </div>
 
                     {/* Health Bar */}
-                    <div className="h-8 bg-white/5 rounded-full overflow-hidden p-1 border-2 border-white/10 shadow-inner"> {/* Increased height */}
+                    <div className="h-14 bg-white/5 rounded-full overflow-hidden p-1 border-2 border-white/10 shadow-inner"> {/* Increased height */}
                         <div
                             className={`h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-[repeating-linear-gradient(90deg,transparent,transparent_4px,#000_4px,#000_5px)] ${character.hp <= character.maxHp * 0.2 ? 'bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.8)]' : 'bg-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.4)]'
                                 }`}
