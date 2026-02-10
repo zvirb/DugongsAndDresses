@@ -163,6 +163,7 @@ export const getPlayerDashboard = cache(async function getPlayerDashboard(id: st
       campaignId: true,
       speed: true,
       initiative: true,
+      initiativeRoll: true,
       campaign: {
         select: {
           logs: {
@@ -219,7 +220,8 @@ export const getPlayerInventory = cache(async function getPlayerInventory(id: st
       id: true,
       type: true,
       name: true,
-      inventory: true
+      inventory: true,
+      campaignId: true
     }
   });
 });

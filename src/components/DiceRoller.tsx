@@ -4,29 +4,9 @@ import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import { Button } from './ui/Button';
+import { secureRoll } from '@/lib/dice';
 
 type RollMode = 'NORMAL' | 'ADVANTAGE' | 'DISADVANTAGE';
-
-// Max value of a 32-bit unsigned integer
-const MAX_UINT32 = 0xFFFFFFFF;
-
-function secureRoll(sides: number): number {
-    // Rejection sampling to avoid modulo bias
-    // We discard values that would bias the result towards smaller numbers
-    const range = MAX_UINT32 + 1;
-    const remainder = range % sides;
-    const limit = MAX_UINT32 - remainder;
-
-    const array = new Uint32Array(1);
-    let random;
-
-    do {
-        window.crypto.getRandomValues(array);
-        random = array[0];
-    } while (random > limit);
-
-    return (random % sides) + 1;
-}
 
 export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaignId: string, rollerName?: string }) {
     const [rollingDie, setRollingDie] = useState<number | null>(null);
