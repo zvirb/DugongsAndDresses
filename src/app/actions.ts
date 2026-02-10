@@ -729,3 +729,101 @@ export async function updateSettings(formData: FormData): Promise<ActionResult> 
         return settings;
     });
 }
+
+export async function listEncounters(campaignId: string): Promise<ActionResult> {
+    return actionWrapper("listEncounters", async () => {
+        if (!campaignId) throw new Error("Campaign ID is required");
+
+        const encounters = await prisma.encounter.findMany({
+            where: { campaignId },
+            orderBy: { createdAt: 'desc' }
+        });
+        return encounters;
+    });
+}
+
+export async function loadEncounter(encounterId: string): Promise<ActionResult> {
+    return actionWrapper("loadEncounter", async () => {
+        if (!encounterId) throw new Error("Encounter ID is required");
+
+        const encounter = await prisma.encounter.findUnique({ where: { id: encounterId } });
+        if (!encounter) throw new Error("Encounter not found");
+
+        const participants = JSON.parse(encounter.participants) as Participants;
+
+        // Reset active turn for all characters first
+        await prisma.character.updateMany({
+            where: { campaignId: encounter.campaignId },
+            data: { activeTurn: false }
+        });
+
+        // Update each character's initiative roll
+        for (const p of participants) {
+            await prisma.character.update({
+                where: { id: p.characterId },
+                data: { initiativeRoll: p.initiative }
+            });
+        }
+
+        await logAction(encounter.campaignId, `Encounter **${encounter.name}** loaded.`, "Combat");
+
+        revalidatePath('/dm');
+        return { success: true };
+    });
+}
+
+export async function endEncounter(campaignId: string): Promise<ActionResult> {
+    return actionWrapper("endEncounter", async () => {
+        if (!campaignId) throw new Error("Campaign ID is required");
+
+        await prisma.character.updateMany({
+            where: { campaignId },
+            data: {
+                initiativeRoll: 0,
+                activeTurn: false
+            }
+        });
+
+        await logAction(campaignId, `Combat ends. The dust settles.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        return { success: true };
+    });
+}
+
+export async function importCharacterFromLibrary(campaignId: string, libraryCharacterId: string): Promise<ActionResult> {
+    return actionWrapper("importCharacterFromLibrary", async () => {
+        if (!campaignId || !libraryCharacterId) throw new Error("Campaign ID and Library Character ID are required");
+
+        const source = await prisma.character.findUnique({ where: { id: libraryCharacterId } });
+        if (!source) throw new Error("Source character not found");
+
+        const newChar = await prisma.character.create({
+            data: {
+                campaignId,
+                name: source.name,
+                type: source.type,
+                race: source.race,
+                class: source.class,
+                level: source.level,
+                hp: source.hp,
+                maxHp: source.maxHp,
+                armorClass: source.armorClass,
+                speed: source.speed,
+                initiative: source.initiative,
+                attributes: source.attributes,
+                inventory: source.inventory,
+                conditions: "[]",
+                initiativeRoll: 0,
+                sourceId: source.id // Link to source for future sync if needed
+            }
+        });
+
+        await logAction(campaignId, `**${newChar.name}** joins the party from the archives.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        return newChar;
+    });
+}

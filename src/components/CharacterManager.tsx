@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createCharacter, updateCharacter, deleteCharacter, addInventoryItem, removeInventoryItem } from '@/app/actions';
+import { createCharacter, updateCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, getAvailableCharacters, importCharacterFromLibrary } from '@/app/actions';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -40,6 +40,36 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
     const [openAvatarId, setOpenAvatarId] = useState<string | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const [inventoryInput, setInventoryInput] = useState<Record<string, string>>({});
+    const [showLibraryModal, setShowLibraryModal] = useState(false);
+    const [libraryList, setLibraryList] = useState<any[]>([]);
+    const [loadingLibrary, setLoadingLibrary] = useState(false);
+
+    const openLibrary = async () => {
+        setShowLibraryModal(true);
+        setLoadingLibrary(true);
+        try {
+            const result = await getAvailableCharacters();
+            if (result.success && Array.isArray(result.data)) {
+                setLibraryList(result.data);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoadingLibrary(false);
+        }
+    };
+
+    const handleImport = async (charId: string) => {
+        setLoadingLibrary(true); // Indicate busy
+        try {
+            await importCharacterFromLibrary(campaignId, charId);
+            setShowLibraryModal(false);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoadingLibrary(false);
+        }
+    };
 
     const handleOpenChange = (id: string, isOpen: boolean) => {
         if (isOpen) setOpenAvatarId(id);
@@ -181,9 +211,55 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
             {showAddForm ? (
                 <AddCharacterForm campaignId={campaignId} onClose={() => setShowAddForm(false)} />
             ) : (
-                <Button variant="secondary" size="sm" onClick={() => setShowAddForm(true)} className="w-full">
-                    + Add Character
-                </Button>
+                <div className="flex gap-2">
+                    <Button variant="secondary" size="sm" onClick={() => setShowAddForm(true)} className="flex-1">
+                        + Create New
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={openLibrary} className="flex-1 border-white/10 hover:bg-white/5 text-neutral-300">
+                        Import Library
+                    </Button>
+                </div>
+            )}
+
+            {/* Library Modal */}
+            {showLibraryModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                    <Card variant="agent" className="max-w-2xl w-full max-h-[80vh] flex flex-col shadow-2xl">
+                        <CardContent className="p-4 flex flex-col h-full">
+                            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+                                <h3 className="text-lg font-bold text-agent-blue uppercase tracking-widest">Character Library</h3>
+                                <button onClick={() => setShowLibraryModal(false)} className="text-neutral-400 hover:text-white">✕</button>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3 pr-1">
+                                {loadingLibrary && libraryList.length === 0 ? (
+                                    <div className="col-span-2 text-center text-neutral-500 py-8">Accessing Archives...</div>
+                                ) : libraryList.length === 0 ? (
+                                    <div className="col-span-2 text-center text-neutral-500 py-8">No characters in library.</div>
+                                ) : (
+                                    libraryList.map((char) => (
+                                        <div
+                                            key={char.id}
+                                            onClick={() => handleImport(char.id)}
+                                            className="p-3 bg-neutral-900/50 border border-white/5 rounded-lg hover:border-agent-blue hover:bg-agent-blue/10 cursor-pointer transition-all group"
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <span className="font-bold text-white group-hover:text-agent-blue">{char.name}</span>
+                                                <Badge variant={char.type === 'NPC' ? 'npc' : 'player'} className="text-[10px]">{char.type}</Badge>
+                                            </div>
+                                            <div className="text-xs text-neutral-400 mt-1">
+                                                {char.race} {char.class} (Lv{char.level})
+                                            </div>
+                                            <div className="text-xs text-neutral-500 mt-1 font-mono">
+                                                HP: {char.hp}/{char.maxHp} | AC: {char.armorClass}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             )}
         </div>
     );
