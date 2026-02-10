@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PlayerHPControls from '@/components/PlayerHPControls';
 import { updateHP } from '@/app/actions';
 
@@ -9,6 +9,12 @@ vi.mock('@/app/actions', () => ({
 }));
 
 describe('PlayerHPControls', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        // Default to success
+        vi.mocked(updateHP).mockResolvedValue({ success: true, data: {} });
+    });
+
     it('renders HP change buttons', () => {
         render(<PlayerHPControls characterId="1" currentHp={10} maxHp={20} />);
         
@@ -25,5 +31,48 @@ describe('PlayerHPControls', () => {
         fireEvent.click(minusOneBtn);
         
         expect(updateHP).not.toHaveBeenCalled();
+    });
+
+    it('calls updateHP when button clicked', async () => {
+        render(<PlayerHPControls characterId="1" currentHp={10} maxHp={20} />);
+
+        const plusOneBtn = screen.getByText('+1');
+        fireEvent.click(plusOneBtn);
+
+        await waitFor(() => {
+            expect(updateHP).toHaveBeenCalledWith("1", 1);
+        });
+    });
+
+    it('optimistically updates UI', async () => {
+        render(<PlayerHPControls characterId="1" currentHp={10} maxHp={20} />);
+
+        const plusOneBtn = screen.getByText('+1');
+        fireEvent.click(plusOneBtn);
+
+        // Should see 11 immediately (optimistic)
+        expect(screen.getByText('11')).toBeInTheDocument();
+
+        await waitFor(() => {
+            expect(updateHP).toHaveBeenCalled();
+        });
+    });
+
+    it('reverts optimistic update on server error', async () => {
+        // Mock failure
+        vi.mocked(updateHP).mockResolvedValueOnce({ success: false, error: "Failed" });
+
+        render(<PlayerHPControls characterId="1" currentHp={10} maxHp={20} />);
+
+        const plusOneBtn = screen.getByText('+1');
+        fireEvent.click(plusOneBtn);
+
+        // Optimistic update first
+        expect(screen.getByText('11')).toBeInTheDocument();
+
+        // Wait for revert
+        await waitFor(() => {
+            expect(screen.getByText('10')).toBeInTheDocument();
+        });
     });
 });
