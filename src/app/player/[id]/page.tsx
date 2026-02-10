@@ -20,7 +20,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     }
 
     return (
-        <main className="flex-1 p-4 space-y-6 pb-32">
+        <main className="flex-1 p-4 space-y-6 pb-40 min-h-[100dvh]">
             {/* Visual Section */}
             <div className="relative h-32 md:h-auto w-full md:aspect-square max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-white/5 shadow-2xl">
                 {character.imageUrl ? (

@@ -13,6 +13,7 @@ describe('DiceRoller', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(actions.logAction).mockResolvedValue({ success: true })
   })
 
   it('renders all dice buttons', () => {

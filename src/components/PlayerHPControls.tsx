@@ -21,10 +21,22 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
         if (newHp < 0) return;
         if (newHp > maxHp * 2) return; // Cap at 2x max health
 
+        const previousHp = optimisticHp;
         setOptimisticHp(newHp);
         
         startTransition(async () => {
-            await updateHP(characterId, amount);
+            try {
+                const result = await updateHP(characterId, amount);
+                if (!result.success) {
+                    // Revert on server error
+                    setOptimisticHp(previousHp);
+                    console.error("Failed to update HP:", result.error);
+                }
+            } catch (error) {
+                // Revert on network/unexpected error
+                setOptimisticHp(previousHp);
+                console.error("Unexpected error updating HP:", error);
+            }
         });
     };
 
@@ -64,7 +76,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(-1)}
                         disabled={isPending}
-                        className="flex-1 h-20 p-4 text-3xl font-bold rounded-2xl border-b-4 border-red-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all"
+                        className="flex-1 h-20 p-4 text-3xl font-bold rounded-2xl border-b-4 border-red-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation"
                     >
                         -1
                     </Button>
@@ -73,7 +85,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(1)}
                         disabled={isPending}
-                        className="flex-1 h-20 p-4 text-3xl font-bold rounded-2xl border-b-4 border-emerald-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all"
+                        className="flex-1 h-20 p-4 text-3xl font-bold rounded-2xl border-b-4 border-emerald-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation"
                     >
                         +1
                     </Button>
@@ -84,7 +96,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(-5)}
                         disabled={isPending}
-                        className="flex-1 h-16 p-4 text-2xl font-bold rounded-2xl border-b-4 border-red-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] opacity-90 transition-all"
+                        className="flex-1 h-16 p-4 text-2xl font-bold rounded-2xl border-b-4 border-red-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] opacity-90 transition-all touch-manipulation"
                     >
                         -5
                     </Button>
@@ -93,7 +105,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(5)}
                         disabled={isPending}
-                        className="flex-1 h-16 p-4 text-2xl font-bold rounded-2xl border-b-4 border-emerald-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] opacity-90 transition-all"
+                        className="flex-1 h-16 p-4 text-2xl font-bold rounded-2xl border-b-4 border-emerald-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] opacity-90 transition-all touch-manipulation"
                     >
                         +5
                     </Button>
