@@ -1,26 +1,12 @@
 import { getPlayerSkills } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { parseAttributes } from "@/lib/safe-json";
-import { Card, CardContent } from "@/components/ui/Card";
+import PlayerSkillsList from "@/components/PlayerSkillsList";
 
 export const dynamic = 'force-dynamic';
 
 interface SkillsPageProps {
     params: Promise<{ id: string }>;
-}
-
-const ABILITY_NAMES: Record<string, string> = {
-    str: 'Strength',
-    dex: 'Dexterity',
-    con: 'Constitution',
-    int: 'Intelligence',
-    wis: 'Wisdom',
-    cha: 'Charisma',
-};
-
-function calcModifier(score: number): string {
-    const mod = Math.floor((score - 10) / 2);
-    return mod >= 0 ? `+${mod}` : `${mod}`;
 }
 
 export default async function SkillsPage({ params }: SkillsPageProps) {
@@ -32,7 +18,6 @@ export default async function SkillsPage({ params }: SkillsPageProps) {
     }
 
     const attrs = parseAttributes(character.attributes);
-    const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 
     return (
         <main className="flex-1 p-4 space-y-6 pb-32">
@@ -41,25 +26,7 @@ export default async function SkillsPage({ params }: SkillsPageProps) {
                 Ability Scores
             </h2>
 
-            <div className="grid grid-cols-2 gap-4">
-                {abilityOrder.map(key => {
-                    const score = attrs[key] ?? 10;
-                    const mod = calcModifier(score);
-                    const name = ABILITY_NAMES[key] || key.toUpperCase();
-
-                    return (
-                        <Card key={key} variant="agent" className="bg-agent-navy/40 border-white/5 overflow-hidden">
-                            <CardContent className="p-4 text-center">
-                                <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-2">{name}</span>
-                                <span className="block text-4xl font-black text-white">{score}</span>
-                                <span className={`block text-lg font-bold mt-1 ${mod.startsWith('+') ? 'text-agent-blue' : 'text-red-400'}`}>
-                                    {mod}
-                                </span>
-                            </CardContent>
-                        </Card>
-                    );
-                })}
-            </div>
+            <PlayerSkillsList characterId={character.id} attributes={attrs} />
 
             {/* Proficiency and other derived stats */}
             <div className="grid grid-cols-2 gap-4">

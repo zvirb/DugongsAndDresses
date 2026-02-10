@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import PlayerHPControls from "@/components/PlayerHPControls";
 import PlayerActionForm from "@/components/PlayerActionForm";
 import DiceRoller from "@/components/DiceRoller";
+import PlayerInitiativeControl from "@/components/PlayerInitiativeControl";
 import { Card, CardContent } from "@/components/ui/Card";
 
 export const dynamic = 'force-dynamic';
@@ -63,6 +64,13 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                      </div>
                 </div>
             </div>
+
+            <PlayerInitiativeControl
+                characterId={character.id}
+                characterName={character.name}
+                initiativeRoll={character.initiativeRoll}
+                initiativeBonus={character.initiative}
+            />
 
             {/* HP Controls & Status */}
             <Card variant="agent" className="bg-agent-navy/40 border-white/5">
