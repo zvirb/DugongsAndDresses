@@ -179,6 +179,9 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             }
         }
 
+        // --- SENTRY'S LOOP SAFETY ---
+        // Ensure the turn cycles back to the first character (index 0)
+        // when the last character finishes their turn.
         let nextIndex = 0;
         if (currentIndex !== -1) {
             nextIndex = (currentIndex + 1) % characters.length;
