@@ -151,6 +151,26 @@ export function stringifyConditions(data: Conditions): string {
 }
 
 /**
+ * Extracts attributes from FormData.
+ * Defaults to 10 for missing values.
+ */
+export function extractAttributesFromFormData(formData: FormData): Attributes {
+  const attributes: Attributes = {};
+  const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+
+  for (const key of keys) {
+    const value = formData.get(key);
+    if (value) {
+      const parsed = parseInt(value as string);
+      attributes[key] = isNaN(parsed) ? 10 : parsed;
+    } else {
+      attributes[key] = 10;
+    }
+  }
+  return attributes;
+}
+
+/**
  * Safely stringifies Participants.
  */
 export function stringifyParticipants(data: Participants): string {
