@@ -5,7 +5,7 @@ vi.mock('react', () => ({
   cache: (fn: any) => fn,
 }));
 
-import { getPlayerDashboard, getPlayerSkills, getPlayerInventory, getActiveCampaign } from './queries';
+import { getPlayerDashboard, getPlayerSkills, getPlayerInventory, getActiveCampaign, getCampaignPulse } from './queries';
 import { prisma } from './prisma';
 
 vi.mock('./prisma', () => ({
@@ -15,6 +15,7 @@ vi.mock('./prisma', () => ({
     },
     campaign: {
       findFirst: vi.fn(),
+      findUnique: vi.fn(),
     },
     logEntry: {
       findMany: vi.fn(),
@@ -156,5 +157,42 @@ describe('Query Optimization', () => {
     expect(select.attributes).toBeUndefined();
     expect(select.logs).toBeUndefined();
     expect(select.hp).toBeUndefined();
+  });
+
+  it('getCampaignPulse selects only vital stats for polling', async () => {
+    (prisma.campaign.findUnique as any).mockResolvedValue({
+      id: 'c1',
+      active: true,
+      characters: [],
+      logs: []
+    });
+
+    await getCampaignPulse('c1');
+
+    const calls = (prisma.campaign.findUnique as any).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const args = calls[0][0];
+    const select = args.select;
+
+    // Verify Character Selection
+    expect(select.characters).toBeDefined();
+    const charSelect = select.characters.select;
+
+    // Vital Stats
+    expect(charSelect.id).toBe(true);
+    expect(charSelect.hp).toBe(true);
+    expect(charSelect.activeTurn).toBe(true);
+    expect(charSelect.conditions).toBe(true);
+
+    // Should NOT select heavy fields
+    expect(charSelect.attributes).toBeUndefined();
+    expect(charSelect.inventory).toBeUndefined();
+    expect(charSelect.race).toBeUndefined();
+    expect(charSelect.class).toBeUndefined();
+    expect(charSelect.imageUrl).toBeUndefined();
+
+    // Verify Log Selection
+    expect(select.logs).toBeDefined();
+    expect(select.logs.take).toBe(5); // Ultra-light logs
   });
 });

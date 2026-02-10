@@ -27,6 +27,17 @@ const DM_LOG_SELECT = {
   content: true
 } as const;
 
+const PULSE_CHAR_SELECT = {
+  id: true,
+  name: true,
+  hp: true,
+  maxHp: true,
+  activeTurn: true,
+  initiativeRoll: true,
+  conditions: true,
+  type: true
+} as const;
+
 /**
  * Fetches all campaigns ordered by creation date.
  */
@@ -102,6 +113,28 @@ export async function getPublicCampaign() {
           hp: true,
           maxHp: true
         }
+      }
+    }
+  });
+}
+
+/**
+ * Optimized fetch for polling updates.
+ * Selects only vital stats and recent logs to reduce database load.
+ */
+export async function getCampaignPulse(campaignId: string) {
+  return prisma.campaign.findUnique({
+    where: { id: campaignId },
+    select: {
+      id: true,
+      active: true,
+      characters: {
+        select: PULSE_CHAR_SELECT
+      },
+      logs: {
+        take: 5,
+        orderBy: { timestamp: 'desc' },
+        select: DM_LOG_SELECT
       }
     }
   });
