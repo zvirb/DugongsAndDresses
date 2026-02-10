@@ -24,7 +24,8 @@ const DM_CHAR_SELECT = {
 const DM_LOG_SELECT = {
   id: true,
   timestamp: true,
-  content: true
+  content: true,
+  type: true
 } as const;
 
 const PULSE_CHAR_SELECT = {

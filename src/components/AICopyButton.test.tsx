@@ -3,10 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import AICopyButton from './AICopyButton'
 
 describe('AICopyButton', () => {
-  // Simulate logs ordered by timestamp DESC (Newest First) as per getActiveCampaign
+  // Simulate logs ordered by timestamp DESC (Newest First)
   const logs = [
-    { id: '2', content: 'Grom counterattacks', timestamp: new Date('2026-02-05T10:01:00') },
-    { id: '1', content: 'Goblin attacks Grom', timestamp: new Date('2026-02-05T10:00:00') },
+    { id: '3', content: 'Secret Note', timestamp: new Date('2026-02-05T10:02:00'), type: 'DM_NOTE' },
+    { id: '2', content: 'Grom counterattacks', timestamp: new Date('2026-02-05T10:01:00'), type: 'Combat' },
+    { id: '1', content: 'Goblin attacks Grom', timestamp: new Date('2026-02-05T10:00:00'), type: 'Combat' },
   ]
 
   const characters = [
@@ -16,25 +17,26 @@ describe('AICopyButton', () => {
         attributes: JSON.stringify({ str: 18, dex: 12 }),
         speed: 30,
         inventory: JSON.stringify(['Greataxe', 'Potion']),
-        activeTurn: true
+        activeTurn: true,
+        initiativeRoll: 15
     },
     {
         id: '2', name: 'Goblin', hp: 5, maxHp: 10, type: 'NPC', conditions: '[]',
         armorClass: 12, level: 1, class: 'Rogue', race: 'Goblin',
         attributes: '{}',
         inventory: '[]',
-        activeTurn: false
+        activeTurn: false,
+        initiativeRoll: 8
         // speed missing/undefined to test fallback
     },
   ]
   const turnOrder = [
-    { name: 'Grom', init: 10, current: true },
-    { name: 'Goblin', init: 5, current: false },
+    { name: 'Grom', init: 15, current: true },
+    { name: 'Goblin', init: 8, current: false },
   ]
 
   beforeEach(() => {
     vi.clearAllMocks()
-    // Mock clipboard API
     Object.assign(navigator, {
       clipboard: {
         writeText: vi.fn().mockImplementation(() => Promise.resolve()),
@@ -63,26 +65,28 @@ describe('AICopyButton', () => {
     expect(copiedText).toContain('== INITIATIVE ==')
     expect(copiedText).toContain('== CHARACTERS ==')
     expect(copiedText).toContain('== RECENT LOGS (Chronological) ==')
+    expect(copiedText).toContain('== INSTRUCTIONS ==')
 
     // Initiative
-    expect(copiedText).toContain('▶ ACTIVE: Grom (Init: 10)')
-    expect(copiedText).toContain('  Goblin (Init: 5)')
+    expect(copiedText).toContain('▶ ACTIVE: Grom (Init: 15)')
+    expect(copiedText).toContain('  Goblin (Init: 8)')
     
     // Characters
-    // Check Grom (with Attributes, Speed, Inventory, Active Turn)
-    // Note: parseAttributes keys might be uppercase slice(0,3) -> STR, DEX
-    // Now it starts with "▶ Grom" instead of "- Grom"
-    expect(copiedText).toContain('▶ Grom [PLAYER] | HP: 20/25 | AC: 14 | Spd: 30 | Orc Barbarian (Lvl 3) | Status: Healthy | [STR:18 DEX:12] | Inv: [Greataxe, Potion]')
+    // Check Grom: ▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP: 20/25 | AC: 14 | Init: 15 | Spd: 30 | Cond: Healthy | Attrs: STR: 18, DEX: 12 | Inv: Greataxe, Potion
+    expect(copiedText).toContain('▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP: 20/25 | AC: 14 | Init: 15 | Spd: 30 | Cond: Healthy | Attrs: STR: 18, DEX: 12 | Inv: Greataxe, Potion')
     
-    // Check Goblin (no Attributes, no Speed, empty Inventory, Inactive)
-    // Starts with "- Goblin"
-    expect(copiedText).toContain('- Goblin [NPC] | HP: 5/10 | AC: 12 | Goblin Rogue (Lvl 1) | Status: Healthy') // No trailing | [] if empty
+    // Check Goblin: Goblin [NPC] (Goblin Rogue Lvl 1) | HP: 5/10 | AC: 12 | Init: 8 | Cond: Healthy
+    expect(copiedText).toContain('Goblin [NPC] (Goblin Rogue Lvl 1) | HP: 5/10 | AC: 12 | Init: 8 | Cond: Healthy')
 
-    // Logs (Chronological: Oldest -> Newest)
-    // logs[1] (10:00) should appear before logs[0] (10:01)
+    // Logs
+    // Should NOT contain 'Secret Note'
+    expect(copiedText).not.toContain('Secret Note')
+
+    // Should contain public logs in chronological order
     const index1 = copiedText.indexOf('Goblin attacks Grom')
     const index2 = copiedText.indexOf('Grom counterattacks')
     expect(index1).toBeLessThan(index2)
+    expect(index1).not.toBe(-1)
   })
 
   it('shows success message after clicking', async () => {
