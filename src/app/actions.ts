@@ -561,18 +561,33 @@ export async function performAttack(attackerId: string, targetId: string, damage
 
         if (!attacker || !target) throw new Error("Character not found");
 
-        let content = `**${attacker.name}** attacks **${target.name}**`;
+        let content = "";
         let isHit = true;
+        let isCrit = false;
+        let isFumble = false;
 
         if (attackRoll !== undefined) {
-            content += ` (Roll: **${attackRoll}**)`;
-            // Check against AC if roll is provided
-            if (target.armorClass && attackRoll < target.armorClass) {
+            if (attackRoll === 20) {
+                isHit = true;
+                isCrit = true;
+            } else if (attackRoll === 1) {
+                isHit = false;
+                isFumble = true;
+            } else if (target.armorClass && attackRoll < target.armorClass) {
                 isHit = false;
             }
         } else {
             // If no roll provided, assume miss if 0 damage
             if (damage <= 0) isHit = false;
+        }
+
+        if (isCrit) {
+            content = `**${attacker.name}** scores a **CRITICAL HIT** on **${target.name}**`;
+        } else if (isFumble) {
+            content = `**${attacker.name}** fumbles with a **CRITICAL MISS** against **${target.name}**`;
+        } else {
+            content = `**${attacker.name}** attacks **${target.name}**`;
+            if (attackRoll !== undefined) content += ` (Roll: **${attackRoll}**)`;
         }
 
         let updatedTarget = target;
@@ -589,7 +604,11 @@ export async function performAttack(attackerId: string, targetId: string, damage
                 content += ` but deals no damage!`;
             }
         } else {
-            content += ` but misses!`;
+            if (!isFumble) {
+                content += ` but misses!`;
+            } else {
+                content += `!`;
+            }
         }
 
         await logAction(attacker.campaignId, content, "Combat");
@@ -608,21 +627,21 @@ export async function performSkillCheck(characterId: string, skillName: string, 
         const character = await prisma.character.findUnique({ where: { id: characterId } });
         if (!character) throw new Error("Character not found");
 
-        let content = `**${character.name}** attempts **${skillName}** check`;
+        let content = `**${character.name}** checks **${skillName}**`;
 
         if (dc) {
-            content += ` (DC **${dc}**)`;
+            content += ` against DC **${dc}**`;
         }
 
         if (roll !== undefined) {
-             content += ` — rolled **${roll}**`;
              if (dc) {
                  if (roll >= dc) {
-                     content += ` — **SUCCESS**`;
+                     content += `: **SUCCESS**`;
                  } else {
-                     content += ` — **FAILURE**`;
+                     content += `: **FAILURE**`;
                  }
              }
+             content += ` (Roll: **${roll}**)`;
         }
 
         await logAction(character.campaignId, content + ".", "Roll");
@@ -647,11 +666,11 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
 
         let content = `**${caster.name}** invokes **${spellName}**`;
         if (targetName) {
-            content += ` on **${targetName}**`;
+            content += ` targeting **${targetName}**`;
         }
 
         if (condition && target) {
-            content += ` inflicting **${condition}**!`;
+            content += `, imposing **${condition}**`;
 
             const currentConditions = parseConditions(target.conditions);
             if (!currentConditions.includes(condition)) {
@@ -662,9 +681,9 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
                 });
                 await syncToSource(updatedTarget);
             }
-        } else {
-            content += `!`;
         }
+
+        content += `!`;
 
         await logAction(caster.campaignId, content, "Combat");
 

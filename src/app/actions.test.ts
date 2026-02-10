@@ -42,6 +42,17 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock('@/lib/backup', () => ({
+  createBackup: vi.fn(),
+  restoreBackup: vi.fn(),
+  listBackups: vi.fn(),
+  checkAutoBackup: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@/lib/ai', () => ({
+  generateStory: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe('Server Actions Logging', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -398,7 +409,7 @@ describe('Server Actions Logging', () => {
 
   // --- New Actions Tests ---
 
-  it('performAttack logs and updates HP correctly', async () => {
+  it('performAttack logs and updates HP correctly (Normal Hit)', async () => {
     vi.mocked(prisma.character.findUnique)
       .mockResolvedValueOnce({ id: 'char-1', name: 'Attacker', campaignId: 'camp-1' } as any)
       .mockResolvedValueOnce({ id: 'char-2', name: 'Target', hp: 20 } as any);
@@ -421,6 +432,40 @@ describe('Server Actions Logging', () => {
     });
   });
 
+  it('performAttack logs Critical Hit correctly', async () => {
+    vi.mocked(prisma.character.findUnique)
+      .mockResolvedValueOnce({ id: 'char-1', name: 'Attacker', campaignId: 'camp-1' } as any)
+      .mockResolvedValueOnce({ id: 'char-2', name: 'Target', hp: 20 } as any);
+
+    vi.mocked(prisma.character.update).mockResolvedValue({ id: 'char-2', name: 'Target', hp: 10 } as any);
+
+    await performAttack('char-1', 'char-2', 10, 20); // Roll 20
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**Attacker** scores a **CRITICAL HIT** on **Target** and strikes for **10** damage!'),
+        type: 'Combat',
+      },
+    });
+  });
+
+  it('performAttack logs Critical Miss correctly', async () => {
+    vi.mocked(prisma.character.findUnique)
+      .mockResolvedValueOnce({ id: 'char-1', name: 'Attacker', campaignId: 'camp-1' } as any)
+      .mockResolvedValueOnce({ id: 'char-2', name: 'Target', hp: 20 } as any);
+
+    await performAttack('char-1', 'char-2', 5, 1); // Roll 1
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**Attacker** fumbles with a **CRITICAL MISS** against **Target**!'),
+        type: 'Combat',
+      },
+    });
+  });
+
   it('performSkillCheck logs success correctly', async () => {
     vi.mocked(prisma.character.findUnique).mockResolvedValue({
       id: 'char-1',
@@ -433,7 +478,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Hero** attempts **Athletics** check (DC **15**) — rolled **18** — **SUCCESS**'),
+        content: expect.stringContaining('**Hero** checks **Athletics** against DC **15**: **SUCCESS** (Roll: **18**).'),
         type: 'Roll',
       },
     });
@@ -458,7 +503,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Wizard** invokes **Fireball** on **Goblin** inflicting **Burning**!'),
+        content: expect.stringContaining('**Wizard** invokes **Fireball** targeting **Goblin**, imposing **Burning**!'),
         type: 'Combat',
       },
     });
