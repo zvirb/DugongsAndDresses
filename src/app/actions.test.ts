@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createCampaign, updateHP, updateInitiative, activateCampaign, updateCharacterImage, createCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, advanceTurn, performAttack, performSkillCheck, castSpell } from '@/app/actions';
+import { createCampaign, updateHP, updateInitiative, activateCampaign, updateCharacterImage, createCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, advanceTurn, performAttack, performSkillCheck, castSpell, listEncounters, loadEncounter, endEncounter, importCharacterFromLibrary } from '@/app/actions';
 import { prisma } from '@/lib/prisma';
 
 // Mock dependencies
@@ -24,6 +24,16 @@ vi.mock('@/lib/prisma', () => ({
     },
     logEntry: {
       create: vi.fn(),
+    },
+    encounter: {
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+    },
+    settings: {
+        findFirst: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
     },
     $transaction: vi.fn((actions) => Promise.resolve(actions)), // Simple mock that returns the actions array (incorrect for array destructuring but sufficient if we mock the return of the function that uses it, or if we adjust implementation)
     // Wait, the implementation is: const [, newActiveChar] = await prisma.$transaction(...)
@@ -506,6 +516,128 @@ describe('Server Actions Logging', () => {
         content: expect.stringContaining('**Wizard** invokes **Fireball** targeting **Goblin**, imposing **Burning**!'),
         type: 'Combat',
       },
+    });
+  });
+});
+
+describe('New Server Actions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('listEncounters returns encounters', async () => {
+    const encounters = [{ id: 'enc-1', name: 'Test Encounter' }];
+    vi.mocked(prisma.encounter.findMany).mockResolvedValue(encounters as any);
+
+    const result = await listEncounters('camp-1');
+
+    expect(prisma.encounter.findMany).toHaveBeenCalledWith({
+      where: { campaignId: 'camp-1' },
+      orderBy: { createdAt: 'desc' }
+    });
+    expect(result).toEqual({ success: true, data: encounters });
+  });
+
+  it('endEncounter resets initiative and active turn', async () => {
+    vi.mocked(prisma.character.updateMany).mockResolvedValue({ count: 5 });
+
+    await endEncounter('camp-1');
+
+    expect(prisma.character.updateMany).toHaveBeenCalledWith({
+      where: { campaignId: 'camp-1' },
+      data: { initiativeRoll: 0, activeTurn: false }
+    });
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: 'Combat ends. The dust settles.',
+        type: 'Story',
+      },
+    });
+  });
+
+  it('loadEncounter updates characters from participants', async () => {
+    const participants = [
+        { characterId: 'char-1', initiative: 20 },
+        { characterId: 'char-2', initiative: 15 }
+    ];
+    const encounter = {
+        id: 'enc-1',
+        campaignId: 'camp-1',
+        name: 'Saved Battle',
+        participants: JSON.stringify(participants)
+    };
+
+    vi.mocked(prisma.encounter.findUnique).mockResolvedValue(encounter as any);
+    vi.mocked(prisma.character.updateMany).mockResolvedValue({ count: 2 });
+    vi.mocked(prisma.character.update).mockResolvedValue({} as any);
+
+    await loadEncounter('enc-1');
+
+    // Should reset active turns first
+    expect(prisma.character.updateMany).toHaveBeenCalledWith({
+        where: { campaignId: 'camp-1' },
+        data: { activeTurn: false }
+    });
+
+    // Should update initiative for each participant
+    expect(prisma.character.update).toHaveBeenCalledWith({
+        where: { id: 'char-1' },
+        data: { initiativeRoll: 20 }
+    });
+    expect(prisma.character.update).toHaveBeenCalledWith({
+        where: { id: 'char-2' },
+        data: { initiativeRoll: 15 }
+    });
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+        data: {
+            campaignId: 'camp-1',
+            content: expect.stringContaining('Encounter **Saved Battle** loaded.'),
+            type: 'Combat',
+        }
+    });
+  });
+
+  it('importCharacterFromLibrary clones character', async () => {
+    const source = {
+        id: 'lib-1',
+        name: 'Hero Template',
+        type: 'PLAYER',
+        hp: 20,
+        maxHp: 20,
+        attributes: '{}',
+        inventory: '[]',
+        // ... other fields
+    };
+
+    vi.mocked(prisma.character.findUnique).mockResolvedValue(source as any);
+    vi.mocked(prisma.character.create).mockResolvedValue({
+        id: 'new-char-1',
+        name: 'Hero Template',
+        campaignId: 'camp-1',
+        // ...
+    } as any);
+
+    await importCharacterFromLibrary('camp-1', 'lib-1');
+
+    expect(prisma.character.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+            campaignId: 'camp-1',
+            name: 'Hero Template',
+            sourceId: 'lib-1',
+            initiativeRoll: 0,
+            conditions: '[]',
+        })
+    }));
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+        data: {
+            campaignId: 'camp-1',
+            content: expect.stringContaining('**Hero Template** joins the party from the archives.'),
+            type: 'Story',
+        }
     });
   });
 });
