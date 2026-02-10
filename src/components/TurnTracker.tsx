@@ -45,7 +45,11 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     const handleSave = async () => {
         setSaving(true);
         try {
-            await saveEncounter(campaignId, sortedParticipants);
+            const participantsToSave = sortedParticipants.map(p => ({
+                characterId: p.id,
+                initiative: p.initiativeRoll,
+            }));
+            await saveEncounter(campaignId, participantsToSave);
         } catch (e) {
             console.error(e);
         } finally {

@@ -3,13 +3,13 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
-import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions } from "@/lib/safe-json";
+import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants } from "@/lib/safe-json";
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { createBackup, restoreBackup, listBackups, checkAutoBackup } from "@/lib/backup";
 import { generateStory } from "@/lib/ai";
 import { z } from "zod";
-import { CharacterInput, CharacterInputSchema } from "@/lib/schemas";
+import { CharacterInput, CharacterInputSchema, Participants } from "@/lib/schemas";
 import { Character } from "@prisma/client";
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
@@ -311,14 +311,7 @@ export async function createCharacter(formData: FormData): Promise<ActionResult>
                 armorClass: parseInt(formData.get("armorClass") as string) || 10,
                 speed: parseInt(formData.get("speed") as string) || 30,
                 initiative: parseInt(formData.get("initiative") as string) || 0,
-                attributes: stringifyAttributes({
-                    str: parseInt(formData.get("str") as string) || 10,
-                    dex: parseInt(formData.get("dex") as string) || 10,
-                    con: parseInt(formData.get("con") as string) || 10,
-                    int: parseInt(formData.get("int") as string) || 10,
-                    wis: parseInt(formData.get("wis") as string) || 10,
-                    cha: parseInt(formData.get("cha") as string) || 10,
-                }),
+                attributes: stringifyAttributes(extractAttributesFromFormData(formData)),
                 initiativeRoll: 0,
             }
         });
@@ -354,14 +347,7 @@ export async function updateCharacter(characterId: string, formData: FormData): 
                 armorClass: formData.get("armorClass") ? parseInt(formData.get("armorClass") as string) : undefined,
                 speed: formData.get("speed") ? parseInt(formData.get("speed") as string) : undefined,
                 initiative: formData.get("initiative") ? parseInt(formData.get("initiative") as string) : undefined,
-                attributes: formData.get("str") ? stringifyAttributes({
-                    str: parseInt(formData.get("str") as string) || 10,
-                    dex: parseInt(formData.get("dex") as string) || 10,
-                    con: parseInt(formData.get("con") as string) || 10,
-                    int: parseInt(formData.get("int") as string) || 10,
-                    wis: parseInt(formData.get("wis") as string) || 10,
-                    cha: parseInt(formData.get("cha") as string) || 10,
-                }) : undefined,
+                attributes: formData.get("str") ? stringifyAttributes(extractAttributesFromFormData(formData)) : undefined,
             }
         });
 
@@ -546,7 +532,7 @@ export async function getSettings(): Promise<ActionResult> {
     });
 }
 
-export async function saveEncounter(campaignId: string, participants: any[]): Promise<ActionResult> {
+export async function saveEncounter(campaignId: string, participants: Participants): Promise<ActionResult> {
     return actionWrapper("saveEncounter", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
 
@@ -555,7 +541,7 @@ export async function saveEncounter(campaignId: string, participants: any[]): Pr
                 campaignId,
                 name: `Encounter ${new Date().toLocaleString()}`,
                 status: "Active",
-                participants: JSON.stringify(participants)
+                participants: stringifyParticipants(participants)
             }
         });
 

@@ -4,6 +4,7 @@ import {
   parseConditions,
   parseInventory,
   parseParticipants,
+  extractAttributesFromFormData,
   stringifyAttributes,
   stringifyConditions,
   stringifyInventory,
@@ -82,6 +83,35 @@ describe('safe-json', () => {
         // @ts-expect-error Testing invalid input
         expect(stringifyConditions(["Valid", 123])).toBe("[]");
         spy.mockRestore();
+    });
+  });
+
+  describe('extractAttributesFromFormData', () => {
+    it('extracts valid attributes', () => {
+      const formData = new FormData();
+      formData.append('str', '12');
+      formData.append('dex', '14');
+
+      const result = extractAttributesFromFormData(formData);
+      expect(result.str).toBe(12);
+      expect(result.dex).toBe(14);
+      expect(result.con).toBe(10); // Default
+    });
+
+    it('handles invalid numbers by defaulting to 10', () => {
+      const formData = new FormData();
+      formData.append('str', 'invalid');
+
+      const result = extractAttributesFromFormData(formData);
+      expect(result.str).toBe(10);
+    });
+
+    it('defaults all to 10 if empty', () => {
+      const formData = new FormData();
+      const result = extractAttributesFromFormData(formData);
+      expect(result).toEqual({
+        str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10
+      });
     });
   });
 });
