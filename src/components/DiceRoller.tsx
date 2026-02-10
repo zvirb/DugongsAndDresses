@@ -67,10 +67,14 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
 
     return (
         <Card variant="agent" className="overflow-hidden">
-            <CardHeader className="p-4 flex flex-col gap-4 space-y-0">
+            <CardHeader className="p-4 flex flex-col gap-4 space-y-0 bg-agent-navy/50 backdrop-blur-sm border-b border-agent-blue/10">
                 <div className="flex justify-between items-center">
                     <CardTitle className="text-sm font-black text-agent-blue uppercase tracking-[0.2em]">Dice Tray</CardTitle>
-                    {rollingDie !== null && <span className="text-xs text-white animate-pulse font-bold tracking-wider">ROLLING...</span>}
+                    {rollingDie !== null && (
+                        <span className="text-sm text-agent-blue animate-pulse font-black tracking-widest drop-shadow-[0_0_5px_rgba(43,43,238,0.8)] uppercase">
+                            ROLLING...
+                        </span>
+                    )}
                 </div>
 
                 {/* Mode Toggles - Full width touch targets */}
@@ -78,7 +82,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     <Button
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`h-14 p-4 text-xs uppercase font-bold tracking-wider touch-manipulation ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white' : ''}`}
+                        className={`h-14 p-4 text-xs uppercase font-bold tracking-wider touch-manipulation ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)]'}`}
                     >
                         Normal
                     </Button>
@@ -98,7 +102,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     </Button>
                 </div>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-4 pt-4">
                 <div className="grid grid-cols-3 gap-3">
                     {[4, 6, 8, 10, 12, 20].map(d => (
                         <Button
@@ -106,7 +110,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                             disabled={rollingDie !== null}
                             onClick={() => rollDice(d)}
                             variant={getDiceVariant()}
-                            className="font-black text-xl h-16 p-4 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg touch-manipulation"
+                            className="font-black text-xl h-16 p-4 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg touch-manipulation border border-white/5 hover:border-agent-blue/50"
                         >
                             {rollingDie === d ? '...' : `d${d}`}
                         </Button>

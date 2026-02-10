@@ -93,7 +93,8 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     return (
         <div className="flex flex-col h-full relative">
             <div className="flex justify-between items-center mb-4 border-b border-agent-blue/20 pb-2">
-                <h2 className="text-lg font-semibold text-agent-blue uppercase tracking-widest">
+                <h2 className="text-sm font-bold text-agent-blue uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-agent-blue rounded-full animate-pulse shadow-[0_0_5px_#2b2bee]" />
                     Initiative
                 </h2>
                 <div className="flex gap-2">
@@ -102,7 +103,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         disabled={isPending}
                         variant="outline"
                         size="sm"
-                        className="text-[10px] h-7 px-2 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10"
+                        className="text-[10px] h-7 px-3 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10 hover:text-white hover:border-agent-blue/60 transition-all font-bold tracking-wider uppercase"
                         title="Load saved encounter"
                     >
                         Load
@@ -112,7 +113,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         disabled={saving || isPending}
                         variant="outline"
                         size="sm"
-                        className="text-[10px] h-7 px-2 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10"
+                        className="text-[10px] h-7 px-3 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10 hover:text-white hover:border-agent-blue/60 transition-all font-bold tracking-wider uppercase"
                         title="Save current state as an Encounter"
                     >
                         {saving ? '...' : 'Save'}
@@ -122,7 +123,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         disabled={isPending}
                         variant="destructive"
                         size="sm"
-                        className="text-[10px] h-7 px-2"
+                        className="text-[10px] h-7 px-3 font-bold tracking-wider uppercase shadow-[0_0_10px_rgba(220,38,38,0.3)] hover:shadow-[0_0_20px_rgba(220,38,38,0.6)]"
                         title="End Combat"
                     >
                         End
@@ -132,24 +133,24 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         disabled={isPending}
                         variant="agent"
                         size="sm"
-                        className="text-[10px] h-7 px-2"
+                        className="text-[10px] h-7 px-4 font-black tracking-widest uppercase shadow-[0_0_15px_rgba(43,43,238,0.4)] hover:shadow-[0_0_25px_rgba(43,43,238,0.7)] hover:scale-105 transition-all"
                     >
-                        {isPending ? '...' : 'Next'}
+                        {isPending ? '...' : 'NEXT'}
                     </Button>
                 </div>
             </div>
 
             {/* Load Modal Overlay */}
             {showLoadModal && (
-                <div className="absolute inset-0 z-50 bg-black/95 flex items-center justify-center p-2 rounded-lg">
-                    <div className="bg-neutral-900 border border-agent-blue/30 rounded-lg w-full h-full flex flex-col shadow-2xl">
+                <div className="absolute inset-0 z-50 bg-black/95 flex items-center justify-center p-2 rounded-lg backdrop-blur-sm">
+                    <div className="bg-agent-navy/90 border border-agent-blue/30 rounded-lg w-full h-full flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
                         <div className="p-3 border-b border-white/10 flex justify-between items-center shrink-0">
                             <h3 className="text-xs font-bold text-agent-blue uppercase tracking-widest">Load Encounter</h3>
                             <button onClick={() => setShowLoadModal(false)} className="text-neutral-400 hover:text-white px-2">✕</button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 space-y-2">
                             {loadingEncounters ? (
-                                <p className="text-xs text-neutral-500 text-center p-4">Scanning archives...</p>
+                                <p className="text-xs text-neutral-500 text-center p-4 animate-pulse">Scanning archives...</p>
                             ) : encounters.length === 0 ? (
                                 <p className="text-xs text-neutral-500 text-center p-4">No saved encounters found.</p>
                             ) : (
@@ -171,34 +172,47 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                 </div>
             )}
 
-            <div className="space-y-2 overflow-y-auto flex-1 pr-1">
-                {sortedParticipants.map(p => (
+            <div className="space-y-2 overflow-y-auto flex-1 pr-1 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
+                {sortedParticipants.map((p, index) => (
                     <div
                         key={p.id}
                         className={cn(
-                            "p-3 rounded flex justify-between items-center border-l-4 transition-all",
+                            "p-3 rounded-lg flex justify-between items-center border-l-4 transition-all duration-300 relative overflow-hidden",
                             p.activeTurn
-                                ? 'bg-agent-blue/10 border-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.5)] scale-[1.02] ring-1 ring-agent-blue/50 animate-[pulse_4s_infinite]'
-                                : 'bg-white/5 border-transparent opacity-60 hover:opacity-100'
+                                ? 'bg-agent-blue/10 border-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.4)] scale-[1.02] ring-1 ring-agent-blue/50 z-10'
+                                : 'bg-black/20 border-white/10 hover:bg-white/5 hover:border-white/30'
                         )}
                     >
-                        <div>
-                            <span className={cn(
-                                "block font-bold uppercase tracking-wide",
-                                p.type === 'NPC' ? 'text-red-400' : 'text-white'
-                            )}>
-                                {p.name}
-                            </span>
-                            {p.activeTurn && <span className="text-xs text-agent-blue font-bold animate-pulse uppercase tracking-wider">Taking Turn...</span>}
+                        {/* Active Indicator Scanline */}
+                        {p.activeTurn && (
+                            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-lg">
+                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-agent-blue/10 to-transparent animate-[pulse_2s_infinite]" />
+                            </div>
+                        )}
+
+                        <div className="relative z-10 flex items-center gap-3">
+                            <span className="font-mono text-xs text-neutral-500 w-4">#{index + 1}</span>
+                            <div>
+                                <span className={cn(
+                                    "block font-bold uppercase tracking-wide text-sm",
+                                    p.type === 'NPC' ? 'text-red-400 drop-shadow-sm' : 'text-white drop-shadow-sm',
+                                    p.activeTurn && "text-agent-blue drop-shadow-[0_0_5px_rgba(43,43,238,0.8)]"
+                                )}>
+                                    {p.name}
+                                </span>
+                                {p.activeTurn && <span className="text-[10px] text-agent-blue font-bold animate-pulse uppercase tracking-wider block mt-0.5">&gt;&gt; Active Unit</span>}
+                            </div>
                         </div>
 
                         {/* Initiative Edit Field */}
-                        <div className="w-16">
+                        <div className="w-16 relative z-10">
                             <Input
                                 type="number"
                                 className={cn(
-                                    "text-center font-mono h-8 border-transparent focus-visible:ring-agent-blue",
-                                    p.activeTurn ? "bg-black/40 text-white" : "bg-black/20 text-neutral-400"
+                                    "text-center font-mono h-8 border-transparent focus-visible:ring-agent-blue transition-all",
+                                    p.activeTurn
+                                        ? "bg-black/60 text-white shadow-inner border-agent-blue/30"
+                                        : "bg-black/30 text-neutral-400 hover:text-white hover:bg-black/50"
                                 )}
                                 defaultValue={p.initiativeRoll}
                                 onBlur={(e) => updateInit(p.id, e.target.value)}

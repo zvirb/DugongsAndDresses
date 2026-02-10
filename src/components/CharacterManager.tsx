@@ -34,6 +34,9 @@ interface CharacterManagerProps {
     campaignId: string;
 }
 
+const inputClass = "bg-black/50 border-agent-blue/30 text-white focus-visible:ring-agent-blue focus:border-agent-blue h-7 text-xs";
+const selectClass = "flex h-7 w-full rounded-md border border-agent-blue/30 bg-black/50 px-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-agent-blue";
+
 export default function CharacterManager({ characters, campaignId }: CharacterManagerProps) {
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -195,7 +198,7 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                                                 value={inventoryInput[char.id] || ''}
                                                 onChange={e => setInventoryInput(prev => ({ ...prev, [char.id]: e.target.value }))}
                                                 placeholder="Add item..."
-                                                className="bg-neutral-950 border-neutral-700 h-7 text-xs"
+                                                className={inputClass}
                                                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddItem(char.id); } }}
                                             />
                                             <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => handleAddItem(char.id)}>+</Button>
@@ -212,7 +215,7 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                 <AddCharacterForm campaignId={campaignId} onClose={() => setShowAddForm(false)} />
             ) : (
                 <div className="flex gap-2">
-                    <Button variant="secondary" size="sm" onClick={() => setShowAddForm(true)} className="flex-1">
+                    <Button variant="secondary" size="sm" onClick={() => setShowAddForm(true)} className="flex-1 bg-agent-blue/20 text-agent-blue border border-agent-blue/50 hover:bg-agent-blue/40">
                         + Create New
                     </Button>
                     <Button variant="outline" size="sm" onClick={openLibrary} className="flex-1 border-white/10 hover:bg-white/5 text-neutral-300">
@@ -279,53 +282,53 @@ function AddCharacterForm({ campaignId, onClose }: { campaignId: string; onClose
     };
 
     return (
-        <Card className="bg-neutral-900 border-agent-blue/30">
+        <Card className="bg-agent-navy/90 border-agent-blue/30 backdrop-blur-sm">
             <CardContent className="p-3">
                 <form onSubmit={handleSubmit} className="space-y-2">
-                    <h4 className="text-sm font-semibold text-agent-blue">Add Character</h4>
+                    <h4 className="text-sm font-semibold text-agent-blue uppercase tracking-wide">Add Character</h4>
                     <div className="grid grid-cols-2 gap-2">
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">Name *</label>
-                            <Input name="name" required className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="name" required className={inputClass} />
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">Type</label>
-                            <select name="type" defaultValue="PLAYER" className="flex h-7 w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 text-xs text-neutral-100">
+                            <select name="type" defaultValue="PLAYER" className={selectClass}>
                                 <option value="PLAYER">Player</option>
                                 <option value="NPC">NPC</option>
                             </select>
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">Race</label>
-                            <Input name="race" className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="race" className={inputClass} />
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">Class</label>
-                            <Input name="class" className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="class" className={inputClass} />
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">Level</label>
-                            <Input name="level" type="number" defaultValue={1} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="level" type="number" defaultValue={1} className={inputClass} />
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">HP</label>
-                            <Input name="hp" type="number" defaultValue={10} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="hp" type="number" defaultValue={10} className={inputClass} />
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">Max HP</label>
-                            <Input name="maxHp" type="number" defaultValue={10} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="maxHp" type="number" defaultValue={10} className={inputClass} />
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">AC</label>
-                            <Input name="armorClass" type="number" defaultValue={10} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="armorClass" type="number" defaultValue={10} className={inputClass} />
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">Speed</label>
-                            <Input name="speed" type="number" defaultValue={30} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="speed" type="number" defaultValue={30} className={inputClass} />
                         </div>
                         <div>
                             <label className="block text-[10px] text-neutral-400 mb-0.5">Init Bonus</label>
-                            <Input name="initiative" type="number" defaultValue={0} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                            <Input name="initiative" type="number" defaultValue={0} className={inputClass} />
                         </div>
                     </div>
                     <h5 className="text-[10px] text-neutral-400 font-bold uppercase mt-1">Ability Scores</h5>
@@ -333,13 +336,13 @@ function AddCharacterForm({ campaignId, onClose }: { campaignId: string; onClose
                         {['str', 'dex', 'con', 'int', 'wis', 'cha'].map(attr => (
                             <div key={attr}>
                                 <label className="block text-[10px] text-neutral-500 text-center uppercase">{attr}</label>
-                                <Input name={attr} type="number" defaultValue={10} className="bg-neutral-950 border-neutral-700 h-7 text-xs text-center" />
+                                <Input name={attr} type="number" defaultValue={10} className={`${inputClass} text-center`} />
                             </div>
                         ))}
                     </div>
-                    <div className="flex gap-2">
-                        <Button type="button" variant="ghost" size="sm" onClick={onClose} className="flex-1">Cancel</Button>
-                        <Button type="submit" size="sm" disabled={submitting} className="flex-1">{submitting ? 'Adding...' : 'Add'}</Button>
+                    <div className="flex gap-2 pt-2">
+                        <Button type="button" variant="ghost" size="sm" onClick={onClose} className="flex-1 hover:bg-white/5 hover:text-white">Cancel</Button>
+                        <Button type="submit" size="sm" disabled={submitting} className="flex-1 bg-agent-blue text-white hover:bg-blue-600">{submitting ? 'Adding...' : 'Add'}</Button>
                     </div>
                 </form>
             </CardContent>
@@ -361,50 +364,50 @@ function EditCharacterForm({ character, attrs, onClose }: { character: Character
 
     return (
         <form onSubmit={handleSubmit} className="space-y-2">
-            <h4 className="text-sm font-semibold text-agent-blue">Edit Character</h4>
+            <h4 className="text-sm font-semibold text-agent-blue uppercase tracking-wide">Edit Character</h4>
             <div className="grid grid-cols-2 gap-2">
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">Name</label>
-                    <Input name="name" defaultValue={character.name} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="name" defaultValue={character.name} className={inputClass} />
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">Type</label>
-                    <select name="type" defaultValue={character.type} className="flex h-7 w-full rounded-md border border-neutral-700 bg-neutral-950 px-2 text-xs text-neutral-100">
+                    <select name="type" defaultValue={character.type} className={selectClass}>
                         <option value="PLAYER">Player</option>
                         <option value="NPC">NPC</option>
                     </select>
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">Race</label>
-                    <Input name="race" defaultValue={character.race || ''} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="race" defaultValue={character.race || ''} className={inputClass} />
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">Class</label>
-                    <Input name="class" defaultValue={character.class || ''} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="class" defaultValue={character.class || ''} className={inputClass} />
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">Level</label>
-                    <Input name="level" type="number" defaultValue={character.level} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="level" type="number" defaultValue={character.level} className={inputClass} />
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">HP</label>
-                    <Input name="hp" type="number" defaultValue={character.hp} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="hp" type="number" defaultValue={character.hp} className={inputClass} />
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">Max HP</label>
-                    <Input name="maxHp" type="number" defaultValue={character.maxHp} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="maxHp" type="number" defaultValue={character.maxHp} className={inputClass} />
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">AC</label>
-                    <Input name="armorClass" type="number" defaultValue={character.armorClass} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="armorClass" type="number" defaultValue={character.armorClass} className={inputClass} />
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">Speed</label>
-                    <Input name="speed" type="number" defaultValue={character.speed} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="speed" type="number" defaultValue={character.speed} className={inputClass} />
                 </div>
                 <div>
                     <label className="block text-[10px] text-neutral-400 mb-0.5">Init Bonus</label>
-                    <Input name="initiative" type="number" defaultValue={character.initiative} className="bg-neutral-950 border-neutral-700 h-7 text-xs" />
+                    <Input name="initiative" type="number" defaultValue={character.initiative} className={inputClass} />
                 </div>
             </div>
             <h5 className="text-[10px] text-neutral-400 font-bold uppercase mt-1">Ability Scores</h5>
@@ -412,13 +415,13 @@ function EditCharacterForm({ character, attrs, onClose }: { character: Character
                 {['str', 'dex', 'con', 'int', 'wis', 'cha'].map(attr => (
                     <div key={attr}>
                         <label className="block text-[10px] text-neutral-500 text-center uppercase">{attr}</label>
-                        <Input name={attr} type="number" defaultValue={attrs[attr] || 10} className="bg-neutral-950 border-neutral-700 h-7 text-xs text-center" />
+                        <Input name={attr} type="number" defaultValue={attrs[attr] || 10} className={`${inputClass} text-center`} />
                     </div>
                 ))}
             </div>
-            <div className="flex gap-2">
-                <Button type="button" variant="ghost" size="sm" onClick={onClose} className="flex-1">Cancel</Button>
-                <Button type="submit" size="sm" disabled={submitting} className="flex-1">{submitting ? 'Saving...' : 'Save'}</Button>
+            <div className="flex gap-2 pt-2">
+                <Button type="button" variant="ghost" size="sm" onClick={onClose} className="flex-1 hover:bg-white/5 hover:text-white">Cancel</Button>
+                <Button type="submit" size="sm" disabled={submitting} className="flex-1 bg-agent-blue text-white hover:bg-blue-600">{submitting ? 'Saving...' : 'Save'}</Button>
             </div>
         </form>
     );
