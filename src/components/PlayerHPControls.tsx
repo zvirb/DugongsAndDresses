@@ -70,7 +70,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
 
             {/* Controls */}
             <div className="flex flex-col gap-6 w-full">
-                <div className="flex gap-4">
+                <div className="flex gap-6">
                     <Button
                         variant="destructive"
                         size="lg"
@@ -90,7 +90,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         +1
                     </Button>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-6">
                     <Button
                         variant="destructive"
                         size="lg"

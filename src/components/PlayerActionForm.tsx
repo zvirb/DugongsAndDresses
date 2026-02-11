@@ -5,6 +5,8 @@ import { useTransition, useState } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 
+const QUICK_ACTIONS = ["Attack", "Cast", "Dodge", "Dash"];
+
 export default function PlayerActionForm({ characterName, campaignId }: { characterName: string, campaignId: string }) {
     const [isPending, startTransition] = useTransition();
     const [intent, setIntent] = useState("");
@@ -38,6 +40,22 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Declare Intent</label>
+
+                {/* Quick Actions */}
+                <div className="grid grid-cols-4 gap-2 mb-2">
+                    {QUICK_ACTIONS.map((action) => (
+                        <Button
+                            key={action}
+                            type="button"
+                            variant="ghost"
+                            onClick={() => setIntent(action)}
+                            className="h-14 p-2 text-xs font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 touch-manipulation"
+                        >
+                            {action}
+                        </Button>
+                    ))}
+                </div>
+
                 <Input
                     placeholder="I swing my axe..."
                     value={intent}

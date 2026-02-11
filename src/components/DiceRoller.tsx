@@ -82,21 +82,21 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     <Button
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`h-14 p-4 text-xs uppercase font-bold tracking-wider touch-manipulation ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)]'}`}
+                        className={`h-16 p-4 text-xs uppercase font-bold tracking-wider touch-manipulation ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)]'}`}
                     >
                         Normal
                     </Button>
                     <Button
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
-                        className={`h-14 p-4 text-xs uppercase font-bold tracking-wider touch-manipulation ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-neutral-500 hover:text-emerald-400'}`}
+                        className={`h-16 p-4 text-xs uppercase font-bold tracking-wider touch-manipulation ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-neutral-500 hover:text-emerald-400'}`}
                     >
                         Adv
                     </Button>
                     <Button
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
-                        className={`h-14 p-4 text-xs uppercase font-bold tracking-wider touch-manipulation ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)]' : 'text-neutral-500 hover:text-red-400'}`}
+                        className={`h-16 p-4 text-xs uppercase font-bold tracking-wider touch-manipulation ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)]' : 'text-neutral-500 hover:text-red-400'}`}
                     >
                         Dis
                     </Button>
