@@ -56,6 +56,29 @@ export async function getCampaigns() {
 }
 
 /**
+ * Fetches detailed campaign data by ID.
+ * Intended to be used when the ID is already known (e.g. from getCampaigns list).
+ */
+export async function getCampaignDetails(id: string) {
+  return prisma.campaign.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      characters: {
+        orderBy: { name: 'asc' },
+        select: DM_CHAR_SELECT
+      },
+      logs: {
+        take: 20,
+        orderBy: { timestamp: 'desc' },
+        select: DM_LOG_SELECT
+      }
+    }
+  });
+}
+
+/**
  * Fetches the currently active campaign including characters and recent logs.
  * If no campaign is explicitly active, it defaults to the most recent one.
  */
