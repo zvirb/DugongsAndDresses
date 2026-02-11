@@ -174,7 +174,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         className={cn(
                             "p-3 rounded-lg flex justify-between items-center border-l-4 transition-all duration-300 relative overflow-hidden",
                             p.activeTurn
-                                ? 'bg-agent-blue/10 border-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.4)] scale-[1.02] ring-1 ring-agent-blue/50 z-10'
+                                ? 'bg-agent-navy border-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.6)] scale-[1.02] ring-1 ring-agent-blue/50 z-10'
                                 : 'bg-black/20 border-white/10 hover:bg-white/5 hover:border-white/30'
                         )}
                     >
