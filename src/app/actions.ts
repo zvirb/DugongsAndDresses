@@ -4,7 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
 import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants } from "@/lib/safe-json";
-import { writeFile, mkdir } from 'fs/promises';
+import { mkdir } from 'fs/promises';
+import { createWriteStream } from 'fs';
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
 import { join } from 'path';
 import { createBackup, restoreBackup, listBackups, checkAutoBackup } from "@/lib/backup";
 import { generateStory } from "@/lib/ai";
@@ -281,16 +284,20 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult> {
             throw new Error("File size too large. Maximum 5MB allowed.");
         }
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
         const uploadDir = join(process.cwd(), 'public/avatars');
         await mkdir(uploadDir, { recursive: true });
 
         const filename = `${characterId}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
         const path = join(uploadDir, filename);
 
-        await writeFile(path, buffer);
+        const stream = file.stream();
+        // Convert the web stream to a node stream for piping to fs
+        // Cast to 'any' to avoid strict type checks between web ReadableStream and node Readable
+        // Using Readable.from is more robust as it accepts any AsyncIterable, including Web Streams
+        const nodeStream = Readable.from(stream as any);
+        const writeStream = createWriteStream(path);
+
+        await pipeline(nodeStream, writeStream);
 
         const imageUrl = `/avatars/${filename}`;
         await updateCharacterImage(characterId, imageUrl);
