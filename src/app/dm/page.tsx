@@ -91,17 +91,20 @@ export default async function DMPage() {
                                     }
                                 />
                             </CardHeader>
-                            <CardContent className="flex-1 p-0 overflow-hidden relative z-10">
-                                <div className="absolute inset-0 p-4 overflow-y-auto space-y-2 font-mono text-xs text-blue-100 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
+                            <CardContent className="flex-1 p-0 overflow-hidden relative z-10 bg-black/90 font-mono text-xs text-agent-blue font-bold border-l-2 border-agent-blue/30">
+                                <div className="absolute inset-0 p-4 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
                                     {campaign.logs.map((log) => (
-                                        <div key={log.id} className="border-b border-agent-blue/10 pb-2 last:border-0 hover:bg-white/5 transition-colors px-2 -mx-2 rounded">
+                                        <div key={log.id} className="border-b border-white/5 pb-2 last:border-0 hover:bg-white/5 transition-colors px-2 -mx-2 rounded">
                                             <span className="text-agent-blue/60 mr-2 opacity-70">
                                                 [{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}]
                                             </span>
-                                            <span className="text-white/90 drop-shadow-sm">{log.content}</span>
+                                            <span className="text-agent-blue/90 drop-shadow-sm">{log.content}</span>
                                         </div>
                                     ))}
-                                    <div className="animate-pulse text-agent-blue font-bold mt-2">_</div>
+                                    <div className="mt-2 text-agent-blue">
+                                        <span className="mr-2">&gt;</span>
+                                        <span className="animate-pulse inline-block w-2 h-4 bg-agent-blue/50 align-middle"></span>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

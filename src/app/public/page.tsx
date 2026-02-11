@@ -9,8 +9,14 @@ export default async function PublicPage() {
     const campaign = await getPublicCampaign();
 
     if (!campaign) return (
-        <div className="min-h-screen bg-agent-navy text-agent-blue flex items-center justify-center p-10 font-sans italic font-black text-6xl animate-pulse">
-            WAITING FOR DM...
+        <div className="min-h-screen bg-agent-navy flex flex-col items-center justify-center p-10 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:20px_20px] opacity-20" />
+            <div className="relative z-10 flex flex-col items-center gap-4">
+                <div className="w-16 h-16 border-4 border-agent-blue/30 rounded-full border-t-agent-blue animate-spin" />
+                <div className="text-agent-blue font-mono tracking-[0.5em] text-2xl animate-pulse font-bold">
+                    SYSTEM STANDBY // AWAITING INPUT
+                </div>
+            </div>
         </div>
     );
 
@@ -25,7 +31,7 @@ export default async function PublicPage() {
             <AutoRefresh intervalMs={3000} />
 
             {/* Content Wrapper with Float Animation */}
-            <div className="p-8 pb-60 animate-float h-full overflow-y-auto">
+            <div className="p-8 pb-60 animate-float h-full overflow-y-auto border-x border-agent-blue/20 max-w-[1920px] mx-auto bg-black/10 backdrop-blur-sm">
                 <header className="relative z-10 flex justify-between items-end mb-12 border-b-4 border-agent-blue/30 pb-4">
                     <div>
                         <div className="text-agent-blue font-mono text-sm animate-pulse mb-2 tracking-widest">SYSTEM STATUS: ONLINE // SECURE CONNECTION</div>
@@ -51,7 +57,10 @@ export default async function PublicPage() {
             </div>
 
             {/* Current Turn Indicator (Bottom) - Outside floating container */}
-            <div className="fixed bottom-0 left-0 w-full bg-agent-navy/95 border-t-4 border-agent-blue p-6 text-center backdrop-blur-2xl z-40 shadow-[0_-10px_60px_rgba(43,43,238,0.4)]">
+            <div className="fixed bottom-0 left-0 w-full bg-agent-navy/95 border-t-4 border-agent-blue p-6 text-center backdrop-blur-2xl z-40 shadow-[0_-10px_40px_rgba(43,43,238,0.2)]">
+                {/* Tactical Tab Decoration */}
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-32 h-2 bg-agent-blue shadow-[0_0_15px_rgba(43,43,238,0.6)] [clip-path:polygon(0_0,100%_0,80%_100%,20%_100%)]" />
+
                 {(() => {
                     const activeChar = campaign.characters.find((c) => c.activeTurn);
                     return activeChar ? (
