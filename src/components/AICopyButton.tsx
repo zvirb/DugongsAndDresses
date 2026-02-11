@@ -15,34 +15,41 @@ export default function AICopyButton({ logs, characters, turnOrder }: {
     const generateContext = () => {
         const charSummary = characters.map(c => {
             const conditions = parseConditions(c.conditions);
-            const conditionText = conditions.length > 0 ? conditions.join(', ') : 'Healthy';
+            // Wrap conditions in brackets for density and parsing clarity
+            const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'Healthy';
 
             // Parse attributes if available
             const attributes = parseAttributes(c.attributes);
             const keyMap: Record<string, string> = {
                 str: 'STR', dex: 'DEX', con: 'CON', int: 'INT', wis: 'WIS', cha: 'CHA'
             };
+            // Dense attribute format: STR:18 DEX:12
             const attrText = Object.entries(attributes)
-                .map(([k, v]) => `${keyMap[k.toLowerCase()] || k}: ${v}`)
-                .join(', ');
+                .map(([k, v]) => `${keyMap[k.toLowerCase()] || k}:${v}`)
+                .join(' ');
 
             // Parse inventory
             const inventory = parseInventory(c.inventory);
             const inventoryText = inventory.length > 0
-                ? inventory.slice(0, 5).join(', ') + (inventory.length > 5 ? '...' : '')
+                ? `[${inventory.slice(0, 5).join(', ')}${inventory.length > 5 ? '...' : ''}]`
                 : null;
 
-            // Construct line parts to avoid trailing spaces and ensure clean formatting
-            // Format: ▶ [ACTIVE] Name [Type] (Race Class Lvl) | HP: X/Y | AC: Z | Init: N | Spd: S | Cond: ... | Attrs: ... | Inv: ...
+            // Combat stats group: HP:X/Y AC:Z Spd:S Init:N
+            const combatStats = [
+                `HP:${c.hp}/${c.maxHp}`,
+                `AC:${c.armorClass}`,
+                c.speed !== undefined ? `Spd:${c.speed}` : null,
+                c.initiativeRoll !== undefined ? `Init:${c.initiativeRoll}` : null,
+            ].filter(Boolean).join(' ');
+
+            // Construct line parts
+            // Format: ▶ [ACTIVE] Name (Race Class Lvl X) | HP:X/Y AC:Z Spd:S Init:N | Cond:[...] | STR:X DEX:Y ... | Inv:[...]
             const parts = [
-                `${c.activeTurn ? '▶ [ACTIVE] ' : ''}${c.name} [${c.type}] (${c.race || '?'} ${c.class || '?'} Lvl ${c.level})`,
-                `HP: ${c.hp}/${c.maxHp}`,
-                `AC: ${c.armorClass}`,
-                c.initiativeRoll !== undefined ? `Init: ${c.initiativeRoll}` : null,
-                c.speed !== undefined ? `Spd: ${c.speed}` : null,
-                `Cond: ${conditionText}`,
-                attrText ? `Attrs: ${attrText}` : null,
-                inventoryText ? `Inv: ${inventoryText}` : null
+                `${c.activeTurn ? '▶ [ACTIVE] ' : ''}${c.name} (${c.race || '?'} ${c.class || '?'} Lvl ${c.level})`,
+                combatStats,
+                `Cond:${conditionText}`,
+                attrText ? `${attrText}` : null,
+                inventoryText ? `Inv:${inventoryText}` : null
             ].filter(item => item !== null && item !== undefined && item !== '');
 
             return parts.join(' | ');
@@ -57,7 +64,7 @@ export default function AICopyButton({ logs, characters, turnOrder }: {
 
         // Take 5 most recent logs, then reverse to show chronological order (Old -> New)
         const logSummary = filteredLogs.slice(0, 5).reverse().map(l =>
-            `- [${new Date(l.timestamp).toLocaleTimeString()}] ${l.content}`
+            `[${new Date(l.timestamp).toLocaleTimeString()}] ${l.content}`
         ).join('\n');
 
         return `== CURRENT GAME STATE ==
@@ -72,11 +79,11 @@ ${charSummary}
 ${logSummary}
 
 == INSTRUCTIONS ==
-Analyze the Game State to generate the next DM narration.
-1. Narrative Focus: Prioritize the [ACTIVE] character's action and the immediate consequences of RECENT LOGS.
-2. Tone: Technical Fantasy (grit, tactical, sensory details).
-3. Mechanics: Use HP, AC, and Conditions to describe damage or status effects (e.g., "bloodied", "staggering").
-4. Output: A concise, punchy paragraph (2-3 sentences max) driving the action forward. Do not resolve actions that require a roll unless the result is in the logs.`;
+Analyze state. Narrate next action for [ACTIVE] character.
+1. Focus: [ACTIVE] character's action & consequences of RECENT LOGS.
+2. Tone: Technical Fantasy (grit, sensory).
+3. Mechanics: Use HP/AC/Conditions for flavor (e.g., "bloodied", "staggering").
+4. Output: 2-3 sentences max. Action-oriented. Do not resolve rolls unless in logs.`;
     };
 
     const handleCopy = async () => {

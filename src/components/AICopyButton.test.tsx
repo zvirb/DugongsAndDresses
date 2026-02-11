@@ -73,11 +73,11 @@ describe('AICopyButton', () => {
     expect(copiedText).toContain('  Goblin (Init: 8)')
     
     // Characters
-    // Check Grom: ▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP: 20/25 | AC: 14 | Init: 15 | Spd: 30 | Cond: Healthy | Attrs: STR: 18, DEX: 12 | Inv: Greataxe, Potion
-    expect(copiedText).toContain('▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP: 20/25 | AC: 14 | Init: 15 | Spd: 30 | Cond: Healthy | Attrs: STR: 18, DEX: 12 | Inv: Greataxe, Potion')
+    // Check Grom: ▶ [ACTIVE] Grom (Orc Barbarian Lvl 3) | HP:20/25 AC:14 Spd:30 Init:15 | Cond:Healthy | STR:18 DEX:12 | Inv:[Greataxe, Potion]
+    expect(copiedText).toContain('▶ [ACTIVE] Grom (Orc Barbarian Lvl 3) | HP:20/25 AC:14 Spd:30 Init:15 | Cond:Healthy | STR:18 DEX:12 | Inv:[Greataxe, Potion]')
     
-    // Check Goblin: Goblin [NPC] (Goblin Rogue Lvl 1) | HP: 5/10 | AC: 12 | Init: 8 | Cond: Healthy
-    expect(copiedText).toContain('Goblin [NPC] (Goblin Rogue Lvl 1) | HP: 5/10 | AC: 12 | Init: 8 | Cond: Healthy')
+    // Check Goblin: Goblin (Goblin Rogue Lvl 1) | HP:5/10 AC:12 Init:8 | Cond:Healthy
+    expect(copiedText).toContain('Goblin (Goblin Rogue Lvl 1) | HP:5/10 AC:12 Init:8 | Cond:Healthy')
 
     // Logs
     // Should NOT contain 'Secret Note'
