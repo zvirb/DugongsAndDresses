@@ -19,19 +19,14 @@ const DM_CHAR_SELECT = {
   inventory: true,
   speed: true,
   initiative: true,
-  createdAt: true,
-  updatedAt: true,
-  sourceId: true,
-  imageUrl: true,
-  campaignId: true
+  imageUrl: true
 } as const;
 
 const DM_LOG_SELECT = {
   id: true,
   timestamp: true,
   content: true,
-  type: true,
-  campaignId: true
+  type: true
 } as const;
 
 const PULSE_CHAR_SELECT = {
@@ -144,6 +139,7 @@ export async function getCampaignPulse(campaignId: string) {
       id: true,
       active: true,
       characters: {
+        orderBy: { name: 'asc' },
         select: PULSE_CHAR_SELECT
       },
       logs: {
