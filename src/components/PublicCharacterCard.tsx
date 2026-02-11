@@ -2,20 +2,10 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Badge } from "@/components/ui/Badge";
+import { Character } from '@/types';
 
 interface PublicCharacterCardProps {
-    character: {
-        id: string;
-        activeTurn: boolean;
-        imageUrl: string | null;
-        level: number;
-        armorClass: number;
-        name: string;
-        race: string;
-        class: string;
-        hp: number;
-        maxHp: number;
-    };
+    character: Pick<Character, 'id' | 'activeTurn' | 'imageUrl' | 'level' | 'armorClass' | 'name' | 'race' | 'class' | 'hp' | 'maxHp'>;
 }
 
 export function PublicCharacterCard({ character }: PublicCharacterCardProps) {

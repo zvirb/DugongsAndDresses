@@ -11,23 +11,7 @@ import AvatarSelector from '@/components/AvatarSelector';
 import ConditionManager from '@/components/ConditionManager';
 import { parseAttributes, parseConditions, parseInventory } from '@/lib/safe-json';
 import { cn } from '@/lib/utils';
-
-interface Character {
-    id: string;
-    name: string;
-    type: string;
-    race: string | null;
-    class: string | null;
-    level: number;
-    hp: number;
-    maxHp: number;
-    armorClass: number;
-    speed: number;
-    initiative: number;
-    conditions: string;
-    attributes: string;
-    inventory: string;
-}
+import { Character } from "@/types";
 
 interface CharacterManagerProps {
     characters: Character[];

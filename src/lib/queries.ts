@@ -18,14 +18,20 @@ const DM_CHAR_SELECT = {
   attributes: true,
   inventory: true,
   speed: true,
-  initiative: true
+  initiative: true,
+  createdAt: true,
+  updatedAt: true,
+  sourceId: true,
+  imageUrl: true,
+  campaignId: true
 } as const;
 
 const DM_LOG_SELECT = {
   id: true,
   timestamp: true,
   content: true,
-  type: true
+  type: true,
+  campaignId: true
 } as const;
 
 const PULSE_CHAR_SELECT = {

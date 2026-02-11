@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import TurnTracker from './TurnTracker'
 import * as actions from '@/app/actions'
+import { Character } from '@/types'
 
 // Mock the server actions
 vi.mock('@/app/actions', () => ({
@@ -19,7 +20,7 @@ describe('TurnTracker', () => {
     { id: '1', name: 'Grom', initiativeRoll: 10, type: 'PLAYER', activeTurn: true, activeTurnAt: new Date() },
     { id: '2', name: 'Elara', initiativeRoll: 15, type: 'PLAYER', activeTurn: false, activeTurnAt: null },
     { id: '3', name: 'Goblin', initiativeRoll: 5, type: 'NPC', activeTurn: false, activeTurnAt: null },
-  ]
+  ] as unknown as Character[]
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -42,7 +43,7 @@ describe('TurnTracker', () => {
     // The structure has changed, so checking nextSibling might not work directly if there are wrapper divs.
     // Instead, we can check if "Active Unit" is near "Grom".
     const gromElement = screen.getByText('Grom')
-    const container = gromElement.closest('div').parentElement
+    const container = gromElement.closest('div')?.parentElement
     expect(container).toHaveTextContent('>> Active Unit')
   })
 
@@ -63,7 +64,7 @@ describe('TurnTracker', () => {
       { id: '1', name: 'Grom', initiativeRoll: 10, type: 'PLAYER', activeTurn: false },
       { id: '2', name: 'Elara', initiativeRoll: 15, type: 'PLAYER', activeTurn: false },
       { id: '3', name: 'Goblin', initiativeRoll: 5, type: 'NPC', activeTurn: true },
-    ]
+    ] as unknown as Character[]
     render(<TurnTracker initialParticipants={lastActiveParticipants} campaignId={campaignId} />)
 
     fireEvent.click(screen.getByText('NEXT'))

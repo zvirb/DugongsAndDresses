@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import AICopyButton from './AICopyButton'
+import { Character, LogEntry } from '@/types'
 
 describe('AICopyButton', () => {
   // Simulate logs ordered by timestamp DESC (Newest First)
@@ -8,7 +9,7 @@ describe('AICopyButton', () => {
     { id: '3', content: 'Secret Note', timestamp: new Date('2026-02-05T10:02:00'), type: 'DM_NOTE' },
     { id: '2', content: 'Grom counterattacks', timestamp: new Date('2026-02-05T10:01:00'), type: 'Combat' },
     { id: '1', content: 'Goblin attacks Grom', timestamp: new Date('2026-02-05T10:00:00'), type: 'Combat' },
-  ]
+  ] as unknown as LogEntry[]
 
   const characters = [
     {
@@ -29,7 +30,7 @@ describe('AICopyButton', () => {
         initiativeRoll: 8
         // speed missing/undefined to test fallback
     },
-  ]
+  ] as unknown as Character[]
   const turnOrder = [
     { name: 'Grom', init: 15, current: true },
     { name: 'Goblin', init: 8, current: false },

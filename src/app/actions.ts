@@ -3,14 +3,14 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
-import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants } from "@/lib/safe-json";
+import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants } from "@/lib/safe-json";
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { createBackup, restoreBackup, listBackups, checkAutoBackup } from "@/lib/backup";
 import { generateStory } from "@/lib/ai";
 import { z } from "zod";
 import { CharacterInput, CharacterInputSchema, Participants } from "@/lib/schemas";
-import { Character } from "@prisma/client";
+import { Character, Settings } from "@prisma/client";
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
@@ -524,7 +524,7 @@ export async function restoreBackupAction(filename: string): Promise<ActionResul
 
 // --- Settings Management ---
 
-export async function getSettings(): Promise<ActionResult> {
+export async function getSettings(): Promise<ActionResult<Settings>> {
     return actionWrapper("getSettings", async () => {
         let settings = await prisma.settings.findFirst();
         if (!settings) {
@@ -702,7 +702,7 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
     });
 }
 
-export async function updateSettings(formData: FormData): Promise<ActionResult> {
+export async function updateSettings(formData: FormData): Promise<ActionResult<Settings>> {
     return actionWrapper("updateSettings", async () => {
         const ollamaModel = formData.get("ollamaModel") as string;
         const enableStoryGen = formData.get("enableStoryGen") === "on";
@@ -758,7 +758,7 @@ export async function loadEncounter(encounterId: string): Promise<ActionResult> 
         const encounter = await prisma.encounter.findUnique({ where: { id: encounterId } });
         if (!encounter) throw new Error("Encounter not found");
 
-        const participants = JSON.parse(encounter.participants) as Participants;
+        const participants = parseParticipants(encounter.participants);
 
         // Reset active turn for all characters first
         await prisma.character.updateMany({

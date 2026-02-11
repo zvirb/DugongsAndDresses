@@ -5,16 +5,9 @@ import { useTransition, useState } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { cn } from "@/lib/utils";
+import { Character } from "@/types";
 
-type Participant = {
-    id: string;
-    name: string;
-    initiativeRoll: number;
-    type: string;
-    activeTurn: boolean;
-};
-
-export default function TurnTracker({ initialParticipants, campaignId }: { initialParticipants: Participant[], campaignId: string }) {
+export default function TurnTracker({ initialParticipants, campaignId }: { initialParticipants: Character[], campaignId: string }) {
     const [isPending, startTransition] = useTransition();
     const [saving, setSaving] = useState(false);
     const [showLoadModal, setShowLoadModal] = useState(false);
