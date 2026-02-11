@@ -8,12 +8,23 @@ import { secureRoll } from '@/lib/dice';
 
 type RollMode = 'NORMAL' | 'ADVANTAGE' | 'DISADVANTAGE';
 
+type RollResult = {
+    total: number;
+    die: number;
+    rolls: number[];
+    isCrit: boolean;
+    isFumble: boolean;
+    mode: RollMode;
+};
+
 export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaignId: string, rollerName?: string }) {
     const [rollingDie, setRollingDie] = useState<number | null>(null);
     const [mode, setMode] = useState<RollMode>('NORMAL');
+    const [lastResult, setLastResult] = useState<RollResult | null>(null);
 
     const rollDice = useCallback(async (sides: number) => {
         setRollingDie(sides);
+        setLastResult(null); // Clear previous result while rolling
 
         try {
             // Add visual delay for click confidence
@@ -21,14 +32,17 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
 
             let result = 0;
             let details = '';
+            let rolls: number[] = [];
 
             // Base roll
             const roll1 = secureRoll(sides);
+            rolls.push(roll1);
 
             if (mode === 'NORMAL') {
                 result = roll1;
             } else {
                 const roll2 = secureRoll(sides);
+                rolls.push(roll2);
                 if (mode === 'ADVANTAGE') {
                     result = Math.max(roll1, roll2);
                     details = ` (ADVANTAGE) (Rolls: **${roll1}**, **${roll2}**)`;
@@ -38,11 +52,23 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 }
             }
 
+            const isCrit = sides === 20 && result === 20;
+            const isFumble = sides === 20 && result === 1;
+
+            setLastResult({
+                total: result,
+                die: sides,
+                rolls: rolls,
+                isCrit,
+                isFumble,
+                mode
+            });
+
             let logMessage = '';
 
-            if (sides === 20 && result === 20) {
+            if (isCrit) {
                 logMessage = `**${rollerName}** rolls a **CRITICAL HIT**!${details}`;
-            } else if (sides === 20 && result === 1) {
+            } else if (isFumble) {
                 logMessage = `**${rollerName}** rolls a **CRITICAL MISS**!${details}`;
             } else {
                 logMessage = `**${rollerName}** rolls d${sides}: **${result}**.${details}`;
@@ -68,13 +94,28 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
     return (
         <Card variant="agent" className="overflow-hidden">
             <CardHeader className="p-4 flex flex-col gap-4 space-y-0 bg-agent-navy/50 backdrop-blur-sm border-b border-agent-blue/10">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center h-10">
                     <CardTitle className="text-sm font-black text-agent-blue uppercase tracking-[0.2em]">Dice Tray</CardTitle>
-                    {rollingDie !== null && (
+                    {rollingDie !== null ? (
                         <span className="text-sm text-agent-blue animate-pulse font-black tracking-widest drop-shadow-[0_0_5px_rgba(43,43,238,0.8)] uppercase">
                             ROLLING...
                         </span>
-                    )}
+                    ) : lastResult ? (
+                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                             <span className={`text-2xl font-black ${
+                                lastResult.isCrit ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]' :
+                                lastResult.isFumble ? 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
+                                'text-white'
+                            }`}>
+                                {lastResult.isCrit ? 'CRIT!' : lastResult.isFumble ? 'MISS!' : lastResult.total}
+                            </span>
+                            {(lastResult.mode !== 'NORMAL' || lastResult.isCrit || lastResult.isFumble) && (
+                                <span className="text-xs text-neutral-400 font-mono">
+                                    {lastResult.mode !== 'NORMAL' ? `(${lastResult.rolls.join(', ')})` : `(${lastResult.total})`}
+                                </span>
+                            )}
+                        </div>
+                    ) : null}
                 </div>
 
                 {/* Mode Toggles - Full width touch targets */}
