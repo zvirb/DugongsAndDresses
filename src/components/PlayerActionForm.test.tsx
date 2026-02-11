@@ -47,7 +47,7 @@ describe('PlayerActionForm', () => {
         await waitFor(() => {
             expect(logAction).toHaveBeenCalledWith(
                 "campaign1",
-                "**TestChar** attempts to **Cast Fireball**.",
+                "**TestChar** attempts: **Cast Fireball**.",
                 "PlayerAction"
             );
         });
@@ -68,7 +68,7 @@ describe('PlayerActionForm', () => {
         await waitFor(() => {
             expect(logAction).toHaveBeenCalledWith(
                 "campaign1",
-                "**TestChar** attempts to **Attack** (Roll: **15**).",
+                "**TestChar** attempts: **Attack** (Roll: **15**).",
                 "PlayerAction"
             );
         });

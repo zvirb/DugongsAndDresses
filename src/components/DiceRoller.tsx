@@ -67,9 +67,9 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             let logMessage = '';
 
             if (isCrit) {
-                logMessage = `**${rollerName}** rolls a **CRITICAL HIT**!${details}`;
+                logMessage = `A natural 20! **${rollerName}** rolls a **CRITICAL HIT**!${details}`;
             } else if (isFumble) {
-                logMessage = `**${rollerName}** rolls a **CRITICAL MISS**!${details}`;
+                logMessage = `Disaster strikes! **${rollerName}** rolls a **CRITICAL MISS**!${details}`;
             } else {
                 logMessage = `**${rollerName}** rolls d${sides}: **${result}**.${details}`;
             }

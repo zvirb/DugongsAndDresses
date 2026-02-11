@@ -31,8 +31,8 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
         if (!cleanIntent) return;
 
         const content = cleanRoll
-            ? `**${characterName}** attempts to **${cleanIntent}** (Roll: **${cleanRoll}**).`
-            : `**${characterName}** attempts to **${cleanIntent}**.`;
+            ? `**${characterName}** attempts: **${cleanIntent}** (Roll: **${cleanRoll}**).`
+            : `**${characterName}** attempts: **${cleanIntent}**.`;
 
         startTransition(async () => {
             try {

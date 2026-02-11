@@ -56,7 +56,7 @@ describe('DiceRoller', () => {
     const callArguments = vi.mocked(actions.logAction).mock.calls[0]
     expect(callArguments[0]).toBe(campaignId)
     // Updated regex to allow for potential (ADVANTAGE) suffix if defaults changed, but for normal it shouldn't be there.
-    expect(callArguments[1]).toMatch(/\*\*DM\*\* (rolls d20: \*\*\d+\*\*\.|rolls a \*\*CRITICAL (HIT|MISS)\*\*!)/)
+    expect(callArguments[1]).toMatch(/(A natural 20! \*\*DM\*\* rolls a \*\*CRITICAL HIT\*\*!|Disaster strikes! \*\*DM\*\* rolls a \*\*CRITICAL MISS\*\*!|\*\*DM\*\* rolls d20: \*\*\d+\*\*\.)/)
     expect(callArguments[2]).toBe('Roll')
   })
 
@@ -69,7 +69,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(new RegExp(`\\*\\*${rollerName}\\*\\* (rolls d20: \\*\\*\\d+\\*\\*\\.|rolls a \\*\\*CRITICAL (HIT|MISS)\\*\\*!)`)),
+        expect.stringMatching(new RegExp(`(A natural 20! \\*\\*${rollerName}\\*\\* rolls a \\*\\*CRITICAL HIT\\*\\*!|Disaster strikes! \\*\\*${rollerName}\\*\\* rolls a \\*\\*CRITICAL MISS\\*\\*!|\\*\\*${rollerName}\\*\\* rolls d20: \\*\\*\\d+\\*\\*\\.)`)),
         'Roll'
       )
     })
@@ -207,7 +207,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/\*\*DM\*\* rolls a \*\*CRITICAL HIT\*\*!$/), // Ends with ! (no extra spaces unless advantage)
+          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls a \*\*CRITICAL HIT\*\*!$/), // Ends with ! (no extra spaces unless advantage)
           'Roll'
         )
     })
@@ -231,7 +231,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/\*\*DM\*\* rolls a \*\*CRITICAL MISS\*\*!$/),
+          expect.stringMatching(/Disaster strikes! \*\*DM\*\* rolls a \*\*CRITICAL MISS\*\*!$/),
           'Roll'
         )
     })
@@ -253,7 +253,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/\*\*DM\*\* rolls a \*\*CRITICAL HIT\*\*! \(ADVANTAGE\) \(Rolls: \*\*20\*\*, \*\*15\*\*\)/),
+          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls a \*\*CRITICAL HIT\*\*! \(ADVANTAGE\) \(Rolls: \*\*20\*\*, \*\*15\*\*\)/),
           'Roll'
         )
     })

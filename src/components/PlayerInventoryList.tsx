@@ -21,7 +21,7 @@ export default function PlayerInventoryList({ characterId, characterName, campai
         setProcessingItem(item);
         startTransition(async () => {
             try {
-                await logAction(campaignId, `**${characterName}** uses **${item}**.`, "PlayerAction");
+                await logAction(campaignId, `**${characterName}** employs **${item}**.`, "PlayerAction");
             } catch (e) {
                 console.error("Failed to use item:", e);
             } finally {
