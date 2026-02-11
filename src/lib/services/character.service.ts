@@ -11,18 +11,25 @@ export const CharacterService = {
    */
   async getWithLogs(id: string) {
     const character = await prisma.character.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        campaign: {
+          select: {
+            logs: {
+              take: 10,
+              orderBy: { timestamp: 'desc' }
+            }
+          }
+        }
+      }
     });
 
     if (!character) return null;
 
-    const logs = await prisma.logEntry.findMany({
-      where: { campaignId: character.campaignId },
-      take: 10,
-      orderBy: { timestamp: 'desc' }
-    });
+    const { campaign, ...charData } = character;
+    const logs = campaign?.logs || [];
 
-    return { ...character, logs };
+    return { ...charData, logs };
   },
 
   /**
