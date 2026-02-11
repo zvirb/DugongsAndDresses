@@ -49,15 +49,15 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                         </div>
                         <div className="flex gap-4 text-right items-end">
                             <div>
-                                <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Def</span>
+                                <span className="block text-xs text-neutral-500 uppercase font-bold tracking-widest">Def</span>
                                 <span className="text-2xl font-black text-agent-blue">{character.armorClass}</span>
                             </div>
                             <div>
-                                <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Spd</span>
+                                <span className="block text-xs text-neutral-500 uppercase font-bold tracking-widest">Spd</span>
                                 <span className="text-2xl font-black text-white">{character.speed}</span>
                             </div>
                             <div>
-                                <span className="block text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Init</span>
+                                <span className="block text-xs text-neutral-500 uppercase font-bold tracking-widest">Init</span>
                                 <span className="text-2xl font-black text-white">+{character.initiative}</span>
                             </div>
                         </div>
@@ -81,13 +81,13 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
 
             {/* Recent Events Log */}
             <div className="space-y-3">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-2">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-agent-blue rounded-full" />
                     Tactical Log
                 </h3>
                 <Card variant="agent" className="bg-black/40 border-white/5 overflow-hidden">
                     <CardContent className="p-0">
-                        <div className="max-h-24 overflow-y-auto font-mono text-[10px] divide-y divide-white/5">
+                        <div className="max-h-32 overflow-y-auto font-mono text-xs divide-y divide-white/5">
                             {character.logs.length > 0 ? (
                                 character.logs.map((log) => (
                                     <div key={log.id} className="p-3 flex gap-3">
