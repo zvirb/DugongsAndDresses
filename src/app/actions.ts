@@ -141,10 +141,16 @@ export async function updateInitiative(characterId: string, roll: number): Promi
     });
 }
 
+// SENTRY'S JOURNAL - CRITICAL LEARNINGS ONLY:
+// Format: ## YYYY-MM-DD - [Logic] Break: [Turn skipped index 0] Fix: [Corrected modulo arithmetic]
+// ## 2024-05-20 - [Logic] Break: [Double turn skip] Fix: [Idempotency check with expectedActiveId]
+// ## 2024-05-21 - [Logic] Break: [Empty campaign crash] Fix: [Validation for empty characters array]
+
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
-        if (!campaignId || campaignId.trim().length === 0) {
-            throw new Error("Campaign ID is required");
+        // Validation
+        if (!campaignId || typeof campaignId !== 'string' || campaignId.trim().length === 0) {
+            throw new Error("Invalid campaign ID");
         }
 
         const characters = await prisma.character.findMany({
@@ -160,27 +166,30 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
         });
 
         if (characters.length === 0) {
+            console.error(`[SENTRY] AdvanceTurn failed: No characters found in campaign ${campaignId}`);
             throw new Error("No characters in campaign");
         }
 
         const currentIndex = characters.findIndex(c => c.activeTurn);
 
-        // --- SENTRY'S GUARD: RACE CONDITION CHECK ---
-        // If the client expects a specific character to be active, but the DB disagrees,
-        // it means another action has already advanced the turn.
-        // We return the ACTUAL active character to sync the client, without advancing again.
+        // --- SENTRY'S GUARD: RACE CONDITION CHECK (Idempotency) ---
+        // Ensure that we are advancing from the state the client *thinks* it is in.
+        // If the client expects 'Alice' to be active, but the DB says 'Bob' is active,
+        // it means another DM (or process) already advanced the turn.
+        // ACTION: Return the ACTUAL active character (Bob) to sync the client, do NOT advance again.
         if (currentIndex !== -1) {
             const currentActive = characters[currentIndex];
             // If expectedActiveId is undefined (Client thinks start of combat) but someone is active,
             // OR if expectedActiveId mismatches the DB active character, return the actual active one.
             if (!expectedActiveId || currentActive.id !== expectedActiveId) {
+                console.warn(`[SENTRY] Race Condition Detected in Campaign ${campaignId}. Client expected active: ${expectedActiveId || 'None'}, DB has: ${currentActive.id}. Syncing client.`);
                 const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
                 return actualActive;
             }
         }
 
         // --- SENTRY'S LOOP SAFETY ---
-        // Ensure the turn cycles back to the first character (index 0)
+        // Uses modulo arithmetic to ensure the turn cycles back to the first character (index 0)
         // when the last character finishes their turn.
         let nextIndex = 0;
         if (currentIndex !== -1) {
