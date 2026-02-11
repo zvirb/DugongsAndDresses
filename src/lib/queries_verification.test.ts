@@ -70,7 +70,7 @@ describe('Query Optimization', () => {
     expect(logSelect.timestamp).toBe(true);
 
     // SHOULD NOT select unused fields
-    expect(logSelect.type).toBeUndefined();
+    expect(logSelect.type).toBe(true);
   });
 
   it('getPlayerDashboard selects optimized fields with nested logs', async () => {

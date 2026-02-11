@@ -60,27 +60,11 @@ export async function getCampaigns() {
  * If no campaign is explicitly active, it defaults to the most recent one.
  */
 export async function getActiveCampaign() {
-  const activeCampaign = await prisma.campaign.findFirst({
-    where: { active: true },
-    select: {
-      id: true,
-      name: true,
-      characters: {
-        orderBy: { name: 'asc' },
-        select: DM_CHAR_SELECT
-      },
-      logs: {
-        take: 20,
-        orderBy: { timestamp: 'desc' },
-        select: DM_LOG_SELECT
-      }
-    }
-  });
-
-  if (activeCampaign) return activeCampaign;
-
   return prisma.campaign.findFirst({
-    orderBy: { createdAt: 'desc' },
+    orderBy: [
+      { active: 'desc' },
+      { createdAt: 'desc' }
+    ],
     select: {
       id: true,
       name: true,
