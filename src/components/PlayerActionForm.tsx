@@ -7,6 +7,17 @@ import { Input } from "./ui/Input";
 
 const QUICK_ACTIONS = ["Attack", "Cast", "Dodge", "Dash"];
 
+function sanitizeInput(input: string): string {
+    if (!input) return "";
+    // Remove newlines and trim to prevent log formatting issues
+    let sanitized = input.replace(/[\r\n]+/g, " ").trim();
+    // Limit length to prevent excessive log entries
+    if (sanitized.length > 100) {
+        sanitized = sanitized.substring(0, 100);
+    }
+    return sanitized;
+}
+
 export default function PlayerActionForm({ characterName, campaignId }: { characterName: string, campaignId: string }) {
     const [isPending, startTransition] = useTransition();
     const [intent, setIntent] = useState("");
@@ -14,11 +25,14 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!intent) return;
+        const cleanIntent = sanitizeInput(intent);
+        const cleanRoll = sanitizeInput(roll);
 
-        const content = roll
-            ? `**${characterName}** attempts to **${intent}** (Roll: **${roll}**).`
-            : `**${characterName}** attempts to **${intent}**.`;
+        if (!cleanIntent) return;
+
+        const content = cleanRoll
+            ? `**${characterName}** attempts to **${cleanIntent}** (Roll: **${cleanRoll}**).`
+            : `**${characterName}** attempts to **${cleanIntent}**.`;
 
         startTransition(async () => {
             try {

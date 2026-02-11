@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { PublicCharacterCard } from './PublicCharacterCard';
 import { describe, it, expect } from 'vitest';
+import { Character } from '@/types';
 
 describe('PublicCharacterCard', () => {
     const mockChar = {
@@ -14,7 +15,7 @@ describe('PublicCharacterCard', () => {
         armorClass: 18,
         activeTurn: false,
         imageUrl: null
-    };
+    } as unknown as Character;
 
     it('renders character info correctly', () => {
         render(<PublicCharacterCard character={mockChar} />);

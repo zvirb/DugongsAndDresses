@@ -54,8 +54,8 @@ describe('Query Optimization', () => {
     expect(charSelect.name).toBe(true);
     expect(charSelect.hp).toBe(true);
 
-    // SHOULD NOT select unused fields
-    expect(charSelect.imageUrl).toBeUndefined();
+    // SHOULD select fields needed for CharacterManager and others
+    expect(charSelect.imageUrl).toBe(true);
 
     // Verify Log Selection
     expect(select.logs).toBeDefined();

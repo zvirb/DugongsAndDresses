@@ -3,34 +3,10 @@
 import { useState } from 'react';
 import { Button } from './ui/Button';
 import { parseConditions, parseAttributes, parseInventory } from '@/lib/safe-json';
-
-type Log = {
-    id: string;
-    content: string;
-    timestamp: Date;
-    type?: string;
-};
-
-type Character = {
-    id: string;
-    name: string;
-    hp: number;
-    maxHp: number;
-    type: string; // "PLAYER" | "NPC"
-    conditions: string;
-    armorClass: number;
-    level: number;
-    class: string | null;
-    race: string | null;
-    attributes?: string; // JSON string
-    speed?: number;
-    inventory?: string; // JSON string
-    activeTurn?: boolean;
-    initiativeRoll?: number;
-};
+import { Character, LogEntry } from "@/types";
 
 export default function AICopyButton({ logs, characters, turnOrder }: {
-    logs: Log[];
+    logs: LogEntry[];
     characters: Character[];
     turnOrder: { name: string; init: number; current: boolean }[];
 }) {

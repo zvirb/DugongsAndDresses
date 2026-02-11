@@ -1,47 +1,10 @@
-export interface CharacterWithState {
-    id: string;
-    name: string;
-    type: string;
-    race: string | null;
-    class: string | null;
-    level: number;
-    hp: number;
-    maxHp: number;
-    armorClass: number;
-    speed: number;
-    initiative: number;
-    attributes: string;
-    conditions: string;
-    campaignId: string;
-    activeTurn: boolean;
-    initiativeRoll: number;
-    imageUrl: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-}
+// QUARTERMASTER'S JOURNAL - CRITICAL LEARNINGS ONLY:
+// Format: ## YYYY-MM-DD - [Schema] Mess: [Found string in HP field] Tidy: [Enforced number parsing]
+// ## 2024-05-24 - [Schema] Mess: [Duplicate interface definitions across components] Tidy: [Centralized types in src/types.ts]
+// ## 2024-05-24 - [Schema] Mess: [Unsafe JSON.parse in actions] Tidy: [Enforced safe-json helpers]
 
-export interface LogEntry {
-    id: string;
-    content: string;
-    type: string;
-    timestamp: Date;
-    campaignId: string;
-}
+import { Character, LogEntry, Campaign, Encounter, Settings } from '@prisma/client';
+import { Attributes, Conditions, Inventory, Participant, Participants } from '@/lib/schemas';
 
-export interface Campaign {
-    id: string;
-    name: string;
-    active: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-export interface Encounter {
-    id: string;
-    name: string;
-    status: string;
-    participants: string;
-    campaignId: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
+export type { Character, LogEntry, Campaign, Encounter, Settings };
+export type { Attributes, Conditions, Inventory, Participant, Participants };
