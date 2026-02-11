@@ -223,6 +223,7 @@ export async function activateCampaign(campaignId: string): Promise<ActionResult
     return actionWrapper("activateCampaign", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
 
+        // PERFORMANCE: Only update active campaigns to avoid scanning all records
         await prisma.campaign.updateMany({
             where: { active: true },
             data: { active: false }
