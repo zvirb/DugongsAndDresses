@@ -3,12 +3,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { Badge } from "@/components/ui/Badge";
 import { Character } from '@/types';
+import { parseConditions } from "@/lib/safe-json";
 
 interface PublicCharacterCardProps {
-    character: Pick<Character, 'id' | 'activeTurn' | 'imageUrl' | 'level' | 'armorClass' | 'name' | 'race' | 'class' | 'hp' | 'maxHp'>;
+    character: Pick<Character, 'id' | 'activeTurn' | 'imageUrl' | 'level' | 'armorClass' | 'name' | 'race' | 'class' | 'hp' | 'maxHp' | 'conditions'>;
 }
 
 export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
+    const conditions = parseConditions(character.conditions);
     const [displayHp, setDisplayHp] = useState(character.hp);
     const animationFrameRef = useRef<number>();
     const startTimeRef = useRef<number>();
@@ -49,8 +51,8 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
             className={`
                 relative overflow-hidden rounded-3xl border-4 transition-all duration-700 backdrop-blur-xl
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_80px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-105 z-20 ring-4 ring-agent-blue/50'
-                    : 'border-white/5 bg-white/5 grayscale-[0.2] hover:grayscale-0 hover:border-white/10'}
+                    ? 'border-agent-blue shadow-[0_0_80px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-110 z-30 ring-4 ring-agent-blue/50'
+                    : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/10'}
             `}
         >
             {/* Active Turn Scanner Effect */}
@@ -111,6 +113,17 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                             <div className="absolute inset-0 bg-white/20 animate-[pulse_2s_infinite]" />
                         </div>
                     </div>
+
+                    {/* Conditions */}
+                    {conditions.length > 0 && (
+                        <div className="mt-6 flex flex-wrap gap-2 justify-end">
+                            {conditions.map((condition, idx) => (
+                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-3xl lg:text-4xl px-6 py-3 animate-pulse border-2 border-white/50 shadow-[0_0_20px_rgba(220,38,38,0.6)]">
+                                    {condition}
+                                </Badge>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

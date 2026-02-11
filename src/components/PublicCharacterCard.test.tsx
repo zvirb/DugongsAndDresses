@@ -14,7 +14,8 @@ describe('PublicCharacterCard', () => {
         maxHp: 100,
         armorClass: 18,
         activeTurn: false,
-        imageUrl: null
+        imageUrl: null,
+        conditions: "[]"
     } as unknown as Character;
 
     it('renders character info correctly', () => {
@@ -31,5 +32,12 @@ describe('PublicCharacterCard', () => {
         // Check for specific class or style. Note: class names might be hashed or combined, but we use tailwind classes.
         // We look for 'border-agent-blue' which is added conditionally.
         expect(container.firstChild).toHaveClass('border-agent-blue');
+    });
+
+    it('displays conditions', () => {
+        const condChar = { ...mockChar, conditions: JSON.stringify(['POISONED', 'STUNNED']) };
+        render(<PublicCharacterCard character={condChar} />);
+        expect(screen.getByText('POISONED')).toBeDefined();
+        expect(screen.getByText('STUNNED')).toBeDefined();
     });
 });
