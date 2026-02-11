@@ -1,7 +1,7 @@
 'use client';
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter } from "@/app/actions";
-import { useTransition, useState } from "react";
+import { useTransition, useState, useMemo } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { cn } from "@/lib/utils";
@@ -15,12 +15,14 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     const [loadingEncounters, setLoadingEncounters] = useState(false);
 
     // Sort by initiative desc, then ID asc (stable sort matching server)
-    const sortedParticipants = [...initialParticipants].sort((a, b) => {
-        if (b.initiativeRoll !== a.initiativeRoll) {
-            return b.initiativeRoll - a.initiativeRoll;
-        }
-        return a.id.localeCompare(b.id);
-    });
+    const sortedParticipants = useMemo(() => {
+        return [...initialParticipants].sort((a, b) => {
+            if (b.initiativeRoll !== a.initiativeRoll) {
+                return b.initiativeRoll - a.initiativeRoll;
+            }
+            return a.id.localeCompare(b.id);
+        });
+    }, [initialParticipants]);
 
     const handleNextTurn = () => {
         // Find current active participant ID for optimistic concurrency check
