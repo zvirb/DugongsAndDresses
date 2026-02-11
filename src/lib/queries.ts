@@ -125,7 +125,8 @@ export async function getPublicCampaign() {
           race: true,
           class: true,
           hp: true,
-          maxHp: true
+          maxHp: true,
+          conditions: true
         }
       }
     }
