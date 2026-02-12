@@ -91,7 +91,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(' (ADVANTAGE)'),
+        expect.stringContaining(' [ADVANTAGE]'),
         'Roll'
       )
     })
@@ -106,7 +106,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(' (DISADVANTAGE)'),
+        expect.stringContaining(' [DISADVANTAGE]'),
         'Roll'
       )
     })
@@ -124,8 +124,8 @@ describe('DiceRoller', () => {
     const d4Button = screen.getByText('d4')
     expect(d4Button).toBeDisabled()
 
-    // The rolling button itself should be disabled (text changes to "...")
-    expect(screen.getByText('...')).toBeDisabled()
+    // The rolling button itself should be disabled (text changes to spinner)
+    expect(screen.getByTestId('spinner')).toBeInTheDocument()
 
     // Wait for roll to finish
     await waitFor(() => {
@@ -168,7 +168,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/\(ADVANTAGE\) \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
+        expect.stringMatching(/\[ADVANTAGE\] \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
         'Roll'
       )
     })
@@ -183,7 +183,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/\(DISADVANTAGE\) \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
+        expect.stringMatching(/\[DISADVANTAGE\] \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
         'Roll'
       )
     })
@@ -253,7 +253,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls a \*\*CRITICAL HIT\*\*! \(ADVANTAGE\) \(Rolls: \*\*20\*\*, \*\*15\*\*\)/),
+          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls a \*\*CRITICAL HIT\*\*! \[ADVANTAGE\] \(Rolls: \*\*20\*\*, \*\*15\*\*\)/),
           'Roll'
         )
     })
