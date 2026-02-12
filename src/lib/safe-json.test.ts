@@ -8,37 +8,87 @@ import {
   stringifyAttributes,
   stringifyConditions,
   stringifyInventory,
-  stringifyParticipants
+  stringifyParticipants,
+  parseCharacterInputs
 } from './safe-json';
 
 describe('safe-json', () => {
   describe('parseAttributes', () => {
-    it('parses valid attributes', () => {
-      const json = JSON.stringify({ str: 10, dex: 12 });
-      expect(parseAttributes(json)).toEqual({ str: 10, dex: 12 });
+    it('parses valid attributes and adds defaults', () => {
+      const json = JSON.stringify({ str: 15, dex: 12 });
+      const expected = {
+        str: 15, dex: 12, con: 10, int: 10, wis: 10, cha: 10
+      };
+      expect(parseAttributes(json)).toEqual(expected);
     });
 
-    it('returns empty object for null/undefined', () => {
-      expect(parseAttributes(null)).toEqual({});
-      expect(parseAttributes(undefined)).toEqual({});
+    it('migrates legacy attribute names', () => {
+      const json = JSON.stringify({ strength: 18, dexterity: 14 });
+      const result = parseAttributes(json);
+      expect(result.str).toBe(18);
+      expect(result.dex).toBe(14);
+      // @ts-expect-error Testing that old key is gone
+      expect(result.strength).toBeUndefined();
     });
 
-    it('returns empty object for invalid JSON', () => {
-      // Suppress console.error for this test
+    it('returns default attributes for null/undefined/invalid', () => {
+      const defaults = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+      expect(parseAttributes(null)).toEqual(defaults);
+      expect(parseAttributes(undefined)).toEqual(defaults);
+
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      expect(parseAttributes('invalid')).toEqual({});
+      expect(parseAttributes('invalid')).toEqual(defaults);
       spy.mockRestore();
     });
 
     it('recovers numeric strings', () => {
-      const json = JSON.stringify({ str: "10", dex: 12, speed: "30" });
-      expect(parseAttributes(json)).toEqual({ str: 10, dex: 12, speed: 30 });
+      const json = JSON.stringify({ str: "16", dex: 12, speed: "30" });
+      const result = parseAttributes(json);
+      expect(result.str).toBe(16);
+      expect(result.dex).toBe(12);
+      expect(result.speed).toBe(30);
     });
 
-    it('ignores non-numeric strings during recovery', () => {
-      const json = JSON.stringify({ str: "10", name: "Grom" });
-      expect(parseAttributes(json)).toEqual({ str: 10 });
+    it('strips non-numeric strings but keeps valid attributes', () => {
+      const json = JSON.stringify({ str: 10, name: "Grom", speed: "fast" });
+      const result = parseAttributes(json);
+      expect(result.str).toBe(10);
+      // @ts-expect-error Testing stripped key
+      expect(result.name).toBeUndefined();
+      // @ts-expect-error Testing stripped key
+      expect(result.speed).toBeUndefined();
     });
+  });
+
+  describe('parseCharacterInputs', () => {
+      it('parses valid character inputs', () => {
+          const inputs = JSON.stringify([{
+              name: "Hero",
+              hp: 20,
+              maxHp: 20,
+              armorClass: 15,
+              attributes: { str: 18 }
+          }]);
+          const result = parseCharacterInputs(inputs);
+          expect(result).toHaveLength(1);
+          expect(result[0].name).toBe("Hero");
+          expect(result[0].attributes?.str).toBe(18);
+          // Check defaults in attributes
+          expect(result[0].attributes?.dex).toBe(10);
+      });
+
+      it('returns empty array for invalid JSON', () => {
+          const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+          expect(parseCharacterInputs("invalid")).toEqual([]);
+          spy.mockRestore();
+      });
+
+      it('returns empty array for invalid schema', () => {
+          const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+          const inputs = JSON.stringify([{ name: "NoHP" }]); // Missing required fields
+          expect(parseCharacterInputs(inputs)).toEqual([]);
+          spy.mockRestore();
+      });
   });
 
   describe('parseConditions', () => {
@@ -74,7 +124,10 @@ describe('safe-json', () => {
     it('stringifyAttributes validates input', () => {
       const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
       // @ts-expect-error Testing invalid input
-      expect(stringifyAttributes({ str: "invalid" })).toBe("{}");
+      // Should fallback to default attributes stringified
+      const result = stringifyAttributes({ str: "invalid" });
+      const defaults = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+      expect(JSON.parse(result)).toEqual(defaults);
       spy.mockRestore();
     });
 

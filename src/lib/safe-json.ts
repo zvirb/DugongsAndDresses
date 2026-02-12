@@ -1,9 +1,14 @@
+import { z } from "zod";
 import {
   Attributes, AttributesSchema,
   Conditions, ConditionsSchema,
   Inventory, InventorySchema,
-  Participants, ParticipantsSchema
+  Participants, ParticipantsSchema,
+  CharacterInput, CharacterInputSchema
 } from "./schemas";
+
+// Pre-calculate default attributes for fallback
+const defaultAttributes = AttributesSchema.parse({});
 
 /**
  * Safely parses a JSON string into Attributes.
@@ -11,37 +16,21 @@ import {
  * (e.g. converting string numbers to actual numbers).
  */
 export function parseAttributes(json: string | null | undefined): Attributes {
-  if (!json) return {};
+  if (!json) return defaultAttributes;
   try {
     const parsed = JSON.parse(json);
 
-    // First try strict schema
+    // AttributesSchema now handles migration and coercion via z.preprocess and z.coerce
     const result = AttributesSchema.safeParse(parsed);
     if (result.success) {
       return result.data;
     }
 
-    // Attempt recovery: keep numbers, try to parse strings to numbers
-    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-      const cleaned: Attributes = {};
-      for (const [key, value] of Object.entries(parsed)) {
-        if (typeof value === 'number') {
-          cleaned[key] = value;
-        } else if (typeof value === 'string') {
-          const num = parseFloat(value);
-          if (!isNaN(num)) {
-            cleaned[key] = num;
-          }
-        }
-      }
-      return cleaned;
-    }
-
-    console.error("Attributes schema validation failed and recovery impossible:", result.error);
-    return {};
+    console.error("Attributes schema validation failed:", result.error);
+    return defaultAttributes;
   } catch (e) {
     console.error("Failed to parse attributes JSON:", e);
-    return {};
+    return defaultAttributes;
   }
 }
 
@@ -126,6 +115,27 @@ export function parseInventory(json: string | null | undefined): Inventory {
 }
 
 /**
+ * Safely parses a JSON string into an array of CharacterInputs.
+ * Returns an empty array if parsing fails.
+ */
+export function parseCharacterInputs(json: string | null | undefined): CharacterInput[] {
+  if (!json) return [];
+  try {
+    const parsed = JSON.parse(json);
+    const result = z.array(CharacterInputSchema).safeParse(parsed);
+    if (result.success) {
+      return result.data;
+    } else {
+        console.error("Character inputs validation failed:", result.error);
+        return [];
+    }
+  } catch (e) {
+    console.error("Failed to parse character inputs JSON:", e);
+    return [];
+  }
+}
+
+/**
  * Safely stringifies Attributes.
  * Validates against schema before stringifying.
  */
@@ -133,9 +143,9 @@ export function stringifyAttributes(data: Attributes): string {
   const result = AttributesSchema.safeParse(data);
   if (!result.success) {
     console.error("Invalid attributes data provided for stringify:", result.error);
-    return "{}";
+    return JSON.stringify(defaultAttributes);
   }
-  return JSON.stringify(data);
+  return JSON.stringify(result.data);
 }
 
 /**
@@ -155,7 +165,7 @@ export function stringifyConditions(data: Conditions): string {
  * Defaults to 10 for missing values.
  */
 export function extractAttributesFromFormData(formData: FormData): Attributes {
-  const attributes: Attributes = {};
+  const attributes: Record<string, number> = {};
   const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 
   for (const key of keys) {
@@ -167,7 +177,10 @@ export function extractAttributesFromFormData(formData: FormData): Attributes {
       attributes[key] = 10;
     }
   }
-  return attributes;
+  // Safe parsing ensures we conform to the schema (and its defaults/types)
+  const result = AttributesSchema.safeParse(attributes);
+  if (result.success) return result.data;
+  return defaultAttributes;
 }
 
 /**

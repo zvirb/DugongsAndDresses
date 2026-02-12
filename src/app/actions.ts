@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
-import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants } from "@/lib/safe-json";
+import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs } from "@/lib/safe-json";
 import { mkdir } from 'fs/promises';
 import { createWriteStream } from 'fs';
 import { Readable } from 'stream';
@@ -23,20 +23,7 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
         }
 
         const charactersJson = formData.get("characters") as string;
-        let characters: CharacterInput[] = [];
-        try {
-            if (charactersJson) {
-                const parsed = JSON.parse(charactersJson);
-                const result = z.array(CharacterInputSchema).safeParse(parsed);
-                if (result.success) {
-                    characters = result.data;
-                } else {
-                    console.error("Characters validation failed:", result.error);
-                }
-            }
-        } catch (e) {
-            console.error("Failed to parse characters JSON:", e);
-        }
+        const characters = parseCharacterInputs(charactersJson);
 
         const campaign = await prisma.campaign.create({
             data: {

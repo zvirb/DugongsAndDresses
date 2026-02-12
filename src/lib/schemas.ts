@@ -1,8 +1,58 @@
 import { z } from "zod";
 
+const attributeMappings: Record<string, string> = {
+  strength: 'str',
+  dexterity: 'dex',
+  constitution: 'con',
+  intelligence: 'int',
+  wisdom: 'wis',
+  charisma: 'cha'
+};
+
 // Attributes are a flexible dictionary of string keys to number values.
 // e.g. { str: 10, dex: 12, speed: 30 }
-export const AttributesSchema = z.record(z.string(), z.number());
+export const AttributesSchema = z.preprocess((val) => {
+  if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+    const newVal: Record<string, any> = { ...val };
+    for (const key of Object.keys(newVal)) {
+       let currentKey = key;
+       let value = newVal[key];
+
+       // Migration
+       if (Object.prototype.hasOwnProperty.call(attributeMappings, key)) {
+         currentKey = attributeMappings[key];
+         newVal[currentKey] = value;
+         delete newVal[key];
+       }
+
+       // Re-read value in case it moved
+       value = newVal[currentKey];
+
+       // Coercion & Cleanup
+       if (typeof value === 'string') {
+         const num = parseFloat(value);
+         if (!isNaN(num)) {
+           newVal[currentKey] = num;
+         } else {
+           // Invalid string for number, remove it to prevent validation failure
+           delete newVal[currentKey];
+         }
+       } else if (typeof value !== 'number') {
+           // Remove non-number/non-string values
+           delete newVal[currentKey];
+       }
+    }
+    return newVal;
+  }
+  return val;
+}, z.object({
+  str: z.number().default(10),
+  dex: z.number().default(10),
+  con: z.number().default(10),
+  int: z.number().default(10),
+  wis: z.number().default(10),
+  cha: z.number().default(10),
+}).catchall(z.number()));
 
 export type Attributes = z.infer<typeof AttributesSchema>;
 
