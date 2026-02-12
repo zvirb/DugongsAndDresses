@@ -1,5 +1,10 @@
 'use client';
 
+// PROPHET'S JOURNAL - CRITICAL LEARNINGS ONLY
+// Format: ## YYYY-MM-DD - [Context] Gap: [Issue] Fix: [Solution]
+// ## 2024-05-24 - [Context] Gap: [AI inventing rolls] Fix: [Added explicit TRUTH constraint]
+// ## 2024-05-24 - [Context] Gap: [AI ignoring low HP] Fix: [Added MECHANICS instruction for flavor]
+
 import { useState } from 'react';
 import { Button } from './ui/Button';
 import { parseConditions, parseAttributes, parseInventory } from '@/lib/safe-json';
@@ -79,11 +84,14 @@ ${charSummary}
 ${logSummary}
 
 == INSTRUCTIONS ==
-Analyze state. Narrate next action for [ACTIVE] character.
-1. Focus: [ACTIVE] character's action & consequences of RECENT LOGS.
-2. Tone: Technical Fantasy (grit, sensory).
-3. Mechanics: Use HP/AC/Conditions for flavor (e.g., "bloodied", "staggering").
-4. Output: 2-3 sentences max. Action-oriented. Do not resolve rolls unless in logs.`;
+Role: Dungeon Master's Narrator.
+Task: Narrate the immediate action or reaction of the [ACTIVE] character based on the RECENT LOGS.
+Constraints:
+- Length: 2 sentences maximum.
+- Style: Gritty, sensory, present tense.
+- Mechanics: Interpret HP/Conditions (e.g., low HP = "winces", "favors left leg").
+- Privacy: Do NOT mention "DM Note" or hidden information.
+- Truth: Do NOT invent dice rolls. Only describe outcomes visible in logs.`;
     };
 
     const handleCopy = async () => {
