@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createCharacter, updateCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, getAvailableCharacters, importCharacterFromLibrary } from '@/app/actions';
+import { createCharacter, updateCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, getAvailableCharacters, importCharacterFromLibrary, duplicateCharacter } from '@/app/actions';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -68,6 +68,10 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
         setConfirmDeleteId(null);
     };
 
+    const handleDuplicate = async (id: string) => {
+        await duplicateCharacter(id);
+    };
+
     const handleAddItem = async (charId: string) => {
         const item = inventoryInput[charId]?.trim();
         if (!item) return;
@@ -106,6 +110,9 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                                         <span className="font-bold text-white">{char.name}</span>
                                         <div className="flex items-center gap-1">
                                             <Badge variant={isNpc ? 'npc' : 'player'}>{char.type}</Badge>
+                                            <button onClick={() => handleDuplicate(char.id)} className="text-xs text-neutral-500 hover:text-white transition-colors ml-1" title="Duplicate">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="13" height="13" x="9" y="9" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            </button>
                                             <button onClick={() => setEditingId(char.id)} className="text-xs text-neutral-500 hover:text-agent-blue transition-colors ml-1" title="Edit">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
                                             </button>
