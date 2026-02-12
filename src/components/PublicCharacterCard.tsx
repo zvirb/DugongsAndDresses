@@ -12,13 +12,25 @@ interface PublicCharacterCardProps {
 export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
     const conditions = parseConditions(character.conditions);
     const [displayHp, setDisplayHp] = useState(character.hp);
+    const [flashState, setFlashState] = useState<'damage' | 'heal' | null>(null);
     const animationFrameRef = useRef<number>();
     const startTimeRef = useRef<number>();
     const startValueRef = useRef<number>(character.hp);
+    const prevHpRef = useRef<number>(character.hp);
 
     useEffect(() => {
         // If HP hasn't changed, ensure display matches (e.g. initial load or re-sync)
         if (displayHp === character.hp) return;
+
+        // Flash Logic
+        if (character.hp < prevHpRef.current) {
+            setFlashState('damage');
+            setTimeout(() => setFlashState(null), 500);
+        } else if (character.hp > prevHpRef.current) {
+            setFlashState('heal');
+            setTimeout(() => setFlashState(null), 500);
+        }
+        prevHpRef.current = character.hp;
 
         startValueRef.current = displayHp;
         startTimeRef.current = undefined; // Reset start time
@@ -51,10 +63,13 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
             className={`
                 relative overflow-hidden rounded-3xl border-4 transition-all duration-700 backdrop-blur-xl
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_80px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-110 z-30 ring-4 ring-agent-blue/50'
+                    ? 'border-agent-blue shadow-[0_0_80px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-110 z-30 ring-8 ring-agent-blue/50'
                     : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/10'}
             `}
         >
+            {/* Flash Overlay */}
+            <div className={`absolute inset-0 pointer-events-none z-50 transition-opacity duration-500 ${flashState === 'damage' ? 'bg-red-600/40 opacity-100' : flashState === 'heal' ? 'bg-green-500/40 opacity-100' : 'opacity-0'}`} />
+
             {/* Active Turn Scanner Effect */}
             {character.activeTurn && (
                 <div className="absolute inset-0 pointer-events-none">
@@ -104,7 +119,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     </div>
 
                     {/* Health Bar */}
-                    <div className="h-14 bg-white/5 rounded-full overflow-hidden p-1 border-2 border-white/10 shadow-inner"> {/* Increased height */}
+                    <div className="h-16 bg-white/5 rounded-full overflow-hidden p-1 border-2 border-white/10 shadow-inner"> {/* Increased height */}
                         <div
                             className={`h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-[repeating-linear-gradient(90deg,transparent,transparent_4px,#000_4px,#000_5px)] ${character.hp <= character.maxHp * 0.2 ? 'bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.8)]' : 'bg-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.4)]'
                                 }`}

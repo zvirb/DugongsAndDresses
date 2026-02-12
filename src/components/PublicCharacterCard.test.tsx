@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { PublicCharacterCard } from './PublicCharacterCard';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Character } from '@/types';
 
 describe('PublicCharacterCard', () => {
@@ -29,8 +29,6 @@ describe('PublicCharacterCard', () => {
     it('displays active turn styling', () => {
         const activeChar = { ...mockChar, activeTurn: true };
         const { container } = render(<PublicCharacterCard character={activeChar} />);
-        // Check for specific class or style. Note: class names might be hashed or combined, but we use tailwind classes.
-        // We look for 'border-agent-blue' which is added conditionally.
         expect(container.firstChild).toHaveClass('border-agent-blue');
     });
 
@@ -39,5 +37,64 @@ describe('PublicCharacterCard', () => {
         render(<PublicCharacterCard character={condChar} />);
         expect(screen.getByText('POISONED')).toBeDefined();
         expect(screen.getByText('STUNNED')).toBeDefined();
+    });
+});
+
+describe('PublicCharacterCard Flash Animation', () => {
+    const mockChar = {
+        id: '1',
+        name: 'Test Char',
+        race: 'Human',
+        class: 'Fighter',
+        level: 5,
+        hp: 50,
+        maxHp: 100,
+        armorClass: 18,
+        activeTurn: false,
+        imageUrl: null,
+        conditions: "[]"
+    } as unknown as Character;
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    it('flashes red on damage', () => {
+        const { rerender, container } = render(<PublicCharacterCard character={mockChar} />);
+        const overlay = container.querySelector('.z-50');
+        expect(overlay).toHaveClass('opacity-0');
+
+        const damagedChar = { ...mockChar, hp: 40 };
+        rerender(<PublicCharacterCard character={damagedChar} />);
+
+        expect(overlay).toHaveClass('bg-red-600/40');
+        expect(overlay).toHaveClass('opacity-100');
+
+        act(() => {
+            vi.advanceTimersByTime(500);
+        });
+
+        expect(overlay).toHaveClass('opacity-0');
+    });
+
+    it('flashes green on heal', () => {
+        const { rerender, container } = render(<PublicCharacterCard character={mockChar} />);
+        const overlay = container.querySelector('.z-50');
+
+        const healedChar = { ...mockChar, hp: 60 };
+        rerender(<PublicCharacterCard character={healedChar} />);
+
+        expect(overlay).toHaveClass('bg-green-500/40');
+        expect(overlay).toHaveClass('opacity-100');
+
+        act(() => {
+            vi.advanceTimersByTime(500);
+        });
+
+        expect(overlay).toHaveClass('opacity-0');
     });
 });

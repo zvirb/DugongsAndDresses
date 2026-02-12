@@ -11,9 +11,9 @@ export default async function PublicPage() {
     if (!campaign) return (
         <div className="min-h-screen bg-agent-navy flex flex-col items-center justify-center p-10 relative overflow-hidden">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:20px_20px] opacity-20" />
-            <div className="relative z-10 flex flex-col items-center gap-4">
-                <div className="w-16 h-16 border-4 border-agent-blue/30 rounded-full border-t-agent-blue animate-spin" />
-                <div className="text-agent-blue font-mono tracking-[0.5em] text-2xl animate-pulse font-bold">
+            <div className="relative z-10 flex flex-col items-center gap-6">
+                <div className="w-24 h-24 border-8 border-agent-blue/30 rounded-full border-t-agent-blue animate-spin" />
+                <div className="text-agent-blue font-mono tracking-[0.5em] text-6xl animate-pulse font-bold text-center leading-tight">
                     SYSTEM STANDBY // AWAITING INPUT
                 </div>
             </div>
@@ -43,7 +43,7 @@ export default async function PublicPage() {
                         </p>
                     </div>
                     <div className="text-right">
-                        <Badge variant="agent" className="text-2xl px-6 py-3 font-black uppercase tracking-widest">
+                        <Badge variant="agent" className="text-3xl px-6 py-3 font-black uppercase tracking-widest">
                             System Live
                         </Badge>
                     </div>
@@ -66,13 +66,13 @@ export default async function PublicPage() {
                     return activeChar ? (
                         <div className="flex items-center justify-center gap-12 overflow-hidden">
                             <div className="h-1 bg-agent-blue/50 flex-1 hidden lg:block shadow-[0_0_10px_#2b2bee]" />
-                            <h3 className="text-6xl lg:text-8xl font-black italic tracking-[0.1em] uppercase text-white animate-pulse drop-shadow-[0_0_20px_rgba(43,43,238,0.5)]">
-                                ACTIVE: <span className="text-agent-blue underline decoration-8 underline-offset-[16px]">{activeChar.name}</span>
+                            <h3 className="text-6xl lg:text-8xl font-black italic tracking-[0.1em] uppercase text-white drop-shadow-[0_0_20px_rgba(43,43,238,0.5)] relative z-10">
+                                ACTIVE: <span className="text-agent-blue underline decoration-8 underline-offset-[16px] bg-agent-blue/10 px-4 rounded-lg animate-pulse inline-block">{activeChar.name}</span>
                             </h3>
                             <div className="h-1 bg-agent-blue/50 flex-1 hidden lg:block shadow-[0_0_10px_#2b2bee]" />
                         </div>
                     ) : (
-                        <h3 className="text-4xl text-neutral-500 font-bold uppercase tracking-[0.5em] animate-pulse italic">
+                        <h3 className="text-5xl text-neutral-500 font-bold uppercase tracking-[0.5em] animate-pulse italic">
                             Awaiting Initiative...
                         </h3>
                     );
