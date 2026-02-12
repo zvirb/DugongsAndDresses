@@ -59,6 +59,9 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
     });
 }
 
+// BARD'S JOURNAL - CRITICAL LEARNINGS ONLY:
+// Format: ## YYYY-MM-DD - [Log] Boring: [Log said "HP Update"] Song: [Changed to "Grom takes 5 damage"]
+
 export async function logAction(campaignId: string, content: string, type: string = "Story"): Promise<ActionResult> {
     return actionWrapper("logAction", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
@@ -591,12 +594,17 @@ export async function performAttack(attackerId: string, targetId: string, damage
         }
 
         if (isCrit) {
-            content = `**${attacker.name}** executes a **CRITICAL HIT** upon **${target.name}**`;
+            content = `A natural 20! **${attacker.name}** executes a **CRITICAL HIT** upon **${target.name}**`;
         } else if (isFumble) {
-            content = `**${attacker.name}** suffers a **CRITICAL MISS** against **${target.name}**!`;
-        } else {
+            content = `Disaster strikes! **${attacker.name}** suffers a **CRITICAL MISS** against **${target.name}**!`;
+        } else if (isHit) {
             content = `**${attacker.name}** strikes **${target.name}**`;
-            if (attackRoll !== undefined) content += ` (Roll: **${attackRoll}**)`;
+        } else {
+            content = `**${attacker.name}** attacks **${target.name}**`;
+        }
+
+        if (attackRoll !== undefined) {
+             content += ` (Roll: **${attackRoll}**)`;
         }
 
         let updatedTarget = target;
@@ -614,8 +622,6 @@ export async function performAttack(attackerId: string, targetId: string, damage
             }
         } else {
             if (!isFumble) {
-                content = `**${attacker.name}** attacks **${target.name}**`;
-                if (attackRoll !== undefined) content += ` (Roll: **${attackRoll}**)`;
                 content += ` but finds no purchase!`;
             }
         }
