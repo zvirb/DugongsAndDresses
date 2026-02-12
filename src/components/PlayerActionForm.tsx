@@ -63,7 +63,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                             type="button"
                             variant="ghost"
                             onClick={() => setIntent(action)}
-                            className="h-14 p-2 text-xs font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 touch-manipulation"
+                            className="h-16 p-2 text-xs font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 touch-manipulation"
                         >
                             {action}
                         </Button>

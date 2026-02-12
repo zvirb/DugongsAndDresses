@@ -21,9 +21,9 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     }
 
     return (
-        <main className="flex-1 p-4 space-y-6 pb-40 min-h-[100dvh]">
+        <main className="flex flex-col p-4 space-y-6 pb-32 min-h-[100dvh]">
             {/* Visual Section */}
-            <div className="relative h-32 md:h-auto w-full md:aspect-square max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-white/5 shadow-2xl">
+            <div className="relative h-32 md:h-auto w-full md:aspect-square max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-white/5 shadow-2xl shrink-0">
                 {character.imageUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={character.imageUrl} alt={character.name} className="w-full h-full object-cover" />
@@ -65,22 +65,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </div>
             </div>
 
-            <PlayerInitiativeControl
-                characterId={character.id}
-                characterName={character.name}
-                initiativeRoll={character.initiativeRoll}
-                initiativeBonus={character.initiative}
-            />
-
-            {/* HP Controls & Status */}
-            <Card variant="agent" className="bg-agent-navy/40 border-white/5">
-                <CardContent className="p-4">
-                    <PlayerHPControls characterId={character.id} currentHp={character.hp} maxHp={character.maxHp} />
-                </CardContent>
-            </Card>
-
             {/* Recent Events Log */}
-            <div className="space-y-3">
+            <div className="space-y-3 shrink-0">
                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-agent-blue rounded-full" />
                     Tactical Log
@@ -105,20 +91,39 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </Card>
             </div>
 
-            {/* Player Actions */}
-            <div className="space-y-4">
-                <PlayerActionForm characterName={character.name} campaignId={character.campaignId} />
+            <div className="shrink-0">
+                <PlayerInitiativeControl
+                    characterId={character.id}
+                    characterName={character.name}
+                    initiativeRoll={character.initiativeRoll}
+                    initiativeBonus={character.initiative}
+                />
             </div>
 
-            {/* Dice Roller */}
-            <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
+            {/* Combat Controls - Pushed to Bottom */}
+            <div className="mt-auto space-y-6">
+                {/* Active Turn Banner */}
+                {character.activeTurn && (
+                    <div className="bg-agent-blue p-4 rounded-2xl text-center shadow-[0_0_20px_rgba(43,43,238,0.4)] animate-bounce">
+                        <span className="text-sm font-black uppercase tracking-[0.2em]">YOUR TURN</span>
+                    </div>
+                )}
 
-            {/* Active Turn Banner */}
-            {character.activeTurn && (
-                <div className="bg-agent-blue p-4 rounded-2xl text-center shadow-[0_0_20px_rgba(43,43,238,0.4)] animate-bounce">
-                    <span className="text-sm font-black uppercase tracking-[0.2em]">YOUR TURN</span>
+                {/* Dice Roller */}
+                <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
+
+                {/* HP Controls & Status */}
+                <Card variant="agent" className="bg-agent-navy/40 border-white/5">
+                    <CardContent className="p-4">
+                        <PlayerHPControls characterId={character.id} currentHp={character.hp} maxHp={character.maxHp} />
+                    </CardContent>
+                </Card>
+
+                {/* Player Actions */}
+                <div className="space-y-4">
+                    <PlayerActionForm characterName={character.name} campaignId={character.campaignId} />
                 </div>
-            )}
+            </div>
         </main>
     );
 }
