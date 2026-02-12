@@ -61,10 +61,10 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
     return (
         <div
             className={`
-                relative overflow-hidden rounded-3xl border-4 transition-all duration-700 backdrop-blur-xl
+                relative overflow-hidden rounded-3xl border-4 transition-all duration-500 backdrop-blur-xl group
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_80px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-110 z-30 ring-8 ring-agent-blue/50'
-                    : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/10'}
+                    ? 'border-agent-blue shadow-[0_0_100px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-105 z-30 ring-4 ring-agent-blue/30'
+                    : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/20 hover:bg-black/40'}
             `}
         >
             {/* Flash Overlay */}
@@ -73,59 +73,65 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
             {/* Active Turn Scanner Effect */}
             {character.activeTurn && (
                 <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-agent-blue shadow-[0_0_25px_#2b2bee] animate-scan" />
-                    <div className="absolute inset-0 border-4 border-agent-blue/50 rounded-3xl animate-pulse" />
+                    <div className="absolute top-0 left-0 w-full h-1 bg-agent-blue shadow-[0_0_30px_#2b2bee] animate-scan" />
+                    <div className="absolute inset-0 border-4 border-agent-blue/20 rounded-3xl" />
                 </div>
             )}
 
-            <div className="relative z-10 p-6 flex flex-col h-full min-h-[500px]"> {/* Increased min-height */}
+            <div className="relative z-10 p-6 flex flex-col h-full min-h-[500px]">
                 {/* Portrait Background */}
                 {character.imageUrl && (
-                    <div className="absolute inset-0 z-[-1] opacity-40">
+                    <div className="absolute inset-0 z-[-1] opacity-30 mix-blend-overlay group-hover:opacity-50 transition-opacity duration-500">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={character.imageUrl} alt="" className="w-full h-full object-cover grayscale" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-agent-navy via-agent-navy/50 to-transparent" />
+                        <img src={character.imageUrl} alt="" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-agent-navy via-agent-navy/80 to-transparent" />
                     </div>
                 )}
 
                 <div className="mb-auto">
-                    <div className="flex justify-between items-start mb-6"> {/* Increased margin */}
-                        <Badge variant={character.activeTurn ? 'agent' : 'player'} className="font-black italic text-3xl px-4 py-2"> {/* Increased text/padding */}
+                    <div className="flex justify-between items-start mb-6">
+                        <Badge variant={character.activeTurn ? 'agent' : 'player'} className="font-black italic text-3xl px-4 py-2 uppercase tracking-widest shadow-lg">
                             LVL {character.level}
                         </Badge>
                         <div className="text-right">
-                            <span className="block text-3xl text-neutral-300 uppercase font-black tracking-widest mb-2">Defense</span> {/* Increased text */}
-                            <span className={`text-8xl font-black leading-none ${character.activeTurn ? 'text-agent-blue' : 'text-white'}`}>{character.armorClass}</span> {/* Increased text */}
+                            <span className="block text-xl text-agent-blue/80 uppercase font-mono tracking-widest mb-1">Defense</span>
+                            <span className={`text-7xl font-black leading-none tracking-tighter ${character.activeTurn ? 'text-white drop-shadow-[0_0_10px_rgba(43,43,238,0.8)]' : 'text-neutral-400'}`}>{character.armorClass}</span>
                         </div>
                     </div>
 
-                    <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-4 leading-none break-words ${character.activeTurn ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'text-neutral-300'}`}> {/* Increased text */}
+                    <h2 className={`text-5xl lg:text-6xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words ${character.activeTurn ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'text-neutral-300'}`}>
                         {character.name}
                     </h2>
-                    <p className="text-agent-blue text-2xl lg:text-3xl font-bold uppercase tracking-widest mb-10"> {/* Increased text/margin */}
-                        {character.race} {"//"} {character.class}
+                    <p className="text-agent-blue text-xl font-mono font-bold uppercase tracking-widest mb-10 opacity-80">
+                        {character.race} // {character.class}
                     </p>
                 </div>
 
                 <div className="mt-8">
                     <div className="flex justify-between items-end mb-4">
-                        <span className="text-3xl text-neutral-300 uppercase font-black tracking-[0.2em]">Vitality</span> {/* Increased text */}
-                        <div className="text-right flex items-baseline justify-end">
-                            <span className={`text-8xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse' : 'text-white'}`}> {/* Increased text */}
+                        <span className="text-2xl text-neutral-400 uppercase font-black tracking-[0.2em]">Vitality</span>
+                        <div className="text-right flex items-baseline justify-end gap-3">
+                            <span className={`text-7xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
                                 {displayHp}
                             </span>
-                            <span className="text-4xl text-neutral-500 font-bold ml-4">/ {character.maxHp}</span> {/* Increased text/margin */}
+                            <span className="text-3xl text-neutral-600 font-bold">/ {character.maxHp}</span>
                         </div>
                     </div>
 
-                    {/* Health Bar */}
-                    <div className="h-16 bg-white/5 rounded-full overflow-hidden p-1 border-2 border-white/10 shadow-inner"> {/* Increased height */}
+                    {/* Technical Health Bar */}
+                    <div className="h-12 bg-black/60 rounded-none overflow-hidden p-1 border border-white/10 relative">
+                         {/* Tick Marks */}
+                        <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_19%,#ffffff10_20%)] z-10 pointer-events-none" />
+
                         <div
-                            className={`h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-[repeating-linear-gradient(90deg,transparent,transparent_4px,#000_4px,#000_5px)] ${character.hp <= character.maxHp * 0.2 ? 'bg-red-600 shadow-[0_0_20px_rgba(220,38,38,0.8)]' : 'bg-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.4)]'
+                            className={`h-full transition-all duration-1000 ease-out relative overflow-hidden ${
+                                character.hp <= character.maxHp * 0.2
+                                    ? 'bg-red-600 shadow-[0_0_30px_rgba(220,38,38,0.6)]'
+                                    : 'bg-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.4)]'
                                 }`}
-                            style={{ width: `${hpPercent}%` }}
+                            style={{ width: `${hpPercent}%`, clipPath: 'polygon(0 0, 100% 0, 98% 100%, 0% 100%)' }}
                         >
-                            <div className="absolute inset-0 bg-white/20 animate-[pulse_2s_infinite]" />
+                            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:20px_20px] animate-[pulse_1s_infinite]" />
                         </div>
                     </div>
 
@@ -133,7 +139,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     {conditions.length > 0 && (
                         <div className="mt-6 flex flex-wrap gap-2 justify-end">
                             {conditions.map((condition, idx) => (
-                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-3xl lg:text-4xl px-6 py-3 animate-pulse border-2 border-white/50 shadow-[0_0_20px_rgba(220,38,38,0.6)]">
+                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-2xl px-4 py-2 animate-pulse border border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.4)]">
                                     {condition}
                                 </Badge>
                             ))}
