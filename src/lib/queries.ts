@@ -1,6 +1,13 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
 
+/**
+ * ORACLE'S JOURNAL - CRITICAL LEARNINGS ONLY
+ *
+ * ## 2025-02-18 - [getPublicCampaign] Slow: [Potential repeated reads] Sight: [Added React cache, Standardized Select: PUBLIC_CHAR_SELECT]
+ * ## 2025-02-18 - [getPlayerDashboard] Slow: [Missing conditions, potential heavy logs] Sight: [Added conditions, Standardized Select: PLAYER_DASHBOARD_SELECT]
+ */
+
 // Reusable select constants for consistency and optimization
 const DM_CHAR_SELECT = {
   id: true,
@@ -38,6 +45,39 @@ const PULSE_CHAR_SELECT = {
   initiativeRoll: true,
   conditions: true,
   type: true
+} as const;
+
+const PUBLIC_CHAR_SELECT = {
+  id: true,
+  activeTurn: true,
+  imageUrl: true,
+  level: true,
+  armorClass: true,
+  name: true,
+  race: true,
+  class: true,
+  hp: true,
+  maxHp: true,
+  conditions: true
+} as const;
+
+const PLAYER_DASHBOARD_SELECT = {
+  id: true,
+  type: true,
+  hp: true,
+  maxHp: true,
+  name: true,
+  race: true,
+  class: true,
+  level: true,
+  activeTurn: true,
+  imageUrl: true,
+  armorClass: true,
+  campaignId: true,
+  speed: true,
+  initiative: true,
+  initiativeRoll: true,
+  conditions: true
 } as const;
 
 /**
@@ -102,31 +142,20 @@ export async function getActiveCampaign() {
 /**
  * Fetches active campaign data for public display, filtering for PLAYER characters.
  */
-export async function getPublicCampaign() {
+export const getPublicCampaign = cache(async function getPublicCampaign() {
   return prisma.campaign.findFirst({
     where: { active: true },
+    orderBy: { createdAt: 'desc' },
     select: {
       name: true,
       characters: {
         where: { type: 'PLAYER' },
         orderBy: { name: 'asc' },
-        select: {
-          id: true,
-          activeTurn: true,
-          imageUrl: true,
-          level: true,
-          armorClass: true,
-          name: true,
-          race: true,
-          class: true,
-          hp: true,
-          maxHp: true,
-          conditions: true
-        }
+        select: PUBLIC_CHAR_SELECT
       }
     }
   });
-}
+});
 
 /**
  * Optimized fetch for polling updates.
@@ -154,27 +183,13 @@ export async function getCampaignPulse(campaignId: string) {
 /**
  * Optimized fetch for the Player Dashboard (Status Page).
  * Selects only fields needed for the main view + logs.
- * Excludes heavy JSON fields (attributes, inventory, conditions).
+ * Excludes heavy JSON fields (attributes, inventory).
  */
 export const getPlayerDashboard = cache(async function getPlayerDashboard(id: string) {
   const character = await prisma.character.findUnique({
     where: { id },
     select: {
-      id: true,
-      type: true,
-      hp: true,
-      maxHp: true,
-      name: true,
-      race: true,
-      class: true,
-      level: true,
-      activeTurn: true,
-      imageUrl: true,
-      armorClass: true,
-      campaignId: true,
-      speed: true,
-      initiative: true,
-      initiativeRoll: true,
+      ...PLAYER_DASHBOARD_SELECT,
       campaign: {
         select: {
           logs: {
