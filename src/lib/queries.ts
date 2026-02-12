@@ -175,6 +175,7 @@ export const getPlayerDashboard = cache(async function getPlayerDashboard(id: st
       speed: true,
       initiative: true,
       initiativeRoll: true,
+      conditions: true,
       campaign: {
         select: {
           logs: {

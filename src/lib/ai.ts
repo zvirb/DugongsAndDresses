@@ -10,52 +10,65 @@ export async function generateStory(campaignId: string) {
         const recentLogs = await prisma.logEntry.findMany({
             where: { campaignId },
             orderBy: { timestamp: 'desc' },
-            take: 5
+            take: 10
         });
 
         if (recentLogs.length === 0) return;
 
-        // Mock AI Generation Logic
-        // In a real implementation, we would call Ollama or OpenAI here.
-        // For now, we use a simple heuristic to generate a "story" log.
-
         const lastLog = recentLogs[0];
-
         // Prevent infinite loop if the last log was already AI generated
         if (lastLog.type === 'AI') return;
 
-        let storyContent = "";
+        // Construct prompt
+        const logContext = recentLogs.reverse().map(l => `[${l.type}] ${l.content}`).join('\n');
+        const prompt = `You are the Dungeon Master narrator. Based on these recent game logs, describe the scene in one or two sentences. Focus on the action and atmosphere. Do not use game mechanics terms like "HP" or "Roll". Keep it brief.\n\nLogs:\n${logContext}\n\nNarrative:`;
 
-        // Simple rules-based generation
-        if (lastLog.content.includes("attacks")) {
-            storyContent = "The clash of steel rings out as the battle intensifies.";
-        } else if (lastLog.content.includes("enters the fray")) {
-            storyContent = "A new challenger approaches, changing the dynamic of the encounter.";
-        } else if (lastLog.content.includes("fallen")) {
-            storyContent = "A heavy silence falls over the battlefield as a combatant is defeated.";
-        } else if (lastLog.content.includes("invokes")) {
-            storyContent = "Magic crackles in the air, distorting reality around the caster.";
-        } else {
-            // Generic fallback
-             storyContent = "The situation evolves, and the adventurers must react quickly.";
-        }
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
-        // Add a bit of randomness to avoid repetitive logs
-        const variations = [
-            " The tension is palpable.",
-            " Every moment counts.",
-            " Fate hangs in the balance.",
-            ""
-        ];
-        storyContent += variations[Math.floor(Math.random() * variations.length)];
-
-        await prisma.logEntry.create({
-            data: {
-                campaignId,
-                content: `[AI] ${storyContent}`,
-                type: 'AI'
+            let response;
+            try {
+                // Default to localhost, but could be configurable in future
+                response = await fetch("http://127.0.0.1:11434/api/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: settings.ollamaModel,
+                        prompt: prompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.7,
+                            num_predict: 100 // Limit output length
+                        }
+                    }),
+                    signal: controller.signal
+                });
+            } finally {
+                clearTimeout(timeoutId);
             }
-        });
+
+            if (!response || !response.ok) {
+                throw new Error(`Ollama API error: ${response?.statusText || 'Unknown error'}`);
+            }
+
+            const data = await response.json();
+            const storyContent = data.response.trim();
+
+            if (storyContent) {
+                 await prisma.logEntry.create({
+                    data: {
+                        campaignId,
+                        content: `[AI] ${storyContent}`,
+                        type: 'AI'
+                    }
+                });
+            }
+
+        } catch (fetchError) {
+            // Silently fail if AI service is offline, but log for debugging
+            console.error("Ollama connection failed/timed out. Ensure Ollama is running on port 11434.");
+        }
 
     } catch (e) {
         console.error("AI Story Generation failed:", e);

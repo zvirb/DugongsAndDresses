@@ -103,6 +103,29 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             data: { hp: { increment: delta } }
         });
 
+        let finalCharacter = character;
+        const conditions = parseConditions(character.conditions);
+        let updatedConditions = [...conditions];
+        let conditionsChanged = false;
+        let statusLog = "";
+
+        if (character.hp <= 0 && !conditions.includes("Unconscious")) {
+            updatedConditions.push("Unconscious");
+            conditionsChanged = true;
+            statusLog = ` **${character.name}** falls unconscious!`;
+        } else if (character.hp > 0 && conditions.includes("Unconscious")) {
+            updatedConditions = updatedConditions.filter(c => c !== "Unconscious");
+            conditionsChanged = true;
+            statusLog = ` **${character.name}** regains consciousness.`;
+        }
+
+        if (conditionsChanged) {
+            finalCharacter = await prisma.character.update({
+                where: { id: character.id },
+                data: { conditions: stringifyConditions(updatedConditions) }
+            });
+        }
+
         if (delta !== 0) {
             const amount = Math.abs(delta);
             let content = "";
@@ -111,15 +134,18 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             } else {
                 content = `**${character.name}** suffers **${amount}** damage.`;
             }
+            content += statusLog;
             await logAction(character.campaignId, content, "Combat");
+        } else if (statusLog) {
+             await logAction(character.campaignId, statusLog.trim(), "Combat");
         }
 
-        await syncToSource(character);
+        await syncToSource(finalCharacter);
 
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
-        return character;
+        return finalCharacter;
     });
 }
 
@@ -616,6 +642,18 @@ export async function performAttack(attackerId: string, targetId: string, damage
                     where: { id: targetId },
                     data: { hp: { decrement: damage } }
                 });
+
+                // Check for Unconsciousness
+                const conditions = parseConditions(updatedTarget.conditions);
+                if (updatedTarget.hp <= 0 && !conditions.includes("Unconscious")) {
+                    conditions.push("Unconscious");
+                    updatedTarget = await prisma.character.update({
+                         where: { id: targetId },
+                         data: { conditions: stringifyConditions(conditions) }
+                    });
+                    content += ` **${updatedTarget.name}** falls unconscious!`;
+                }
+
                 await syncToSource(updatedTarget);
             } else {
                 content += ` but deals no damage!`;

@@ -95,7 +95,7 @@ describe('Query Optimization', () => {
     // Verify fields that SHOULD NOT be selected
     expect(select.attributes).toBeUndefined();
     expect(select.inventory).toBeUndefined();
-    expect(select.conditions).toBeUndefined();
+    expect(select.conditions).toBe(true);
 
     // Verify logs query is nested in campaign
     expect(select.campaign).toBeDefined();

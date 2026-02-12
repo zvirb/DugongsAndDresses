@@ -5,6 +5,8 @@ import PlayerActionForm from "@/components/PlayerActionForm";
 import DiceRoller from "@/components/DiceRoller";
 import PlayerInitiativeControl from "@/components/PlayerInitiativeControl";
 import { Card, CardContent } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { parseConditions } from "@/lib/safe-json";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +21,10 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     if (!character || character.type !== 'PLAYER') {
         notFound();
     }
+
+    // Parse conditions
+    // @ts-ignore
+    const conditions = parseConditions(character.conditions);
 
     return (
         <main className="flex-1 p-4 space-y-6 pb-40 min-h-[100dvh]">
@@ -38,6 +44,17 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 {/* Active Turn Overlay */}
                 {character.activeTurn && (
                     <div className="absolute inset-0 border-4 border-agent-blue animate-pulse pointer-events-none" />
+                )}
+
+                {/* Conditions Overlay */}
+                {conditions.length > 0 && (
+                    <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-20">
+                        {conditions.map((c) => (
+                            <Badge key={c} variant="destructive" className="animate-pulse shadow-lg font-bold tracking-wider uppercase border border-red-500/50 bg-red-900/80 backdrop-blur-sm">
+                                {c}
+                            </Badge>
+                        ))}
+                    </div>
                 )}
 
                 {/* Character Name/Class Overlay */}
