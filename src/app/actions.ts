@@ -148,6 +148,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // Format: ## YYYY-MM-DD - [Logic] Break: [Turn skipped index 0] Fix: [Corrected modulo arithmetic]
 // ## 2024-05-20 - [Logic] Break: [Double turn skip] Fix: [Idempotency check with expectedActiveId]
 // ## 2024-05-21 - [Logic] Break: [Empty campaign crash] Fix: [Validation for empty characters array]
+// ## 2024-05-22 - [Logic] Break: [Stale client state causes confusion] Fix: [Detect and log mismatch when DB has no active char but client expects one]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
@@ -189,6 +190,10 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
                 const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
                 return actualActive;
             }
+        } else if (expectedActiveId) {
+            // SENTRY: Client thinks someone is active, but DB says NO ONE is active.
+            // This implies a manual reset or deletion occurred. We must restart at 0.
+            console.warn(`[SENTRY] Race Condition: Client expects active character ${expectedActiveId}, but DB has none. Resetting to start.`);
         }
 
         // --- SENTRY'S LOOP SAFETY ---
