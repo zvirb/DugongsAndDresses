@@ -63,6 +63,24 @@ export function listBackups(): string[] {
     }
 }
 
+export async function deleteBackup(filename: string): Promise<boolean> {
+    // Sanitize filename to prevent path traversal
+    const safeFilename = path.basename(filename);
+    const filepath = path.join(BACKUP_DIR, safeFilename);
+
+    if (!fs.existsSync(filepath)) {
+        throw new Error(`Backup file ${filename} not found`);
+    }
+
+    try {
+        fs.unlinkSync(filepath);
+        return true;
+    } catch (e) {
+        console.error(`Failed to delete backup ${filename}:`, e);
+        throw e;
+    }
+}
+
 export async function restoreBackup(filename: string): Promise<boolean> {
     const filepath = path.join(BACKUP_DIR, filename);
     if (!fs.existsSync(filepath)) {

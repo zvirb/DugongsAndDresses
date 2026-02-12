@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { createBackupAction, listBackupsAction, restoreBackupAction } from '@/app/actions';
+import { createBackupAction, listBackupsAction, restoreBackupAction, deleteBackupAction } from '@/app/actions';
 
 export default function BackupManager() {
     const [backups, setBackups] = useState<string[]>([]);
@@ -70,6 +70,31 @@ export default function BackupManager() {
         }
     };
 
+    const handleDelete = async (filename: string) => {
+        if (!confirm(`Are you sure you want to delete ${filename}?`)) {
+            return;
+        }
+
+        setLoading(true);
+        setStatus(`Deleting ${filename}...`);
+        try {
+            const res = await deleteBackupAction(filename);
+            if (res.success) {
+                await loadBackups();
+                setStatus('Backup deleted.');
+            } else {
+                setStatus('Delete failed.');
+                console.error(res.error);
+            }
+        } catch (e) {
+            setStatus('Delete failed.');
+            console.error(e);
+        } finally {
+            setLoading(false);
+            setTimeout(() => setStatus(null), 3000);
+        }
+    };
+
     return (
         <Card variant="agent" className="w-full">
             <CardHeader>
@@ -105,14 +130,24 @@ export default function BackupManager() {
                                     {backups.map(file => (
                                         <li key={file} className="flex items-center justify-between p-3 hover:bg-neutral-800/50 transition-colors">
                                             <span className="text-sm font-mono text-neutral-300">{file}</span>
-                                            <Button
-                                                className="bg-red-600 hover:bg-red-700 text-white"
-                                                size="sm"
-                                                onClick={() => handleRestore(file)}
-                                                disabled={loading}
-                                            >
-                                                Restore
-                                            </Button>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                                    size="sm"
+                                                    onClick={() => handleRestore(file)}
+                                                    disabled={loading}
+                                                >
+                                                    Restore
+                                                </Button>
+                                                <Button
+                                                    className="bg-neutral-700 hover:bg-red-900 text-white border border-neutral-600"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(file)}
+                                                    disabled={loading}
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>

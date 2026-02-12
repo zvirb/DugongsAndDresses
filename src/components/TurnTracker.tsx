@@ -1,6 +1,6 @@
 'use client';
 
-import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter } from "@/app/actions";
+import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -85,6 +85,24 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
         });
     };
 
+    const handleDeleteEncounter = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        if (!confirm("Are you sure you want to delete this encounter?")) return;
+        setLoadingEncounters(true); // Re-use loading state to show activity
+        try {
+            await deleteEncounter(id);
+            // Refresh list
+            const result = await listEncounters(campaignId);
+            if (result.success && Array.isArray(result.data)) {
+                setEncounters(result.data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoadingEncounters(false);
+        }
+    };
+
     return (
         <div className="flex flex-col h-full relative">
             <div className="flex justify-between items-center mb-4 border-b border-agent-blue/20 pb-2">
@@ -150,16 +168,29 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 <p className="text-xs text-neutral-500 text-center p-4">No saved encounters found.</p>
                             ) : (
                                 encounters.map(enc => (
-                                    <button
+                                    <div
                                         key={enc.id}
-                                        onClick={() => handleLoadEncounter(enc.id)}
-                                        className="w-full text-left p-3 rounded bg-white/5 hover:bg-agent-blue/20 hover:border-agent-blue border border-transparent transition-all group"
+                                        className="w-full flex justify-between items-center gap-2 p-1 rounded hover:bg-white/5 transition-colors group"
                                     >
-                                        <div className="text-sm font-bold text-white group-hover:text-agent-blue">{enc.name}</div>
-                                        <div className="text-[10px] text-neutral-500 font-mono">
-                                            {new Date(enc.createdAt).toLocaleString()}
-                                        </div>
-                                    </button>
+                                        <button
+                                            onClick={() => handleLoadEncounter(enc.id)}
+                                            className="flex-1 text-left p-2 rounded hover:bg-agent-blue/20 hover:text-agent-blue transition-colors focus:outline-none focus:ring-2 focus:ring-agent-blue"
+                                        >
+                                            <div className="text-sm font-bold text-white">{enc.name}</div>
+                                            <div className="text-[10px] text-neutral-500 font-mono">
+                                                {new Date(enc.createdAt).toLocaleString()}
+                                            </div>
+                                        </button>
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={(e) => handleDeleteEncounter(e, enc.id)}
+                                            className="h-7 px-2 text-[10px] opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                            title="Delete Encounter"
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
                                 ))
                             )}
                         </div>

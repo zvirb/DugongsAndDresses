@@ -9,7 +9,7 @@ import { createWriteStream } from 'fs';
 import { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
 import { join } from 'path';
-import { createBackup, restoreBackup, listBackups, checkAutoBackup } from "@/lib/backup";
+import { createBackup, restoreBackup, listBackups, deleteBackup, checkAutoBackup } from "@/lib/backup";
 import { generateStory } from "@/lib/ai";
 import { z } from "zod";
 import { CharacterInput, CharacterInputSchema, Participants } from "@/lib/schemas";
@@ -110,6 +110,45 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
         revalidatePath('/public');
         revalidatePath('/player');
         return character;
+    });
+}
+
+export async function duplicateCharacter(characterId: string): Promise<ActionResult> {
+    return actionWrapper("duplicateCharacter", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const source = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!source) throw new Error("Character not found");
+
+        const newChar = await prisma.character.create({
+            data: {
+                campaignId: source.campaignId,
+                name: `${source.name} (Copy)`,
+                type: source.type,
+                race: source.race,
+                class: source.class,
+                level: source.level,
+                hp: source.hp,
+                maxHp: source.maxHp,
+                armorClass: source.armorClass,
+                speed: source.speed,
+                initiative: source.initiative,
+                attributes: source.attributes,
+                inventory: source.inventory,
+                conditions: source.conditions,
+                imageUrl: source.imageUrl,
+                initiativeRoll: 0,
+                // If source has a sourceId, use it (it's a clone). If not, use its own ID (it's the original).
+                sourceId: source.sourceId || source.id
+            }
+        });
+
+        await logAction(source.campaignId, `**${newChar.name}** joins the ranks.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        revalidatePath('/player');
+        return newChar;
     });
 }
 
@@ -521,6 +560,29 @@ export async function restoreBackupAction(filename: string): Promise<ActionResul
     return actionWrapper("restoreBackup", async () => {
         await restoreBackup(filename);
         revalidatePath('/');
+        return { success: true };
+    });
+}
+
+export async function deleteEncounter(encounterId: string): Promise<ActionResult> {
+    return actionWrapper("deleteEncounter", async () => {
+        if (!encounterId) throw new Error("Encounter ID is required");
+
+        await prisma.encounter.delete({
+            where: { id: encounterId }
+        });
+
+        revalidatePath('/dm');
+        return { success: true };
+    });
+}
+
+export async function deleteBackupAction(filename: string): Promise<ActionResult> {
+    return actionWrapper("deleteBackup", async () => {
+        await deleteBackup(filename);
+        // No path to revalidate as the list is client-side fetched in BackupManager,
+        // but revalidating DM page just in case.
+        revalidatePath('/dm');
         return { success: true };
     });
 }
