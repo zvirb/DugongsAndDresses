@@ -33,29 +33,31 @@ export default async function DMPage() {
             </div>
 
             <div className="relative z-10">
-                <header className="flex justify-between items-center mb-6 border-b border-agent-blue/20 pb-4">
+                <header className="flex justify-between items-center mb-6 border-b border-agent-blue/20 pb-4 bg-agent-navy/50 backdrop-blur-sm -mx-4 px-4 pt-4">
                     <div className="flex flex-col">
-                        <div className="text-agent-blue font-mono text-[10px] animate-pulse tracking-widest uppercase mb-1">
+                        <div className="text-agent-blue font-mono text-[10px] animate-pulse tracking-widest uppercase mb-1 flex items-center gap-2">
+                             <span className="w-1.5 h-1.5 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]" />
                             SYSTEM STATUS: ONLINE // SECURE CONNECTION
                         </div>
                         <div className="flex items-center gap-6">
-                            <h1 className="text-xl font-black italic tracking-tighter text-white uppercase leading-none drop-shadow-[0_0_10px_rgba(43,43,238,0.5)]">
+                            <h1 className="text-2xl font-black italic tracking-tighter text-white uppercase leading-none drop-shadow-[0_0_15px_rgba(43,43,238,0.5)]">
                                 DM Control Station
                             </h1>
+                            <div className="h-6 w-px bg-agent-blue/30 mx-2" />
                             <CampaignSelector campaigns={campaignList} activeId={campaign.id} />
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">
                         <Link
                             href="/settings"
-                            className={buttonVariants({ variant: "ghost", size: "sm", className: "text-neutral-400 hover:text-white" })}
+                            className={buttonVariants({ variant: "ghost", size: "sm", className: "text-neutral-400 hover:text-white uppercase tracking-wider text-xs font-bold" })}
                         >
                             Settings
                         </Link>
                         <Link
                             href="/public"
                             target="_blank"
-                            className={buttonVariants({ variant: "outline", size: "sm", className: "border-agent-blue/50 text-agent-blue hover:bg-agent-blue/10 hover:text-white hover:border-agent-blue transition-all shadow-[0_0_10px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.4)]" })}
+                            className={buttonVariants({ variant: "outline", size: "sm", className: "border-agent-blue/50 text-agent-blue hover:bg-agent-blue/10 hover:text-white hover:border-agent-blue transition-all shadow-[0_0_10px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.4)] uppercase tracking-wider text-xs font-bold" })}
                         >
                             Open Public View
                         </Link>
@@ -65,8 +67,13 @@ export default async function DMPage() {
                 <div className="grid grid-cols-12 gap-4 h-[calc(100vh-100px)]">
                     {/* Left Column: Initiative / Turn Tracker + Dice */}
                     <div className="col-span-3 flex flex-col gap-4">
-                        <Card variant="agent" className="flex-1 overflow-hidden flex flex-col">
-                            <CardContent className="h-full p-4">
+                        <Card variant="agent" className="flex-1 overflow-hidden flex flex-col shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+                            <CardHeader className="py-3 px-4 border-b border-agent-blue/20 bg-agent-navy/80 backdrop-blur-md">
+                                <CardTitle className="text-agent-blue uppercase tracking-widest text-xs font-bold flex items-center gap-2">
+                                    Turn Order
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="h-full p-4 bg-black/20">
                                 <TurnTracker initialParticipants={campaign.characters} campaignId={campaign.id} />
                             </CardContent>
                         </Card>
@@ -75,12 +82,12 @@ export default async function DMPage() {
 
                     {/* Center Column: Log & Actions */}
                     <div className="col-span-6 flex flex-col gap-4 h-full">
-                        <Card variant="agent" className="flex-1 flex flex-col overflow-hidden relative group">
+                        <Card variant="agent" className="flex-1 flex flex-col overflow-hidden relative group shadow-[0_0_30px_rgba(43,43,238,0.1)] border-agent-blue/40">
                             <div className="absolute inset-0 bg-agent-blue/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-0" />
-                            <CardHeader className="flex flex-row items-center justify-between py-3 px-4 border-b border-agent-blue/20 z-10 bg-agent-navy/50 backdrop-blur-sm">
-                                <CardTitle className="text-agent-blue uppercase tracking-widest text-sm font-bold flex items-center gap-2">
+                            <CardHeader className="flex flex-row items-center justify-between py-2 px-4 border-b border-agent-blue/20 z-10 bg-agent-navy/90 backdrop-blur-md">
+                                <CardTitle className="text-agent-blue uppercase tracking-widest text-xs font-bold flex items-center gap-2">
                                     <span className="w-2 h-2 bg-agent-blue rounded-full animate-pulse shadow-[0_0_10px_#2b2bee]" />
-                                    Game Log
+                                    Terminal Log
                                 </CardTitle>
                                 <AICopyButton
                                     logs={campaign.logs}
@@ -91,19 +98,19 @@ export default async function DMPage() {
                                     }
                                 />
                             </CardHeader>
-                            <CardContent className="flex-1 p-0 overflow-hidden relative z-10 bg-black/90 font-mono text-xs text-agent-blue font-bold border-l-2 border-agent-blue/30">
-                                <div className="absolute inset-0 p-4 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
+                            <CardContent className="flex-1 p-0 overflow-hidden relative z-10 bg-black/95 font-mono text-xs text-agent-blue font-bold border-l-4 border-agent-blue/20">
+                                <div className="absolute inset-0 p-4 overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
                                     {campaign.logs.map((log) => (
-                                        <div key={log.id} className="border-b border-white/5 pb-2 last:border-0 hover:bg-white/5 transition-colors px-2 -mx-2 rounded">
-                                            <span className="text-agent-blue/60 mr-2 opacity-70">
+                                        <div key={log.id} className="border-b border-white/5 pb-1 last:border-0 hover:bg-white/5 transition-colors px-2 -mx-2 rounded flex gap-2">
+                                            <span className="text-agent-blue/40 whitespace-nowrap text-[10px] mt-0.5">
                                                 [{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}]
                                             </span>
-                                            <span className="text-agent-blue/90 drop-shadow-sm">{log.content}</span>
+                                            <span className="text-agent-blue/90 drop-shadow-sm leading-relaxed">{log.content}</span>
                                         </div>
                                     ))}
-                                    <div className="mt-2 text-agent-blue">
-                                        <span className="mr-2">&gt;</span>
-                                        <span className="animate-pulse inline-block w-2 h-4 bg-agent-blue/50 align-middle"></span>
+                                    <div className="mt-2 text-agent-blue flex items-center gap-2 opacity-50">
+                                        <span className="animate-pulse inline-block w-2 h-4 bg-agent-blue/50"></span>
+                                        <span className="text-[10px] tracking-widest uppercase">Awaiting Input...</span>
                                     </div>
                                 </div>
                             </CardContent>
@@ -114,11 +121,11 @@ export default async function DMPage() {
 
                     {/* Right Column: Characters */}
                     <div className="col-span-3 h-full">
-                        <Card variant="agent" className="h-full flex flex-col overflow-hidden">
-                            <CardHeader className="py-3 px-4 border-b border-agent-blue/20 bg-agent-navy/50 backdrop-blur-sm">
-                                <CardTitle className="text-agent-blue uppercase tracking-widest text-sm font-bold">Characters</CardTitle>
+                        <Card variant="agent" className="h-full flex flex-col overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+                            <CardHeader className="py-3 px-4 border-b border-agent-blue/20 bg-agent-navy/80 backdrop-blur-md">
+                                <CardTitle className="text-agent-blue uppercase tracking-widest text-xs font-bold">Characters</CardTitle>
                             </CardHeader>
-                            <CardContent className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
+                            <CardContent className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent bg-black/20">
                                 <CharacterManager characters={campaign.characters} campaignId={campaign.id} />
                             </CardContent>
                         </Card>
