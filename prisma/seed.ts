@@ -1,3 +1,7 @@
+// SUMMONER'S JOURNAL - CRITICAL LEARNINGS ONLY
+// Format: ## YYYY-MM-DD - [Seed] Gap: [No Wizard avatar] Summon: [Added wizard_female.png mapping]
+// ## 2024-05-22 - [Seed] Gap: Missing Paladin/Monk archetypes and a cold-themed campaign. Summon: Added Sir Alistair, Morgana, Kael, and 'The Frozen Expanse' campaign.
+
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
 import fs from 'fs'
@@ -504,6 +508,54 @@ const libraryCharacters: CharacterTemplate[] = [
     activeTurn: false,
     level: 1,
   },
+  {
+    name: 'Sir Alistair',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Paladin',
+    imageUrl: '/avatars/fighter_male_1770266139273.png',
+    hp: 12,
+    maxHp: 12,
+    armorClass: 18,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 16, dex: 10, con: 14, int: 10, wis: 14, cha: 15 },
+    activeTurn: false,
+    level: 1,
+  },
+  {
+    name: 'Morgana',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Warlock',
+    imageUrl: '/avatars/wizard_female_1770266180583.png',
+    hp: 9,
+    maxHp: 9,
+    armorClass: 12,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 14, con: 12, int: 13, wis: 10, cha: 16 },
+    activeTurn: false,
+    level: 1,
+  },
+  {
+    name: 'Kael',
+    type: 'PLAYER',
+    race: 'Elf',
+    class: 'Monk',
+    imageUrl: '/avatars/elf_fighter_male_1770268090822.png',
+    hp: 10,
+    maxHp: 10,
+    armorClass: 16,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 40,
+    attributes: { str: 10, dex: 17, con: 12, int: 10, wis: 15, cha: 8 },
+    activeTurn: false,
+    level: 1,
+  },
 ]
 
 const campaignCharacters: CharacterTemplate[] = [
@@ -794,6 +846,91 @@ async function main() {
   })
 
   console.log(`🎉 Campaign "${campaign.name}" created with ${campaignCharacters.length} characters.`)
+
+  // Create The Frozen Expanse Campaign (Inactive)
+  const frozenCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Frozen Expanse',
+      active: false,
+      characters: {
+        create: [
+          {
+            name: 'Bjorn',
+            type: 'PLAYER',
+            race: 'Human',
+            class: 'Barbarian',
+            imageUrl: '/avatars/fantasy_barbarian_male_1770266807624.png',
+            hp: 20,
+            maxHp: 20,
+            armorClass: 14,
+            initiative: 1,
+            initiativeRoll: 0,
+            speed: 30,
+            attributes: JSON.stringify({ str: 18, dex: 12, con: 16, int: 8, wis: 10, cha: 10 }),
+            activeTurn: false,
+            level: 3,
+          },
+          {
+            name: 'Lyra',
+            type: 'PLAYER',
+            race: 'Elf',
+            class: 'Sorcerer',
+            imageUrl: '/avatars/elf_female_1770267798836.png',
+            hp: 14,
+            maxHp: 14,
+            armorClass: 12,
+            initiative: 2,
+            initiativeRoll: 0,
+            speed: 30,
+            attributes: JSON.stringify({ str: 8, dex: 14, con: 12, int: 10, wis: 10, cha: 18 }),
+            activeTurn: false,
+            level: 3,
+          },
+          {
+            name: 'Ice Construct',
+            type: 'NPC',
+            race: 'Construct',
+            class: 'Guardian',
+            imageUrl: '/avatars/dwarf_mage_male_1770268698293.png',
+            hp: 30,
+            maxHp: 30,
+            armorClass: 16,
+            initiative: 0,
+            initiativeRoll: 0,
+            speed: 20,
+            attributes: JSON.stringify({ str: 18, dex: 8, con: 18, int: 3, wis: 10, cha: 1 }),
+            activeTurn: false,
+            level: 4,
+          },
+          {
+            name: 'Town Elder',
+            type: 'NPC',
+            race: 'Human',
+            class: 'Commoner',
+            imageUrl: '/avatars/wizard_male_1770266164795.png',
+            hp: 8,
+            maxHp: 8,
+            armorClass: 10,
+            initiative: 0,
+            initiativeRoll: 0,
+            speed: 30,
+            attributes: JSON.stringify({ str: 9, dex: 10, con: 10, int: 14, wis: 16, cha: 12 }),
+            activeTurn: false,
+            level: 1,
+          },
+        ]
+      },
+      logs: {
+        create: [
+          { content: 'The winds howl across **The Frozen Expanse**.', type: 'Story' },
+          { content: '**Bjorn** and **Lyra** arrive at the remote outpost.', type: 'Story' },
+          { content: 'A strange **Ice Construct** blocks the path ahead.', type: 'Combat' },
+        ]
+      }
+    }
+  })
+
+  console.log(`❄️ Campaign "${frozenCampaign.name}" created.`)
 }
 
 main()
