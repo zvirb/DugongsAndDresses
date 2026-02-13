@@ -99,7 +99,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                         </div>
                     </div>
 
-                    <h2 className={`text-5xl lg:text-6xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words ${character.activeTurn ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'text-neutral-300'}`}>
+                    <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words ${character.activeTurn ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'text-neutral-300'}`}>
                         {character.name}
                     </h2>
                     <p className="text-agent-blue text-xl font-mono font-bold uppercase tracking-widest mb-10 opacity-80">
@@ -111,7 +111,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     <div className="flex justify-between items-end mb-4">
                         <span className="text-2xl text-neutral-400 uppercase font-black tracking-[0.2em]">Vitality</span>
                         <div className="text-right flex items-baseline justify-end gap-3">
-                            <span className={`text-7xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
+                            <span className={`text-8xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
                                 {displayHp}
                             </span>
                             <span className="text-3xl text-neutral-600 font-bold">/ {character.maxHp}</span>
@@ -127,7 +127,9 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                             className={`h-full transition-all duration-1000 ease-out relative overflow-hidden ${
                                 character.hp <= character.maxHp * 0.2
                                     ? 'bg-red-600 shadow-[0_0_30px_rgba(220,38,38,0.6)]'
-                                    : 'bg-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.4)]'
+                                    : character.hp <= character.maxHp * 0.5
+                                        ? 'bg-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.6)]'
+                                        : 'bg-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.4)]'
                                 }`}
                             style={{ width: `${hpPercent}%`, clipPath: 'polygon(0 0, 100% 0, 98% 100%, 0% 100%)' }}
                         >
@@ -139,7 +141,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     {conditions.length > 0 && (
                         <div className="mt-6 flex flex-wrap gap-2 justify-end">
                             {conditions.map((condition, idx) => (
-                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-2xl px-4 py-2 animate-pulse border border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.4)]">
+                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-4xl px-4 py-2 animate-pulse border border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.4)]">
                                     {condition}
                                 </Badge>
                             ))}

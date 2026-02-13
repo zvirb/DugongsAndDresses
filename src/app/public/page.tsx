@@ -3,6 +3,12 @@ import AutoRefresh from "@/components/AutoRefresh";
 import { getPublicCampaign } from "@/lib/queries";
 import { PublicCharacterCard } from "@/components/PublicCharacterCard";
 
+/**
+ * CRIER'S JOURNAL - CRITICAL LEARNINGS ONLY
+ *
+ * ## 2025-05-24 - [View] Blur: [Text too small on TV] Shout: [Bumped font size to 9xl and 7xl]
+ */
+
 export const dynamic = 'force-dynamic';
 
 export default async function PublicPage() {
@@ -13,7 +19,7 @@ export default async function PublicPage() {
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:20px_20px] opacity-20" />
             <div className="relative z-10 flex flex-col items-center gap-6">
                 <div className="w-24 h-24 border-8 border-agent-blue/30 rounded-full border-t-agent-blue animate-spin" />
-                <div className="text-agent-blue font-mono tracking-[0.5em] text-6xl animate-pulse font-bold text-center leading-tight">
+                <div className="text-agent-blue font-mono tracking-[0.5em] text-7xl animate-pulse font-bold text-center leading-tight">
                     SYSTEM STANDBY // AWAITING INPUT
                 </div>
             </div>
@@ -39,10 +45,10 @@ export default async function PublicPage() {
                             <span className="w-2 h-2 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]"></span>
                             SYSTEM STATUS: ONLINE // SECURE CONNECTION
                         </div>
-                        <h1 className="text-8xl font-black italic tracking-tighter text-white uppercase leading-none drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                        <h1 className="text-9xl font-black italic tracking-tighter text-white uppercase leading-none drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                             CAMPAIGN <span className="text-agent-blue drop-shadow-[0_0_20px_rgba(43,43,238,0.5)]">VITALIS</span>
                         </h1>
-                        <p className="text-agent-blue font-mono font-bold tracking-[0.2em] uppercase text-4xl mt-4 truncate max-w-4xl opacity-80">
+                        <p className="text-agent-blue font-mono font-bold tracking-[0.2em] uppercase text-6xl mt-4 truncate max-w-4xl opacity-80">
                             {campaign.name} {"//"} ACTIVE ENCOUNTER DATA
                         </p>
                     </div>
@@ -72,7 +78,7 @@ export default async function PublicPage() {
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                             <div className="relative group cursor-default">
                                 <div className="absolute inset-0 bg-agent-blue/20 blur-xl animate-pulse rounded-full opacity-50" />
-                                <h3 className="text-6xl lg:text-8xl font-black italic tracking-[0.1em] uppercase text-white drop-shadow-[0_0_30px_rgba(43,43,238,0.8)] relative z-10 flex items-center gap-6">
+                                <h3 className="text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white drop-shadow-[0_0_30px_rgba(43,43,238,0.8)] relative z-10 flex items-center gap-6">
                                     <span className="text-4xl text-neutral-500 font-mono tracking-widest self-center opacity-70">CURRENT TURN</span>
                                     <span className="text-agent-blue bg-black/40 px-8 py-2 rounded-xl border-2 border-agent-blue/50 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md">
                                         {activeChar.name}
@@ -82,8 +88,8 @@ export default async function PublicPage() {
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                         </div>
                     ) : (
-                        <h3 className="text-5xl text-neutral-500 font-bold uppercase tracking-[0.5em] animate-pulse italic drop-shadow-md">
-                            Awaiting Initiative...
+                        <h3 className="text-7xl text-neutral-500 font-bold uppercase tracking-[0.5em] animate-pulse italic drop-shadow-md">
+                            AWAITING INITIATIVE
                         </h3>
                     );
                 })()}
