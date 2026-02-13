@@ -178,6 +178,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // ## 2024-05-20 - [Logic] Break: [Double turn skip] Fix: [Idempotency check with expectedActiveId]
 // ## 2024-05-21 - [Logic] Break: [Empty campaign crash] Fix: [Validation for empty characters array]
 // ## 2024-05-22 - [Logic] Break: [Stale client state causes confusion] Fix: [Detect and log mismatch when DB has no active char but client expects one]
+// ## 2024-05-23 - [Logic] Audit: [Race conditions & Sorting] Fix: [Verified Idempotency check returns actual active char; verified DB sort order matches UI]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
@@ -215,7 +216,7 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             // If expectedActiveId is undefined (Client thinks start of combat) but someone is active,
             // OR if expectedActiveId mismatches the DB active character, return the actual active one.
             if (!expectedActiveId || currentActive.id !== expectedActiveId) {
-                console.warn(`[SENTRY] Race Condition Detected in Campaign ${campaignId}. Client expected active: ${expectedActiveId || 'None'}, DB has: ${currentActive.id}. Syncing client.`);
+                console.warn(`[SENTRY] Race Condition Detected in Campaign ${campaignId}. Client expected active: ${expectedActiveId || 'None'}, DB has: ${currentActive.id}. Syncing client to DB state.`);
                 const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
                 return actualActive;
             }
