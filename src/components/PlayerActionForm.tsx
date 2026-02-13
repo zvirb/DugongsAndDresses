@@ -56,14 +56,14 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                 <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Declare Intent</label>
 
                 {/* Quick Actions */}
-                <div className="grid grid-cols-4 gap-2 mb-2">
+                <div className="grid grid-cols-2 gap-2 mb-2">
                     {QUICK_ACTIONS.map((action) => (
                         <Button
                             key={action}
                             type="button"
                             variant="ghost"
                             onClick={() => setIntent(action)}
-                            className="h-16 p-2 text-xs font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 touch-manipulation"
+                            className="h-16 p-2 text-sm font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 touch-manipulation"
                         >
                             {action}
                         </Button>

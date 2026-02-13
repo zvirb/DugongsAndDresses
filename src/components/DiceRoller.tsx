@@ -133,21 +133,21 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     <Button
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`h-12 p-2 text-[10px] uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white hover:bg-white/5' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
+                        className={`h-14 p-2 text-xs uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white hover:bg-white/5' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
                     >
                         Normal
                     </Button>
                     <Button
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
-                        className={`h-12 p-2 text-[10px] uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-neutral-500 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
+                        className={`h-14 p-2 text-xs uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-neutral-500 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
                     >
                         Adv
                     </Button>
                     <Button
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
-                        className={`h-12 p-2 text-[10px] uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-neutral-500 hover:text-red-400 hover:bg-red-900/20'}`}
+                        className={`h-14 p-2 text-xs uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-neutral-500 hover:text-red-400 hover:bg-red-900/20'}`}
                     >
                         Dis
                     </Button>
