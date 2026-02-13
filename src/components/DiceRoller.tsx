@@ -1,5 +1,10 @@
 'use client';
 
+// GAMBLER'S JOURNAL - CRITICAL LEARNINGS ONLY
+// Format: ## YYYY-MM-DD - [Dice] Glitch: [Double click caused double log] Fix: [Added isRolling state]
+// ## 2024-05-24 - [Dice] Transparency: [Hiding numbers in Crit/Miss logs] Fix: [Added explicit roll numbers to log]
+// ## 2024-05-24 - [Dice] Feedback: [Hiding numbers in UI for Crit/Miss] Fix: [Always show number, moved status to badge]
+
 import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
@@ -74,9 +79,9 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             let logMessage = '';
 
             if (isCrit) {
-                logMessage = `A natural 20! **${rollerName}** rolls a **CRITICAL HIT**!${details}`;
+                logMessage = `A natural 20! **${rollerName}** rolls d${sides}: **${result}**.${details}`;
             } else if (isFumble) {
-                logMessage = `Disaster strikes! **${rollerName}** rolls a **CRITICAL MISS**!${details}`;
+                logMessage = `Disaster strikes! **${rollerName}** rolls d${sides}: **${result}**.${details}`;
             } else {
                 logMessage = `**${rollerName}** rolls d${sides}: **${result}**.${details}`;
             }
@@ -117,10 +122,12 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                                 lastResult.isFumble ? 'text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]' :
                                 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]'
                             }`}>
-                                {lastResult.isCrit ? 'CRIT!' : lastResult.isFumble ? 'MISS!' : lastResult.total}
+                                {lastResult.total}
                             </span>
                             {(lastResult.mode !== 'NORMAL' || lastResult.isCrit || lastResult.isFumble) && (
                                 <span className="text-xs text-neutral-400 font-mono opacity-80 bg-black/40 px-1 rounded border border-white/5">
+                                    {lastResult.isCrit && 'CRIT! '}
+                                    {lastResult.isFumble && 'MISS! '}
                                     {lastResult.mode !== 'NORMAL' ? `[${lastResult.rolls.join(', ')}]` : `[${lastResult.total}]`}
                                 </span>
                             )}
