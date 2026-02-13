@@ -26,9 +26,14 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const cleanIntent = sanitizeInput(intent);
-        const cleanRoll = sanitizeInput(roll);
+        let cleanRoll = sanitizeInput(roll);
 
         if (!cleanIntent) return;
+
+        // Ensure roll is strictly numeric if provided
+        if (cleanRoll && isNaN(Number(cleanRoll))) {
+            cleanRoll = "";
+        }
 
         const content = cleanRoll
             ? `**${characterName}** attempts: **${cleanIntent}** (Roll: **${cleanRoll}**).`

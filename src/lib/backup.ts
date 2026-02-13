@@ -2,6 +2,8 @@
 import fs from 'fs';
 import path from 'path';
 import { prisma } from './prisma';
+import { z } from 'zod';
+import { Campaign, Character, LogEntry, Encounter } from '@prisma/client';
 
 const BACKUP_DIR = '/app/backups';
 
@@ -12,11 +14,19 @@ if (!fs.existsSync(BACKUP_DIR)) {
 
 export interface BackupData {
     timestamp: string;
-    campaigns: any[];
-    characters: any[];
-    logs: any[];
-    encounters: any[];
+    campaigns: Campaign[];
+    characters: Character[];
+    logs: LogEntry[];
+    encounters: Encounter[];
 }
+
+const BackupDataSchema = z.object({
+    timestamp: z.string(),
+    campaigns: z.array(z.any()),
+    characters: z.array(z.any()),
+    logs: z.array(z.any()),
+    encounters: z.array(z.any()),
+});
 
 // Reviver for JSON.parse to convert ISO date strings back to Date objects
 function reviveDates(key: string, value: any) {
@@ -88,7 +98,10 @@ export async function restoreBackup(filename: string): Promise<boolean> {
     }
 
     // Use reviveDates to restore Date objects
-    const data: BackupData = JSON.parse(fs.readFileSync(filepath, 'utf-8'), reviveDates);
+    const rawData = JSON.parse(fs.readFileSync(filepath, 'utf-8'), reviveDates);
+
+    // Validate structure
+    const data = BackupDataSchema.parse(rawData) as BackupData;
 
     // Transactional Restore
     // We must handle foreign key constraints carefully.
