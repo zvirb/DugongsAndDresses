@@ -76,7 +76,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(-1)}
                         disabled={isPending}
-                        className="flex-1 h-20 p-6 text-3xl font-bold rounded-2xl border-b-4 border-red-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation"
+                        className="flex-1 h-24 p-8 text-3xl font-bold rounded-2xl border-b-4 border-red-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation"
                     >
                         -1
                     </Button>
@@ -85,7 +85,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(1)}
                         disabled={isPending}
-                        className="flex-1 h-20 p-6 text-3xl font-bold rounded-2xl border-b-4 border-emerald-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation"
+                        className="flex-1 h-24 p-8 text-3xl font-bold rounded-2xl border-b-4 border-emerald-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation"
                     >
                         +1
                     </Button>
@@ -96,7 +96,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(-5)}
                         disabled={isPending}
-                        className="flex-1 h-16 p-6 text-2xl font-bold rounded-2xl border-b-4 border-red-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] opacity-90 transition-all touch-manipulation"
+                        className="flex-1 h-20 p-8 text-2xl font-bold rounded-2xl border-b-4 border-red-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] opacity-90 transition-all touch-manipulation"
                     >
                         -5
                     </Button>
@@ -105,7 +105,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(5)}
                         disabled={isPending}
-                        className="flex-1 h-16 p-6 text-2xl font-bold rounded-2xl border-b-4 border-emerald-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] opacity-90 transition-all touch-manipulation"
+                        className="flex-1 h-20 p-8 text-2xl font-bold rounded-2xl border-b-4 border-emerald-950 active:translate-y-1 active:border-b-0 active:scale-[0.98] opacity-90 transition-all touch-manipulation"
                     >
                         +5
                     </Button>

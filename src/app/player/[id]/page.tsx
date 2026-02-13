@@ -73,7 +73,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </h3>
                 <Card variant="agent" className="bg-black/40 border-white/5 overflow-hidden">
                     <CardContent className="p-0">
-                        <div className="max-h-32 overflow-y-auto font-mono text-xs divide-y divide-white/5">
+                        <div className="max-h-48 overflow-y-auto font-mono text-sm divide-y divide-white/5">
                             {character.logs.length > 0 ? (
                                 character.logs.map((log) => (
                                     <div key={log.id} className="p-3 flex gap-3">
