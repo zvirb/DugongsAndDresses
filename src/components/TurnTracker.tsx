@@ -1,5 +1,9 @@
 'use client';
 
+// SENTRY'S JOURNAL - CRITICAL LEARNINGS ONLY:
+// Format: ## YYYY-MM-DD - [Logic] Break: [Turn skipped index 0] Fix: [Corrected modulo arithmetic]
+// ## 2024-05-23 - [UI] Break: [Active status hidden] Fix: [Changed "Active Unit" to "ACTIVE TURN"]
+
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
 import { Button } from "./ui/Button";
@@ -199,6 +203,11 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
             )}
 
             <div className="space-y-2 overflow-y-auto flex-1 pr-1 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
+                {sortedParticipants.length === 0 && (
+                    <div className="p-8 text-center border border-dashed border-white/10 rounded-lg">
+                        <p className="text-neutral-500 text-xs font-mono uppercase tracking-widest">NO ACTIVE COMBATANTS</p>
+                    </div>
+                )}
                 {sortedParticipants.map((p, index) => (
                     <div
                         key={p.id}
@@ -226,7 +235,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 )}>
                                     {p.name}
                                 </span>
-                                {p.activeTurn && <span className="text-[10px] text-agent-blue font-bold animate-pulse uppercase tracking-wider block mt-0.5">&gt;&gt; Active Unit</span>}
+                                {p.activeTurn && <span className="text-[10px] text-agent-blue font-bold animate-pulse uppercase tracking-wider block mt-0.5">&gt;&gt; ACTIVE TURN</span>}
                             </div>
                         </div>
 
