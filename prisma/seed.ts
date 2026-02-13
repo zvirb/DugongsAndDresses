@@ -1,6 +1,7 @@
 // SUMMONER'S JOURNAL - CRITICAL LEARNINGS ONLY
 // Format: ## YYYY-MM-DD - [Seed] Gap: [No Wizard avatar] Summon: [Added wizard_female.png mapping]
 // ## 2024-05-22 - [Seed] Gap: Missing Paladin/Monk archetypes and a cold-themed campaign. Summon: Added Sir Alistair, Morgana, Kael, and 'The Frozen Expanse' campaign.
+// ## 2025-02-18 - [Seed] Gap: Limited high-level intrigue campaign. Summon: Added 'The Crimson Citadel' with Lord Blackthorn and Lady Vespera.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -770,6 +771,89 @@ const campaignCharacters: CharacterTemplate[] = [
   },
 ]
 
+const citadelCharacters: CharacterTemplate[] = [
+  {
+    name: 'Lord Blackthorn',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Fighter',
+    imageUrl: '/avatars/fighter_male_1770266261627.png',
+    hp: 45,
+    maxHp: 45,
+    armorClass: 17,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 18, dex: 12, con: 16, int: 12, wis: 14, cha: 16 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Lady Vespera',
+    type: 'NPC',
+    race: 'Elf',
+    class: 'Sorcerer',
+    imageUrl: '/avatars/wizard_female_1770266180583.png',
+    hp: 30,
+    maxHp: 30,
+    armorClass: 12,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 14, con: 12, int: 14, wis: 12, cha: 18 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Pogo',
+    type: 'NPC',
+    race: 'Tiefling',
+    class: 'Bard',
+    imageUrl: '/avatars/jester_male_1770267240604.png',
+    hp: 15,
+    maxHp: 15,
+    armorClass: 13,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 16, con: 12, int: 10, wis: 8, cha: 16 },
+    activeTurn: false,
+    level: 2,
+  },
+  {
+    name: 'Sir Gideon',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Paladin',
+    imageUrl: '/avatars/fighter_male_1770266139273.png',
+    hp: 28,
+    maxHp: 28,
+    armorClass: 18,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 16, dex: 10, con: 14, int: 10, wis: 12, cha: 14 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Innkeeper Bessie',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Commoner',
+    imageUrl: '/avatars/bard_female_1770267498918.png',
+    hp: 10,
+    maxHp: 10,
+    armorClass: 10,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 10, con: 10, int: 10, wis: 14, cha: 12 },
+    activeTurn: false,
+    level: 1,
+  },
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -931,6 +1015,42 @@ async function main() {
   })
 
   console.log(`❄️ Campaign "${frozenCampaign.name}" created.`)
+
+  // Create The Crimson Citadel Campaign (Inactive)
+  const citadelCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Crimson Citadel',
+      active: false,
+      characters: {
+        create: citadelCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The iron gates of **The Crimson Citadel** loom before you.', type: 'Story' },
+          { content: '**Lord Blackthorn** watches from the high tower.', type: 'Story' },
+          { content: '**Lady Vespera** whispers arcane secrets in the shadows.', type: 'Story' },
+          { content: 'A distinct lack of hospitality greets the party.', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`🏰 Campaign "${citadelCampaign.name}" created.`)
 }
 
 main()
