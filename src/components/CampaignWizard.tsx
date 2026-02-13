@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { createCampaign, getAvailableCharacters } from '@/app/actions';
-import { parseAttributes } from '@/lib/safe-json';
+import { parseAttributes, createDefaultAttributes, ATTRIBUTE_KEYS } from '@/lib/safe-json';
+import { Attributes } from '@/lib/schemas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -18,19 +19,14 @@ interface CharacterDraft {
     armorClass: number;
     speed: number;
     initiative: number;
-    str: number;
-    dex: number;
-    con: number;
-    int: number;
-    wis: number;
-    cha: number;
+    attributes: Attributes;
     sourceId?: string; // Add sourceId for syncing
 }
 
 const defaultCharacter: CharacterDraft = {
     name: '', type: 'PLAYER', race: '', class: '', level: 1,
     hp: 10, maxHp: 10, armorClass: 10, speed: 30, initiative: 0,
-    str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10,
+    attributes: createDefaultAttributes(),
 };
 
 export default function CampaignWizard() {
@@ -83,12 +79,7 @@ export default function CampaignWizard() {
             armorClass: char.armorClass,
             speed: char.speed,
             initiative: char.initiative,
-            str: attrs.str || 10,
-            dex: attrs.dex || 10,
-            con: attrs.con || 10,
-            int: attrs.int || 10,
-            wis: attrs.wis || 10,
-            cha: attrs.cha || 10,
+            attributes: attrs,
             sourceId: char.id, // Keep the ID for syncing
         });
         setLibraryOpen(false);
@@ -102,7 +93,7 @@ export default function CampaignWizard() {
             name: c.name, type: c.type, race: c.race || undefined, class: c.class || undefined,
             level: c.level, hp: c.hp, maxHp: c.maxHp, armorClass: c.armorClass,
             speed: c.speed, initiative: c.initiative,
-            attributes: { str: c.str, dex: c.dex, con: c.con, int: c.int, wis: c.wis, cha: c.cha },
+            attributes: c.attributes,
             sourceId: c.sourceId
         }))));
         await createCampaign(formData);
@@ -248,13 +239,19 @@ export default function CampaignWizard() {
                                 </div>
                                 <h5 className="text-xs font-semibold text-neutral-400 mt-2">Ability Scores</h5>
                                 <div className="grid grid-cols-6 gap-2">
-                                    {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const).map(attr => (
+                                    {ATTRIBUTE_KEYS.map(attr => (
                                         <div key={attr}>
                                             <label className="block text-xs text-neutral-500 text-center uppercase">{attr}</label>
                                             <Input
                                                 type="number"
-                                                value={current[attr]}
-                                                onChange={e => setCurrent(p => ({ ...p, [attr]: parseInt(e.target.value) || 10 }))}
+                                                value={current.attributes[attr]}
+                                                onChange={e => {
+                                                    const val = parseInt(e.target.value) || 10;
+                                                    setCurrent(p => ({
+                                                        ...p,
+                                                        attributes: { ...p.attributes, [attr]: val }
+                                                    }));
+                                                }}
                                                 className="bg-neutral-900 border-neutral-600 text-center"
                                             />
                                         </div>

@@ -5,6 +5,8 @@ import { performSkillCheck } from '@/app/actions';
 import { secureRoll } from '@/lib/dice';
 import { calcModifier, formatModifier } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/Card';
+import { Attributes } from '@/lib/schemas';
+import { ATTRIBUTE_KEYS } from '@/lib/safe-json';
 
 const ABILITY_NAMES: Record<string, string> = {
     str: 'Strength',
@@ -17,14 +19,14 @@ const ABILITY_NAMES: Record<string, string> = {
 
 interface PlayerSkillsListProps {
     characterId: string;
-    attributes: Record<string, number>;
+    attributes: Attributes;
 }
 
 export default function PlayerSkillsList({ characterId, attributes }: PlayerSkillsListProps) {
     const [isPending, startTransition] = useTransition();
-    const [rolling, setRolling] = useState<string | null>(null);
+    const [rolling, setRolling] = useState<keyof Attributes | null>(null);
 
-    const handleRoll = (key: string) => {
+    const handleRoll = (key: keyof Attributes) => {
         if (rolling || isPending) return;
         setRolling(key);
 
@@ -49,11 +51,9 @@ export default function PlayerSkillsList({ characterId, attributes }: PlayerSkil
         }, 600);
     };
 
-    const abilityOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-
     return (
         <div className="grid grid-cols-2 gap-4">
-            {abilityOrder.map(key => {
+            {ATTRIBUTE_KEYS.map(key => {
                 const score = attributes[key] ?? 10;
                 const mod = calcModifier(score);
                 const formattedMod = formatModifier(mod);

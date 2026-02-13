@@ -10,6 +10,12 @@ import {
 // Pre-calculate default attributes for fallback
 const defaultAttributes = AttributesSchema.parse({});
 
+export const ATTRIBUTE_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const;
+
+export function createDefaultAttributes(): Attributes {
+  return { ...defaultAttributes };
+}
+
 /**
  * Safely parses a JSON string into Attributes.
  * Attempts to recover valid data if the schema doesn't match perfectly
@@ -166,9 +172,8 @@ export function stringifyConditions(data: Conditions): string {
  */
 export function extractAttributesFromFormData(formData: FormData): Attributes {
   const attributes: Record<string, number> = {};
-  const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 
-  for (const key of keys) {
+  for (const key of ATTRIBUTE_KEYS) {
     const value = formData.get(key);
     if (value) {
       const parsed = parseInt(value as string);
