@@ -112,15 +112,15 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         Dice Tray
                     </CardTitle>
                     {rollingDie !== null ? (
-                        <span className="text-sm text-agent-blue animate-pulse font-black tracking-widest drop-shadow-[0_0_10px_rgba(43,43,238,1)] uppercase bg-agent-blue/10 px-2 py-1 rounded border border-agent-blue/30">
-                            ROLLING...
+                        <span className="text-[10px] text-white bg-agent-blue animate-pulse font-black tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.8)] uppercase px-2 py-0.5 rounded-full border border-white/20">
+                            CALCULATING...
                         </span>
                     ) : lastResult ? (
                         <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                             <span className={`text-3xl font-black ${
-                                lastResult.isCrit ? 'text-green-400 drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]' :
-                                lastResult.isFumble ? 'text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]' :
-                                'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]'
+                             <span className={`text-4xl font-black italic tracking-tighter ${
+                                lastResult.isCrit ? 'text-green-400 drop-shadow-[0_0_25px_rgba(74,222,128,1)]' :
+                                lastResult.isFumble ? 'text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,1)]' :
+                                'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]'
                             }`}>
                                 {lastResult.total}
                             </span>

@@ -160,12 +160,18 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
             {/* Load Modal Overlay */}
             {showLoadModal && (
                 <div className="absolute inset-0 z-50 bg-black/95 flex items-center justify-center p-2 rounded-lg backdrop-blur-sm">
-                    <div className="bg-agent-navy/90 border border-agent-blue/30 rounded-lg w-full h-full flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <div className="p-3 border-b border-white/10 flex justify-between items-center shrink-0">
-                            <h3 className="text-xs font-bold text-agent-blue uppercase tracking-widest">Load Encounter</h3>
-                            <button onClick={() => setShowLoadModal(false)} className="text-neutral-400 hover:text-white px-2">✕</button>
+                    <div className="bg-agent-navy/95 border border-agent-blue shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-lg w-full h-full flex flex-col animate-in fade-in zoom-in duration-200 relative overflow-hidden">
+                        {/* Scanline Overlay */}
+                        <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px] opacity-20" />
+
+                        <div className="p-3 border-b border-agent-blue/30 flex justify-between items-center shrink-0 relative z-10 bg-agent-navy">
+                            <h3 className="text-xs font-bold text-agent-blue uppercase tracking-widest flex items-center gap-2">
+                                <span className="w-2 h-2 bg-agent-blue rounded-full animate-pulse" />
+                                Load Encounter
+                            </h3>
+                            <button onClick={() => setShowLoadModal(false)} className="text-neutral-400 hover:text-white px-2 hover:bg-white/10 rounded transition-colors">✕</button>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 relative z-10">
                             {loadingEncounters ? (
                                 <p className="text-xs text-neutral-500 text-center p-4 animate-pulse">Scanning archives...</p>
                             ) : encounters.length === 0 ? (
@@ -204,8 +210,8 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
 
             <div className="space-y-2 overflow-y-auto flex-1 pr-1 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
                 {sortedParticipants.length === 0 && (
-                    <div className="p-8 text-center border border-dashed border-white/10 rounded-lg">
-                        <p className="text-neutral-500 text-xs font-mono uppercase tracking-widest">NO ACTIVE COMBATANTS</p>
+                    <div className="p-8 text-center border-2 border-dashed border-agent-blue/30 bg-agent-blue/5 rounded-lg animate-pulse">
+                        <p className="text-agent-blue/50 text-xs font-bold font-mono uppercase tracking-[0.2em]">NO ACTIVE COMBATANTS</p>
                     </div>
                 )}
                 {sortedParticipants.map((p, index) => (
@@ -214,7 +220,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         className={cn(
                             "p-3 rounded-lg flex justify-between items-center border-l-4 transition-all duration-300 relative overflow-hidden",
                             p.activeTurn
-                                ? 'bg-agent-navy border-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.6)] scale-[1.02] ring-1 ring-agent-blue/50 z-10'
+                                ? 'bg-agent-navy border-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.4)] scale-[1.02] ring-1 ring-agent-blue/50 z-10'
                                 : 'bg-black/20 border-white/10 hover:bg-white/5 hover:border-white/30'
                         )}
                     >

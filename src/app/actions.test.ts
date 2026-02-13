@@ -85,7 +85,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-123',
-        content: expect.stringContaining('The world of **Test Campaign** is born.'),
+        content: expect.stringContaining('The world of **Test Campaign** manifests.'),
         type: 'Story',
       },
     });
