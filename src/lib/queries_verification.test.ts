@@ -5,6 +5,11 @@ vi.mock('react', () => ({
   cache: (fn: any) => fn,
 }));
 
+// Mock next/cache
+vi.mock('next/cache', () => ({
+  unstable_cache: (fn: any) => fn,
+}));
+
 import { getPlayerDashboard, getPlayerSkills, getPlayerInventory, getActiveCampaign, getCampaignPulse } from './queries';
 import { prisma } from './prisma';
 
