@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 
 /**
@@ -6,6 +7,8 @@ import { prisma } from "./prisma";
  *
  * ## 2025-02-18 - [getPublicCampaign] Slow: [Potential repeated reads] Sight: [Added React cache, Standardized Select: PUBLIC_CHAR_SELECT]
  * ## 2025-02-18 - [getPlayerDashboard] Slow: [Missing conditions, potential heavy logs] Sight: [Added conditions, Standardized Select: PLAYER_DASHBOARD_SELECT]
+ * ## 2025-05-25 - [getPublicCampaign] Slow: [AutoRefresh polling] Sight: [Wrapped in unstable_cache to deduplicate across requests]
+ * ## 2025-05-25 - [getPlayerDashboard] Slow: [Player polling] Sight: [Wrapped in unstable_cache for protection]
  */
 
 // Reusable select constants for consistency and optimization
@@ -141,21 +144,26 @@ export async function getActiveCampaign() {
 
 /**
  * Fetches active campaign data for public display, filtering for PLAYER characters.
+ * Cached with unstable_cache for polling performance (revalidate: 1s).
  */
-export const getPublicCampaign = cache(async function getPublicCampaign() {
-  return prisma.campaign.findFirst({
-    where: { active: true },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      name: true,
-      characters: {
-        where: { type: 'PLAYER' },
-        orderBy: { name: 'asc' },
-        select: PUBLIC_CHAR_SELECT
+export const getPublicCampaign = unstable_cache(
+  async function getPublicCampaign() {
+    return prisma.campaign.findFirst({
+      where: { active: true },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        name: true,
+        characters: {
+          where: { type: 'PLAYER' },
+          orderBy: { name: 'asc' },
+          select: PUBLIC_CHAR_SELECT
+        }
       }
-    }
-  });
-});
+    });
+  },
+  ['public-campaign'],
+  { revalidate: 1, tags: ['public-campaign'] }
+);
 
 /**
  * Optimized fetch for polling updates.
@@ -184,35 +192,40 @@ export async function getCampaignPulse(campaignId: string) {
  * Optimized fetch for the Player Dashboard (Status Page).
  * Selects only fields needed for the main view + logs.
  * Excludes heavy JSON fields (attributes, inventory).
+ * Cached with unstable_cache for polling performance (revalidate: 1s).
  */
-export const getPlayerDashboard = cache(async function getPlayerDashboard(id: string) {
-  const character = await prisma.character.findUnique({
-    where: { id },
-    select: {
-      ...PLAYER_DASHBOARD_SELECT,
-      campaign: {
-        select: {
-          logs: {
-            take: 10,
-            orderBy: { timestamp: 'desc' },
-            select: {
-              id: true,
-              content: true,
-              timestamp: true
+export const getPlayerDashboard = unstable_cache(
+  async function getPlayerDashboard(id: string) {
+    const character = await prisma.character.findUnique({
+      where: { id },
+      select: {
+        ...PLAYER_DASHBOARD_SELECT,
+        campaign: {
+          select: {
+            logs: {
+              take: 10,
+              orderBy: { timestamp: 'desc' },
+              select: {
+                id: true,
+                content: true,
+                timestamp: true
+              }
             }
           }
         }
       }
-    }
-  });
+    });
 
-  if (!character) return null;
+    if (!character) return null;
 
-  const { campaign, ...charData } = character;
-  // Although campaign is required by schema, we safely access logs just in case
-  const logs = campaign?.logs || [];
-  return { ...charData, logs };
-});
+    const { campaign, ...charData } = character;
+    // Although campaign is required by schema, we safely access logs just in case
+    const logs = campaign?.logs || [];
+    return { ...charData, logs };
+  },
+  ['player-dashboard'],
+  { revalidate: 1, tags: ['player-dashboard'] }
+);
 
 /**
  * Optimized fetch for the Skills Page.
