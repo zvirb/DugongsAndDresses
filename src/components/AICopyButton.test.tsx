@@ -70,19 +70,19 @@ describe('AICopyButton', () => {
 
     // Instructions Content
     expect(copiedText).toContain("Role: Dungeon Master's Narrator")
-    expect(copiedText).toContain('Truth: Strict adherence to logs. Do NOT invent rolls or outcomes not listed.')
+    expect(copiedText).toContain('Truth: Strict adherence to logs. Do NOT invent rolls, outcomes, or dialogue not in logs.')
 
     // Initiative
     expect(copiedText).toContain('▶ ACTIVE: Grom (Init: 15)')
     expect(copiedText).toContain('  Goblin (Init: 8)')
     
     // Characters
-    // Check Grom: ▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 AC:14 Spd:30 Init:15 | Cond:Healthy | STR:18 DEX:12 ...
+    // Check Grom: ▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 AC:14 Spd:30 Init:15 PP:10 | Cond:Healthy | STR:18 DEX:12 ...
     // Note: Default attributes are added by parseAttributes
-    expect(copiedText).toContain('▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 AC:14 Spd:30 Init:15 | Cond:Healthy | STR:18 DEX:12 CON:10 INT:10 WIS:10 CHA:10 | Inv:[Greataxe, Potion]')
+    expect(copiedText).toContain('▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 AC:14 Spd:30 Init:15 PP:10 | Cond:Healthy | STR:18 DEX:12 CON:10 INT:10 WIS:10 CHA:10 | Inv:[Greataxe, Potion]')
     
-    // Check Goblin: Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 AC:12 Init:8 | Cond:Healthy
-    expect(copiedText).toContain('Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 AC:12 Init:8 | Cond:Healthy | STR:10 DEX:10 CON:10 INT:10 WIS:10 CHA:10')
+    // Check Goblin: Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 AC:12 Init:8 PP:10 | Cond:Healthy
+    expect(copiedText).toContain('Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 AC:12 Init:8 PP:10 | Cond:Healthy | STR:10 DEX:10 CON:10 INT:10 WIS:10 CHA:10')
 
     // Logs
     // Should NOT contain 'Secret Note'
@@ -103,5 +103,30 @@ describe('AICopyButton', () => {
     await waitFor(() => {
       expect(screen.getByText('Copied Context!')).toBeInTheDocument()
     })
+  })
+
+  it('handles uppercase attributes correctly for Passive Perception', async () => {
+    const uppercaseChar = {
+        id: '1', name: 'Grom', hp: 20, maxHp: 25, type: 'PLAYER', conditions: '[]',
+        armorClass: 14, level: 3, class: 'Barbarian', race: 'Orc',
+        attributes: JSON.stringify({ STR: 18, DEX: 12, CON: 10, INT: 10, WIS: 18, CHA: 10 }), // Uppercase WIS 18 -> PP 14
+        speed: 30,
+        inventory: '[]',
+        activeTurn: true,
+        initiativeRoll: 15
+    } as unknown as Character
+    const oneCharLogs: LogEntry[] = []
+    const oneCharTurn: any[] = [{ name: 'Grom', init: 15, current: true }]
+
+    render(<AICopyButton logs={oneCharLogs} characters={[uppercaseChar]} turnOrder={oneCharTurn} />)
+
+    fireEvent.click(screen.getByText('Copy AI Context'))
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalled()
+    })
+
+    const copiedText = vi.mocked(navigator.clipboard.writeText).mock.calls[0][0]
+    expect(copiedText).toContain('PP:14')
   })
 })
