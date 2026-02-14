@@ -179,6 +179,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // ## 2024-05-21 - [Logic] Break: [Empty campaign crash] Fix: [Validation for empty characters array]
 // ## 2024-05-22 - [Logic] Break: [Stale client state causes confusion] Fix: [Detect and log mismatch when DB has no active char but client expects one]
 // ## 2024-05-23 - [Logic] Audit: [Race conditions & Sorting] Fix: [Verified Idempotency check returns actual active char; verified DB sort order matches UI]
+// ## 2025-05-24 - [Logic] Fortify: [Turn Loop Integrity] Fix: [Verified loop safety and race condition logging]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {

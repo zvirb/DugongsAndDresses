@@ -38,13 +38,13 @@ describe('TurnTracker', () => {
 
   it('highlights the active participant', () => {
     render(<TurnTracker initialParticipants={participants} campaignId={campaignId} />)
-    expect(screen.getByText('>> Active Unit')).toBeInTheDocument()
+    expect(screen.getByText('>> ACTIVE TURN <<')).toBeInTheDocument()
     // Grom is the one with activeTurn: true in the mock data
     // The structure has changed, so checking nextSibling might not work directly if there are wrapper divs.
     // Instead, we can check if "Active Unit" is near "Grom".
     const gromElement = screen.getByText('Grom')
     const container = gromElement.closest('div')?.parentElement
-    expect(container).toHaveTextContent('>> Active Unit')
+    expect(container).toHaveTextContent('>> ACTIVE TURN <<')
   })
 
   it('calls advanceTurn with current active ID when Next Turn is clicked', async () => {

@@ -3,6 +3,7 @@
 // SENTRY'S JOURNAL - CRITICAL LEARNINGS ONLY:
 // Format: ## YYYY-MM-DD - [Logic] Break: [Turn skipped index 0] Fix: [Corrected modulo arithmetic]
 // ## 2024-05-23 - [UI] Break: [Active status hidden] Fix: [Changed "Active Unit" to "ACTIVE TURN"]
+// ## 2025-05-24 - [Logic] Break: [Empty list race condition] Fix: [Guard clause for 0 participants]
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
@@ -29,6 +30,8 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     }, [initialParticipants]);
 
     const handleNextTurn = () => {
+        if (sortedParticipants.length === 0) return;
+
         // Find current active participant ID for optimistic concurrency check
         const currentActive = sortedParticipants.find(p => p.activeTurn);
 
@@ -241,7 +244,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 )}>
                                     {p.name}
                                 </span>
-                                {p.activeTurn && <span className="text-[10px] text-agent-blue font-bold animate-pulse uppercase tracking-wider block mt-0.5">&gt;&gt; ACTIVE TURN</span>}
+                                {p.activeTurn && <span className="text-xs text-agent-blue font-black animate-pulse uppercase tracking-[0.2em] block mt-1 drop-shadow-[0_0_5px_rgba(43,43,238,0.8)]">&gt;&gt; ACTIVE TURN &lt;&lt;</span>}
                             </div>
                         </div>
 
