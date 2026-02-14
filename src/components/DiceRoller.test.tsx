@@ -118,8 +118,8 @@ describe('DiceRoller', () => {
     const d20Button = screen.getByText('d20')
     fireEvent.click(d20Button)
 
-    // Should show "ROLLING..." immediately in header
-    expect(screen.getByText('ROLLING...')).toBeInTheDocument()
+    // Should show "CALCULATING..." immediately in header
+    expect(screen.getByText('CALCULATING...')).toBeInTheDocument()
 
     // All buttons should be disabled
     const d4Button = screen.getByText('d4')
@@ -133,8 +133,8 @@ describe('DiceRoller', () => {
       expect(actions.logAction).toHaveBeenCalled()
     })
 
-    // After roll, "ROLLING..." should be gone and buttons enabled
-    expect(screen.queryByText('ROLLING...')).not.toBeInTheDocument()
+    // After roll, "CALCULATING..." should be gone and buttons enabled
+    expect(screen.queryByText('CALCULATING...')).not.toBeInTheDocument()
     expect(screen.getByText('d20')).not.toBeDisabled()
   })
 
@@ -147,13 +147,13 @@ describe('DiceRoller', () => {
     const d20Button = screen.getByText('d20')
     fireEvent.click(d20Button)
 
-    // Should show "ROLLING..." immediately
-    expect(screen.getByText('ROLLING...')).toBeInTheDocument()
+    // Should show "CALCULATING..." immediately
+    expect(screen.getByText('CALCULATING...')).toBeInTheDocument()
     expect(d20Button).toBeDisabled()
 
     // Wait for the async action to complete (and fail)
     await waitFor(() => {
-      expect(screen.queryByText('ROLLING...')).not.toBeInTheDocument()
+      expect(screen.queryByText('CALCULATING...')).not.toBeInTheDocument()
     })
 
     // Buttons should be enabled again

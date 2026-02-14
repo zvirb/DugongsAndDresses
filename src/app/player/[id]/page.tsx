@@ -1,3 +1,9 @@
+// SCOUT'S JOURNAL - CRITICAL LEARNINGS ONLY
+// Format: ## YYYY-MM-DD - [Interaction] Fumble: [Button too small] Path: [Increased padding to p-4]
+// ## 2024-05-24 - [ActionForm] Thumb Zone: [Quick Actions too small for thumb] Path: [Increased padding to p-4, text to text-base, added active states]
+// ## 2024-05-24 - [HPControls] Legibility: [Numbers hard to read in heat of moment] Path: [Increased to text-4xl/text-3xl]
+// ## 2024-05-24 - [DiceRoller] Readability: [Mode toggles squint-inducing] Path: [Bumped to text-sm, increased container padding]
+
 import { getPlayerDashboard } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import PlayerHPControls from "@/components/PlayerHPControls";
