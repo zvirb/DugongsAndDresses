@@ -119,7 +119,7 @@ describe('DiceRoller', () => {
     fireEvent.click(d20Button)
 
     // Should show "CALCULATING..." immediately in header
-    expect(screen.getByText('CALCULATING...')).toBeInTheDocument()
+    expect(screen.getByText('ROLLING d20...')).toBeInTheDocument()
 
     // All buttons should be disabled
     const d4Button = screen.getByText('d4')
@@ -134,7 +134,7 @@ describe('DiceRoller', () => {
     })
 
     // After roll, "CALCULATING..." should be gone and buttons enabled
-    expect(screen.queryByText('CALCULATING...')).not.toBeInTheDocument()
+    expect(screen.queryByText('ROLLING d20...')).not.toBeInTheDocument()
     expect(screen.getByText('d20')).not.toBeDisabled()
   })
 
@@ -148,12 +148,12 @@ describe('DiceRoller', () => {
     fireEvent.click(d20Button)
 
     // Should show "CALCULATING..." immediately
-    expect(screen.getByText('CALCULATING...')).toBeInTheDocument()
+    expect(screen.getByText('ROLLING d20...')).toBeInTheDocument()
     expect(d20Button).toBeDisabled()
 
     // Wait for the async action to complete (and fail)
     await waitFor(() => {
-      expect(screen.queryByText('CALCULATING...')).not.toBeInTheDocument()
+      expect(screen.queryByText('ROLLING d20...')).not.toBeInTheDocument()
     })
 
     // Buttons should be enabled again
@@ -169,7 +169,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/\[ADVANTAGE\] \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
+        expect.stringMatching(/\[ADVANTAGE\] \(Rolled: \*\*\d+\*\*, \*\*\d+\*\*\)/),
         'Roll'
       )
     })
@@ -184,7 +184,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/\[DISADVANTAGE\] \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
+        expect.stringMatching(/\[DISADVANTAGE\] \(Rolled: \*\*\d+\*\*, \*\*\d+\*\*\)/),
         'Roll'
       )
     })
@@ -254,7 +254,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\*\. \[ADVANTAGE\] \(Rolls: \*\*20\*\*, \*\*15\*\*\)/), // New format
+          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\*\. \[ADVANTAGE\] \(Rolled: \*\*20\*\*, \*\*15\*\*\)/), // New format
           'Roll'
         )
     })
