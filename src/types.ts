@@ -3,6 +3,7 @@
 // ## 2024-05-24 - [Schema] Mess: [Duplicate interface definitions across components] Tidy: [Centralized types in src/types.ts]
 // ## 2024-05-24 - [Schema] Mess: [Unsafe JSON.parse in actions] Tidy: [Enforced safe-json helpers]
 // ## 2024-05-24 - [Schema] Mess: [Inconsistent Attribute Keys] Tidy: [Standardized to 3-letter codes with Zod migration]
+// ## 2024-05-25 - [Schema] Mess: [Inconsistent form data parsing] Tidy: [Standardized to CharacterFormSchema and safe Zod preprocessing]
 
 import { Character, LogEntry, Campaign, Encounter, Settings } from '@prisma/client';
 import { Attributes, Conditions, Inventory, Participant, Participants } from '@/lib/schemas';

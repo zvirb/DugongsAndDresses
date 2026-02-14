@@ -13,34 +13,31 @@ const attributeMappings: Record<string, string> = {
 // e.g. { str: 10, dex: 12, speed: 30 }
 export const AttributesSchema = z.preprocess((val) => {
   if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
-    const newVal: Record<string, any> = { ...val };
-    for (const key of Object.keys(newVal)) {
+    const newVal: Record<string, any> = {};
+    const entries = Object.entries(val as Record<string, any>);
+
+    for (const [key, value] of entries) {
        let currentKey = key;
-       let value = newVal[key];
+       let currentValue = value;
 
        // Migration
        if (Object.prototype.hasOwnProperty.call(attributeMappings, key)) {
          currentKey = attributeMappings[key];
-         newVal[currentKey] = value;
-         delete newVal[key];
        }
-
-       // Re-read value in case it moved
-       value = newVal[currentKey];
 
        // Coercion & Cleanup
-       if (typeof value === 'string') {
-         const num = parseFloat(value);
+       if (typeof currentValue === 'string') {
+         const num = parseFloat(currentValue);
          if (!isNaN(num)) {
-           newVal[currentKey] = num;
+           currentValue = num;
          } else {
-           // Invalid string for number, remove it to prevent validation failure
-           delete newVal[currentKey];
+           continue; // Skip invalid strings
          }
-       } else if (typeof value !== 'number') {
-           // Remove non-number/non-string values
-           delete newVal[currentKey];
+       } else if (typeof currentValue !== 'number') {
+           continue; // Skip non-number/non-string values
        }
+
+       newVal[currentKey] = currentValue;
     }
     return newVal;
   }
@@ -98,3 +95,20 @@ export const CharacterInputSchema = z.object({
 });
 
 export type CharacterInput = z.infer<typeof CharacterInputSchema>;
+
+// Schema for form data (handles string -> number coercion)
+export const CharacterFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  type: z.string().default("PLAYER"),
+  race: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
+  class: z.preprocess((val) => val === "" ? null : val, z.string().nullable().optional()),
+  level: z.coerce.number().int().default(1),
+  hp: z.coerce.number().int().default(10),
+  maxHp: z.coerce.number().int().default(10),
+  armorClass: z.coerce.number().int().default(10),
+  speed: z.coerce.number().int().default(30),
+  initiative: z.coerce.number().int().default(0),
+  sourceId: z.string().optional().nullable(),
+});
+
+export type CharacterForm = z.infer<typeof CharacterFormSchema>;

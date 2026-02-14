@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
-import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs } from "@/lib/safe-json";
+import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs, parseCharacterForm, createDefaultAttributes } from "@/lib/safe-json";
 import { mkdir } from 'fs/promises';
 import { createWriteStream } from 'fs';
 import { Readable } from 'stream';
@@ -348,24 +348,27 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult> {
 export async function createCharacter(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCharacter", async () => {
         const campaignId = formData.get("campaignId") as string;
-        const name = formData.get("name") as string;
-        if (!campaignId || !name) throw new Error("Campaign ID and name are required");
+        if (!campaignId) throw new Error("Campaign ID is required");
+
+        const charData = parseCharacterForm(formData, false);
+        if (!charData.name) throw new Error("Character name is required");
 
         const character = await prisma.character.create({
             data: {
                 campaignId,
-                name: name.trim(),
-                type: (formData.get("type") as string) || "PLAYER",
-                race: (formData.get("race") as string) || null,
-                class: (formData.get("class") as string) || null,
-                level: parseInt(formData.get("level") as string) || 1,
-                hp: parseInt(formData.get("hp") as string) || 10,
-                maxHp: parseInt(formData.get("maxHp") as string) || 10,
-                armorClass: parseInt(formData.get("armorClass") as string) || 10,
-                speed: parseInt(formData.get("speed") as string) || 30,
-                initiative: parseInt(formData.get("initiative") as string) || 0,
-                attributes: stringifyAttributes(extractAttributesFromFormData(formData)),
+                name: charData.name,
+                type: charData.type || "PLAYER",
+                race: charData.race || null,
+                class: charData.class || null,
+                level: charData.level || 1,
+                hp: charData.hp || 10,
+                maxHp: charData.maxHp || 10,
+                armorClass: charData.armorClass || 10,
+                speed: charData.speed || 30,
+                initiative: charData.initiative || 0,
+                attributes: stringifyAttributes(charData.attributes || createDefaultAttributes()),
                 initiativeRoll: 0,
+                sourceId: charData.sourceId || null
             }
         });
 
@@ -382,25 +385,22 @@ export async function updateCharacter(characterId: string, formData: FormData): 
     return actionWrapper("updateCharacter", async () => {
         if (!characterId) throw new Error("Character ID is required");
 
-        const nameVal = formData.get("name") as string;
-        const typeVal = formData.get("type") as string;
-        const raceVal = formData.get("race") as string;
-        const classVal = formData.get("class") as string;
+        const charData = parseCharacterForm(formData, true);
 
         const character = await prisma.character.update({
             where: { id: characterId },
             data: {
-                name: nameVal || undefined,
-                type: typeVal || undefined,
-                race: raceVal !== null ? (raceVal.trim() || null) : undefined,
-                class: classVal !== null ? (classVal.trim() || null) : undefined,
-                level: formData.get("level") ? parseInt(formData.get("level") as string) : undefined,
-                hp: formData.get("hp") ? parseInt(formData.get("hp") as string) : undefined,
-                maxHp: formData.get("maxHp") ? parseInt(formData.get("maxHp") as string) : undefined,
-                armorClass: formData.get("armorClass") ? parseInt(formData.get("armorClass") as string) : undefined,
-                speed: formData.get("speed") ? parseInt(formData.get("speed") as string) : undefined,
-                initiative: formData.get("initiative") ? parseInt(formData.get("initiative") as string) : undefined,
-                attributes: formData.get("str") ? stringifyAttributes(extractAttributesFromFormData(formData)) : undefined,
+                name: charData.name,
+                type: charData.type,
+                race: charData.race,
+                class: charData.class,
+                level: charData.level,
+                hp: charData.hp,
+                maxHp: charData.maxHp,
+                armorClass: charData.armorClass,
+                speed: charData.speed,
+                initiative: charData.initiative,
+                attributes: charData.attributes ? stringifyAttributes(charData.attributes) : undefined,
             }
         });
 
