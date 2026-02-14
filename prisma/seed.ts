@@ -2,6 +2,7 @@
 // Format: ## YYYY-MM-DD - [Seed] Gap: [No Wizard avatar] Summon: [Added wizard_female.png mapping]
 // ## 2024-05-22 - [Seed] Gap: Missing Paladin/Monk archetypes and a cold-themed campaign. Summon: Added Sir Alistair, Morgana, Kael, and 'The Frozen Expanse' campaign.
 // ## 2025-02-18 - [Seed] Gap: Limited high-level intrigue campaign. Summon: Added 'The Crimson Citadel' with Lord Blackthorn and Lady Vespera.
+// ## 2025-05-23 - [Seed] Gap: No aquatic themed campaign. Summon: Added 'The Sunken City' with Captain Saltbeard and Marina.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -854,6 +855,73 @@ const citadelCharacters: CharacterTemplate[] = [
   },
 ]
 
+const sunkenCityCharacters: CharacterTemplate[] = [
+  {
+    name: 'Captain Saltbeard',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Pirate',
+    imageUrl: '/avatars/fighter_male_1770266290109.png',
+    hp: 40,
+    maxHp: 40,
+    armorClass: 15,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 16, dex: 14, con: 16, int: 12, wis: 14, cha: 16 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Marina the Mystic',
+    type: 'PLAYER',
+    race: 'Water Genasi',
+    class: 'Sorcerer',
+    imageUrl: '/avatars/nymph_female_1770267925456.png',
+    hp: 25,
+    maxHp: 25,
+    armorClass: 13,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 14, con: 14, int: 12, wis: 14, cha: 18 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Deep Sea Diver',
+    type: 'NPC',
+    race: 'Dwarf',
+    class: 'Artificer',
+    imageUrl: '/avatars/dwarf_fighter_male_1770268439402.png',
+    hp: 35,
+    maxHp: 35,
+    armorClass: 16,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 14, dex: 12, con: 16, int: 16, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Siren',
+    type: 'NPC',
+    race: 'Siren',
+    class: 'Bard',
+    imageUrl: '/avatars/elf_female_1770267651052.png',
+    hp: 20,
+    maxHp: 20,
+    armorClass: 12,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 16, con: 12, int: 12, wis: 14, cha: 18 },
+    activeTurn: false,
+    level: 3,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -1051,6 +1119,41 @@ async function main() {
   })
 
   console.log(`🏰 Campaign "${citadelCampaign.name}" created.`)
+
+  // Create The Sunken City Campaign (Inactive)
+  const sunkenCityCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Sunken City',
+      active: false,
+      characters: {
+        create: sunkenCityCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The waves crash against the hull of the **Sea Serpent**.', type: 'Story' },
+          { content: '**Captain Saltbeard** barks orders at the crew.', type: 'Story' },
+          { content: 'A beautiful song drifts from the rocky shoals...', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`🌊 Campaign "${sunkenCityCampaign.name}" created.`)
 }
 
 main()
