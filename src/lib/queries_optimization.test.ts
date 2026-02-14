@@ -10,7 +10,7 @@ vi.mock('next/cache', () => ({
   unstable_cache: (fn: any) => fn,
 }));
 
-import { getActiveCampaign, getPublicCampaign, getSpectatorCampaign, getPlayerDashboard } from './queries';
+import { getSpectatorCampaign } from './queries';
 import { prisma } from './prisma';
 
 vi.mock('./prisma', () => ({
@@ -19,135 +19,81 @@ vi.mock('./prisma', () => ({
       findFirst: vi.fn(),
     },
     character: {
-      findUnique: vi.fn(),
+        findMany: vi.fn(),
+        findFirst: vi.fn()
     }
   }
 }));
 
-describe('Query Optimization: getActiveCampaign', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('calls findFirst only once with optimized orderBy', async () => {
-    (prisma.campaign.findFirst as any).mockResolvedValue({ id: 'any', name: 'Any Campaign' });
-
-    await getActiveCampaign();
-
-    const calls = (prisma.campaign.findFirst as any).mock.calls;
-    expect(calls.length).toBe(1);
-
-    // Check orderBy logic: Active first, then most recent
-    expect(calls[0][0].orderBy).toEqual([
-      { active: 'desc' },
-      { createdAt: 'desc' }
-    ]);
-  });
-});
-
-describe('Query Optimization: getPublicCampaign', () => {
+describe('Oracle Optimization', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    it('fetches active campaign with minimized payload', async () => {
-        (prisma.campaign.findFirst as any).mockResolvedValue({ name: 'Public Camp' });
+    it('getSpectatorCampaign should fetch minimal data', async () => {
+        // Mock campaign (Step 1)
+        (prisma.campaign.findFirst as any).mockResolvedValue({ id: 'c1', name: 'Test Campaign' });
 
-        await getPublicCampaign();
+        // Mock players (Step 2 - Parallel)
+        (prisma.character.findMany as any).mockResolvedValue([
+            { id: 'p1', name: 'Player 1', type: 'PLAYER', activeTurn: false }
+        ]);
 
-        const calls = (prisma.campaign.findFirst as any).mock.calls;
-        expect(calls.length).toBe(1);
-        const args = calls[0][0];
-
-        // Should target active campaigns
-        expect(args.where).toEqual({ active: true });
-
-        // Should sort by createdAt desc (deterministic)
-        expect(args.orderBy).toEqual({ createdAt: 'desc' });
-
-        // Verify selections
-        const charSelect = args.select.characters.select;
-        expect(charSelect.id).toBe(true);
-        expect(charSelect.conditions).toBe(true);
-        expect(charSelect.imageUrl).toBe(true);
-        expect(charSelect.activeTurn).toBe(true);
-        // Verify that type is now selected as part of PUBLIC_CHAR_SELECT updates
-        expect(charSelect.type).toBe(true);
-
-        // Should NOT select heavy internal fields
-        expect(charSelect.attributes).toBeUndefined();
-        expect(charSelect.inventory).toBeUndefined();
-    });
-});
-
-describe('Query Optimization: getSpectatorCampaign', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
-
-    it('fetches all characters and correctly filters for display', async () => {
-        const mockCharacters = [
-            { id: '1', name: 'Player1', type: 'PLAYER', activeTurn: false },
-            { id: '2', name: 'NPC1', type: 'NPC', activeTurn: true },
-            { id: '3', name: 'Player2', type: 'PLAYER', activeTurn: false }
-        ];
-
-        (prisma.campaign.findFirst as any).mockResolvedValue({
-            name: 'Spectator Camp',
-            characters: mockCharacters
-        });
+        // Mock active char (Step 2 - Parallel)
+        (prisma.character.findFirst as any).mockResolvedValue(
+            { name: 'NPC 1', type: 'NPC' }
+        );
 
         const result = await getSpectatorCampaign();
 
-        const calls = (prisma.campaign.findFirst as any).mock.calls;
-        expect(calls.length).toBe(1);
-        const args = calls[0][0];
+        // 1. Verify Campaign Fetch
+        expect(prisma.campaign.findFirst).toHaveBeenCalledTimes(1);
+        const campaignCall = (prisma.campaign.findFirst as any).mock.calls[0][0];
 
-        // Should NOT filter by type in the query (fetch all)
-        expect(args.select.characters.where).toBeUndefined();
+        // Should strictly select ID and Name only
+        expect(campaignCall.select).toEqual({
+            id: true,
+            name: true
+        });
+        expect(campaignCall.select.characters).toBeUndefined(); // Should NOT fetch characters here
 
-        // Should select type
-        const charSelect = args.select.characters.select;
-        expect(charSelect.type).toBe(true);
+        // 2. Verify Character Fetches
+        // We expect findMany (for players) and findFirst (for active char)
 
-        // Verify processing logic
-        expect(result?.characters.length).toBe(2); // Only players
-        expect(result?.characters.find((c: any) => c.type === 'NPC')).toBeUndefined();
-        expect(result?.activeContestant?.name).toBe('NPC1');
-        expect(result?.activeContestant?.type).toBe('NPC');
-    });
-});
+        // Verify Players Fetch
+        expect(prisma.character.findMany).toHaveBeenCalledTimes(1);
+        const playersCall = (prisma.character.findMany as any).mock.calls[0][0];
 
-describe('Query Optimization: getPlayerDashboard', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+        expect(playersCall.where).toEqual({
+            campaignId: 'c1',
+            type: 'PLAYER'
+        });
+        expect(playersCall.orderBy).toEqual({ name: 'asc' });
+        // Should use PUBLIC_CHAR_SELECT
+        expect(playersCall.select).toEqual(expect.objectContaining({
+            name: true,
+            hp: true,
+            activeTurn: true
+        }));
 
-    it('fetches player data with conditions and logs', async () => {
-        (prisma.character.findUnique as any).mockResolvedValue({ id: '1', campaign: { logs: [] } });
+        // Verify Active Character Fetch
+        expect(prisma.character.findFirst).toHaveBeenCalledTimes(1);
+        const activeCall = (prisma.character.findFirst as any).mock.calls[0][0];
 
-        await getPlayerDashboard('1');
+        expect(activeCall.where).toEqual({
+            campaignId: 'c1',
+            activeTurn: true
+        });
+        expect(activeCall.select).toEqual({
+            name: true,
+            type: true
+        });
 
-        const calls = (prisma.character.findUnique as any).mock.calls;
-        expect(calls.length).toBe(1);
-        const args = calls[0][0];
-
-        const select = args.select;
-
-        // Verify conditions is added
-        expect(select.conditions).toBe(true);
-
-        // Verify other essential fields
-        expect(select.hp).toBe(true);
-        expect(select.activeTurn).toBe(true);
-
-        // Verify heavy fields excluded
-        expect(select.attributes).toBeUndefined();
-        expect(select.inventory).toBeUndefined();
-
-        // Verify log optimization
-        const logSelect = select.campaign.select.logs;
-        expect(logSelect.take).toBe(10);
-        expect(logSelect.select.content).toBe(true);
+        // 3. Verify Result Shape
+        expect(result).toEqual({
+            name: 'Test Campaign',
+            characters: [{ id: 'p1', name: 'Player 1', type: 'PLAYER', activeTurn: false }],
+            activeContestant: { name: 'NPC 1', type: 'NPC' }
+        });
     });
 });

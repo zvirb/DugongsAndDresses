@@ -9,7 +9,7 @@ import { prisma } from "./prisma";
  * ## 2025-02-18 - [getPlayerDashboard] Slow: [Missing conditions, potential heavy logs] Sight: [Added conditions, Standardized Select: PLAYER_DASHBOARD_SELECT]
  * ## 2025-05-25 - [getPublicCampaign] Slow: [AutoRefresh polling] Sight: [Wrapped in unstable_cache to deduplicate across requests]
  * ## 2025-05-25 - [getPlayerDashboard] Slow: [Player polling] Sight: [Wrapped in unstable_cache for protection]
- * ## 2025-05-25 - [getSpectatorCampaign] Slow: [Spectator polling] Sight: [Separated active contestant logic for safe public display]
+ * ## 2025-05-25 - [getSpectatorCampaign] Slow: [Fetched all characters] Sight: [Split into Players/Active queries]
  */
 
 // Reusable select constants for consistency and optimization
@@ -178,23 +178,29 @@ export const getSpectatorCampaign = unstable_cache(
       where: { active: true },
       orderBy: { createdAt: 'desc' },
       select: {
-        name: true,
-        characters: {
-          orderBy: { name: 'asc' },
-          select: PUBLIC_CHAR_SELECT
-        }
+        id: true,
+        name: true
       }
     });
 
     if (!campaign) return null;
 
-    const activeContestant = campaign.characters.find(c => c.activeTurn);
-    const players = campaign.characters.filter(c => c.type === 'PLAYER');
+    const [players, activeContestant] = await Promise.all([
+      prisma.character.findMany({
+        where: { campaignId: campaign.id, type: 'PLAYER' },
+        orderBy: { name: 'asc' },
+        select: PUBLIC_CHAR_SELECT
+      }),
+      prisma.character.findFirst({
+        where: { campaignId: campaign.id, activeTurn: true },
+        select: { name: true, type: true }
+      })
+    ]);
 
     return {
       name: campaign.name,
       characters: players,
-      activeContestant: activeContestant ? { name: activeContestant.name, type: activeContestant.type } : null
+      activeContestant: activeContestant
     };
   },
   ['spectator-campaign'],
