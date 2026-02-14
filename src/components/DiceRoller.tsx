@@ -4,6 +4,7 @@
 // Format: ## YYYY-MM-DD - [Dice] Glitch: [Double click caused double log] Fix: [Added isRolling state]
 // ## 2024-05-24 - [Dice] Transparency: [Hiding numbers in Crit/Miss logs] Fix: [Added explicit roll numbers to log]
 // ## 2024-05-24 - [Dice] Feedback: [Hiding numbers in UI for Crit/Miss] Fix: [Always show number, moved status to badge]
+// ## 2025-05-25 - [Dice] Feedback: [Vague "CALCULATING..." message] Fix: [Changed to "ROLLING dX..." for specificity]
 
 import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
@@ -57,10 +58,10 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 rolls.push(roll2);
                 if (mode === 'ADVANTAGE') {
                     result = Math.max(roll1, roll2);
-                    details = ` [ADVANTAGE] (Rolls: **${roll1}**, **${roll2}**)`;
+                    details = ` [ADVANTAGE] (Rolled: **${roll1}**, **${roll2}**)`;
                 } else {
                     result = Math.min(roll1, roll2);
-                    details = ` [DISADVANTAGE] (Rolls: **${roll1}**, **${roll2}**)`;
+                    details = ` [DISADVANTAGE] (Rolled: **${roll1}**, **${roll2}**)`;
                 }
             }
 
@@ -113,7 +114,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     </CardTitle>
                     {rollingDie !== null ? (
                         <span className="text-[10px] text-white bg-agent-blue animate-pulse font-black tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.8)] uppercase px-2 py-0.5 rounded-full border border-white/20">
-                            CALCULATING...
+                            ROLLING d{rollingDie}...
                         </span>
                     ) : lastResult ? (
                         <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
