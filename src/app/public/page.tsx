@@ -1,18 +1,19 @@
 import { Badge } from "@/components/ui/Badge";
 import AutoRefresh from "@/components/AutoRefresh";
-import { getPublicCampaign } from "@/lib/queries";
+import { getSpectatorCampaign } from "@/lib/queries";
 import { PublicCharacterCard } from "@/components/PublicCharacterCard";
 
 /**
  * CRIER'S JOURNAL - CRITICAL LEARNINGS ONLY
  *
  * ## 2025-05-24 - [View] Blur: [Text too small on TV] Shout: [Bumped font size to 9xl and 7xl]
+ * ## 2025-05-25 - [Logic] Secret: [NPCs were hidden but active turn was broken] Shout: [Added 'OPPONENT TURN' indicator using getSpectatorCampaign]
  */
 
 export const dynamic = 'force-dynamic';
 
 export default async function PublicPage() {
-    const campaign = await getPublicCampaign();
+    const campaign = await getSpectatorCampaign();
 
     if (!campaign) return (
         <div className="min-h-screen bg-agent-navy flex flex-col items-center justify-center p-10 relative overflow-hidden">
@@ -72,16 +73,16 @@ export default async function PublicPage() {
                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-48 h-2 bg-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.8)] [clip-path:polygon(0_0,100%_0,85%_100%,15%_100%)] animate-pulse" />
 
                 {(() => {
-                    const activeChar = campaign.characters.find((c) => c.activeTurn);
-                    return activeChar ? (
+                    const activeContestant = campaign.activeContestant;
+                    return activeContestant ? (
                         <div className="flex items-center justify-center gap-12 overflow-hidden">
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                             <div className="relative group cursor-default">
                                 <div className="absolute inset-0 bg-agent-blue/20 blur-xl animate-pulse rounded-full opacity-50" />
                                 <h3 className="text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white drop-shadow-[0_0_30px_rgba(43,43,238,0.8)] relative z-10 flex items-center gap-6">
                                     <span className="text-4xl text-neutral-500 font-mono tracking-widest self-center opacity-70">CURRENT TURN</span>
-                                    <span className="text-agent-blue bg-black/40 px-8 py-2 rounded-xl border-2 border-agent-blue/50 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md">
-                                        {activeChar.name}
+                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50' : 'text-red-500 border-red-500/50'}`}>
+                                        {activeContestant.type === 'PLAYER' ? activeContestant.name : 'OPPONENT TURN'}
                                     </span>
                                 </h3>
                             </div>
