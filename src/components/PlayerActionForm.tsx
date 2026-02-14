@@ -4,6 +4,7 @@ import { logAction } from "@/app/actions";
 import { useTransition, useState } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
+import { secureRoll } from "@/lib/dice";
 
 const QUICK_ACTIONS = ["Attack", "Cast", "Dodge", "Dash"];
 
@@ -22,6 +23,10 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
     const [isPending, startTransition] = useTransition();
     const [intent, setIntent] = useState("");
     const [roll, setRoll] = useState("");
+
+    const handleRoll = () => {
+        setRoll(secureRoll(20).toString());
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,14 +92,24 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
             <div className="flex flex-col gap-4">
                 <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
-                    <Input
-                        type="number"
-                        placeholder="Dice Roll"
-                        value={roll}
-                        onChange={(e) => setRoll(e.target.value)}
-                        disabled={isPending}
-                        className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-16 text-lg rounded-xl touch-manipulation"
-                    />
+                    <div className="flex gap-2">
+                        <Input
+                            type="number"
+                            placeholder="Dice Roll"
+                            value={roll}
+                            onChange={(e) => setRoll(e.target.value)}
+                            disabled={isPending}
+                            className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-16 text-lg rounded-xl touch-manipulation flex-1"
+                        />
+                        <Button
+                            type="button"
+                            onClick={handleRoll}
+                            disabled={isPending}
+                            className="h-16 w-24 bg-agent-blue/20 border border-agent-blue/50 text-agent-blue font-bold rounded-xl uppercase tracking-wider hover:bg-agent-blue/40"
+                        >
+                            Roll D20
+                        </Button>
+                    </div>
                 </div>
                 <Button
                     type="submit"

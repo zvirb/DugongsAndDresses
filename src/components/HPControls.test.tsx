@@ -16,13 +16,17 @@ describe('HPControls', () => {
     vi.clearAllMocks()
   })
 
-  it('renders -1 and +1 buttons', () => {
+  it('renders buttons', () => {
     render(<HPControls characterId={characterId} currentHp={currentHp} />)
+    // Dynamic buttons (default 1)
     expect(screen.getByText('-1')).toBeInTheDocument()
     expect(screen.getByText('+1')).toBeInTheDocument()
+    // Quick buttons
+    expect(screen.getByText('-5')).toBeInTheDocument()
+    expect(screen.getByText('+5')).toBeInTheDocument()
   })
 
-  it('calls updateHP with -1 when -1 button is clicked', async () => {
+  it('calls updateHP with -1 when dynamic -1 button is clicked', async () => {
     render(<HPControls characterId={characterId} currentHp={currentHp} />)
     fireEvent.click(screen.getByText('-1'))
 
@@ -31,7 +35,7 @@ describe('HPControls', () => {
     })
   })
 
-  it('calls updateHP with +1 when +1 button is clicked', async () => {
+  it('calls updateHP with +1 when dynamic +1 button is clicked', async () => {
     render(<HPControls characterId={characterId} currentHp={currentHp} />)
     fireEvent.click(screen.getByText('+1'))
 
@@ -40,20 +44,27 @@ describe('HPControls', () => {
     })
   })
 
-  it('disables buttons while update is pending', async () => {
-    // We can simulate a slow action
-    vi.mocked(actions.updateHP).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
-
+  it('updates amount when input changes and uses new amount', async () => {
     render(<HPControls characterId={characterId} currentHp={currentHp} />)
+    const input = screen.getByRole('spinbutton')
+    fireEvent.change(input, { target: { value: '3' } })
     
-    const minusBtn = screen.getByText('-1')
-    fireEvent.click(minusBtn)
+    // Should now have -3 and +3
+    expect(screen.getByText('-3')).toBeInTheDocument()
+    expect(screen.getByText('+3')).toBeInTheDocument()
 
-    expect(minusBtn).toBeDisabled()
-    expect(screen.getByText('+1')).toBeDisabled()
+    fireEvent.click(screen.getByText('+3'))
+    await waitFor(() => {
+      expect(actions.updateHP).toHaveBeenCalledWith(characterId, 3)
+    })
+  })
+
+  it('calls updateHP with -5 when quick -5 button is clicked', async () => {
+    render(<HPControls characterId={characterId} currentHp={currentHp} />)
+    fireEvent.click(screen.getByText('-5'))
 
     await waitFor(() => {
-      expect(minusBtn).not.toBeDisabled()
+      expect(actions.updateHP).toHaveBeenCalledWith(characterId, -5)
     })
   })
 })

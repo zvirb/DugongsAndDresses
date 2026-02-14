@@ -51,6 +51,13 @@ export default function CampaignWizard() {
         setCharacters(prev => prev.filter((_, i) => i !== idx));
     };
 
+    const handleNextStep = () => {
+        if (current.name.trim()) {
+            addCharacter();
+        }
+        setStep(3);
+    };
+
     const loadLibrary = async () => {
         setLibraryLoading(true);
         setLibraryOpen(true);
@@ -264,7 +271,7 @@ export default function CampaignWizard() {
 
                             <div className="flex gap-2">
                                 <Button variant="ghost" onClick={() => setStep(1)} className="flex-1">Back</Button>
-                                <Button onClick={() => setStep(3)} className="flex-1">
+                                <Button onClick={handleNextStep} className="flex-1">
                                     Next: Review
                                 </Button>
                             </div>
