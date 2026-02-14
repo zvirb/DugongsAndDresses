@@ -9,6 +9,7 @@ import { prisma } from "./prisma";
  * ## 2025-02-18 - [getPlayerDashboard] Slow: [Missing conditions, potential heavy logs] Sight: [Added conditions, Standardized Select: PLAYER_DASHBOARD_SELECT]
  * ## 2025-05-25 - [getPublicCampaign] Slow: [AutoRefresh polling] Sight: [Wrapped in unstable_cache to deduplicate across requests]
  * ## 2025-05-25 - [getPlayerDashboard] Slow: [Player polling] Sight: [Wrapped in unstable_cache for protection]
+ * ## 2025-05-25 - [getSpectatorCampaign] Slow: [Spectator polling] Sight: [Separated active contestant logic for safe public display]
  */
 
 // Reusable select constants for consistency and optimization
@@ -61,7 +62,8 @@ const PUBLIC_CHAR_SELECT = {
   class: true,
   hp: true,
   maxHp: true,
-  conditions: true
+  conditions: true,
+  type: true
 } as const;
 
 const PLAYER_DASHBOARD_SELECT = {
@@ -163,6 +165,40 @@ export const getPublicCampaign = unstable_cache(
   },
   ['public-campaign'],
   { revalidate: 1, tags: ['public-campaign'] }
+);
+
+/**
+ * Fetches active campaign data for the Spectator view (Public Display).
+ * Includes ALL characters to determine active turn, but filters displayed list to PLAYERS only.
+ * Cached with unstable_cache for polling performance (revalidate: 1s).
+ */
+export const getSpectatorCampaign = unstable_cache(
+  async function getSpectatorCampaign() {
+    const campaign = await prisma.campaign.findFirst({
+      where: { active: true },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        name: true,
+        characters: {
+          orderBy: { name: 'asc' },
+          select: PUBLIC_CHAR_SELECT
+        }
+      }
+    });
+
+    if (!campaign) return null;
+
+    const activeContestant = campaign.characters.find(c => c.activeTurn);
+    const players = campaign.characters.filter(c => c.type === 'PLAYER');
+
+    return {
+      name: campaign.name,
+      characters: players,
+      activeContestant: activeContestant ? { name: activeContestant.name, type: activeContestant.type } : null
+    };
+  },
+  ['spectator-campaign'],
+  { revalidate: 1, tags: ['spectator-campaign'] }
 );
 
 /**

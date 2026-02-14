@@ -10,7 +10,7 @@ vi.mock('next/cache', () => ({
   unstable_cache: (fn: any) => fn,
 }));
 
-import { getActiveCampaign, getPublicCampaign, getPlayerDashboard } from './queries';
+import { getActiveCampaign, getPublicCampaign, getSpectatorCampaign, getPlayerDashboard } from './queries';
 import { prisma } from './prisma';
 
 vi.mock('./prisma', () => ({
@@ -71,10 +71,50 @@ describe('Query Optimization: getPublicCampaign', () => {
         expect(charSelect.conditions).toBe(true);
         expect(charSelect.imageUrl).toBe(true);
         expect(charSelect.activeTurn).toBe(true);
+        // Verify that type is now selected as part of PUBLIC_CHAR_SELECT updates
+        expect(charSelect.type).toBe(true);
 
         // Should NOT select heavy internal fields
         expect(charSelect.attributes).toBeUndefined();
         expect(charSelect.inventory).toBeUndefined();
+    });
+});
+
+describe('Query Optimization: getSpectatorCampaign', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('fetches all characters and correctly filters for display', async () => {
+        const mockCharacters = [
+            { id: '1', name: 'Player1', type: 'PLAYER', activeTurn: false },
+            { id: '2', name: 'NPC1', type: 'NPC', activeTurn: true },
+            { id: '3', name: 'Player2', type: 'PLAYER', activeTurn: false }
+        ];
+
+        (prisma.campaign.findFirst as any).mockResolvedValue({
+            name: 'Spectator Camp',
+            characters: mockCharacters
+        });
+
+        const result = await getSpectatorCampaign();
+
+        const calls = (prisma.campaign.findFirst as any).mock.calls;
+        expect(calls.length).toBe(1);
+        const args = calls[0][0];
+
+        // Should NOT filter by type in the query (fetch all)
+        expect(args.select.characters.where).toBeUndefined();
+
+        // Should select type
+        const charSelect = args.select.characters.select;
+        expect(charSelect.type).toBe(true);
+
+        // Verify processing logic
+        expect(result?.characters.length).toBe(2); // Only players
+        expect(result?.characters.find((c: any) => c.type === 'NPC')).toBeUndefined();
+        expect(result?.activeContestant?.name).toBe('NPC1');
+        expect(result?.activeContestant?.type).toBe('NPC');
     });
 });
 
