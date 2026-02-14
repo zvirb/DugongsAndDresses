@@ -68,7 +68,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                             type="button"
                             variant="ghost"
                             onClick={() => setIntent(action)}
-                            className="h-16 p-2 text-sm font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 touch-manipulation"
+                            className="h-16 p-4 text-base font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-[0.98] transition-all touch-manipulation"
                         >
                             {action}
                         </Button>
@@ -100,7 +100,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                     type="submit"
                     variant="agent"
                     disabled={isPending || !intent}
-                    className="h-16 p-4 w-full rounded-xl uppercase text-lg font-black tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.2)] active:scale-[0.98] transition-transform touch-manipulation"
+                    className="h-16 p-4 w-full rounded-xl uppercase text-xl font-black tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.2)] active:scale-[0.98] transition-transform touch-manipulation"
                 >
                     {isPending ? "Transmitting..." : "Execute"}
                 </Button>
