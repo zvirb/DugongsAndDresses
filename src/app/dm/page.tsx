@@ -28,12 +28,13 @@ export default async function DMPage() {
         <div className="min-h-screen bg-agent-navy text-neutral-100 p-4 font-sans relative overflow-hidden">
             {/* Background elements for technical feel */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute inset-0 bg-[repeating-linear-gradient(transparent_0%,transparent_50%,rgba(0,0,0,0.2)_50%,rgba(0,0,0,0.2)_100%)] bg-[length:100%_4px] opacity-20 mix-blend-overlay" />
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:20px_20px] opacity-10" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#101022_90%)] opacity-80" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#101022_90%)] opacity-90" />
             </div>
 
             <div className="relative z-10">
-                <header className="flex justify-between items-center mb-6 border-b border-agent-blue/20 pb-4 bg-agent-navy/50 backdrop-blur-sm -mx-4 px-4 pt-4">
+                <header className="flex justify-between items-center mb-6 border-b border-agent-blue/30 shadow-[0_0_15px_rgba(43,43,238,0.2)] pb-4 bg-agent-navy/50 backdrop-blur-sm -mx-4 px-4 pt-4">
                     <div className="flex flex-col">
                         <div className="text-agent-blue font-mono text-[10px] animate-pulse tracking-widest uppercase mb-1 flex items-center gap-2">
                              <span className="w-1.5 h-1.5 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]" />

@@ -24,8 +24,8 @@ const COMMON_CONDITIONS = [
     'Invisible', 'Paralyzed', 'Poisoned', 'Prone', 'Stunned', 'Unconscious'
 ];
 
-const inputClass = "bg-black/50 border-white/10 text-agent-blue focus-visible:ring-agent-blue focus:border-agent-blue placeholder:text-neutral-600 font-mono";
-const selectClass = "flex h-9 w-full rounded-md border border-white/10 bg-black/50 px-3 py-1 text-sm text-agent-blue focus:outline-none focus:ring-1 focus:ring-agent-blue placeholder:text-neutral-600 font-mono";
+const inputClass = "bg-black/50 border-agent-blue/20 text-agent-blue focus-visible:ring-agent-blue focus:border-agent-blue placeholder:text-neutral-600 font-mono transition-all";
+const selectClass = "flex h-9 w-full rounded-md border border-agent-blue/20 bg-black/50 px-3 py-1 text-sm text-agent-blue focus:outline-none focus:ring-1 focus:ring-agent-blue placeholder:text-neutral-600 font-mono transition-all";
 
 export default function QuickActions({ campaignId, characters }: QuickActionsProps) {
     const [active, setActive] = useState<ActionType>(null);
@@ -95,7 +95,7 @@ function AttackForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-2">
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Attacker</label>
@@ -153,7 +153,7 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-2 gap-2">
                 <div>
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Character</label>
@@ -208,7 +208,7 @@ function SpellForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-2">
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Caster</label>
@@ -266,7 +266,7 @@ function NoteForm({ campaignId, onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
             <div>
                 <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Note</label>
                 <Input value={note} onChange={e => setNote(e.target.value)} placeholder="What happened..." className={inputClass} />
