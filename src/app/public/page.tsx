@@ -31,8 +31,9 @@ export default async function PublicPage() {
         <div className="min-h-screen bg-agent-navy text-white font-sans overflow-hidden relative selection:bg-agent-blue/30 selection:text-white">
             {/* Background elements for technical feel */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute inset-0 bg-[repeating-linear-gradient(transparent_0%,transparent_50%,rgba(0,0,0,0.2)_50%,rgba(0,0,0,0.2)_100%)] bg-[length:100%_4px] opacity-40 mix-blend-overlay" />
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:40px_40px] opacity-20 animate-[pulse_4s_infinite]" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#101022_90%)] opacity-80" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#101022_90%)] opacity-90" />
                 <div className="absolute top-0 left-0 w-full h-1 bg-agent-blue shadow-[0_0_20px_#2b2bee] animate-scan" />
             </div>
 
@@ -40,7 +41,7 @@ export default async function PublicPage() {
 
             {/* Content Wrapper with subtle movement */}
             <div className="p-8 pb-60 h-full overflow-y-auto border-x border-agent-blue/10 max-w-[1920px] mx-auto bg-black/20 backdrop-blur-sm relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                <header className="relative z-10 flex justify-between items-end mb-12 border-b-4 border-agent-blue/30 pb-4 backdrop-blur-md bg-agent-navy/30 -mx-4 px-4 pt-4 rounded-t-xl">
+                <header className="relative z-10 flex justify-between items-end mb-12 border-b-4 border-agent-blue/30 shadow-[0_0_15px_rgba(43,43,238,0.3)] pb-4 backdrop-blur-md bg-agent-navy/30 -mx-4 px-4 pt-4 rounded-t-xl">
                     <div>
                         <div className="text-agent-blue font-mono text-sm animate-pulse mb-2 tracking-widest uppercase flex items-center gap-2">
                             <span className="w-2 h-2 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]"></span>

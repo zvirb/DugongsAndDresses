@@ -63,7 +63,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
             className={`
                 relative overflow-hidden rounded-3xl border-4 transition-all duration-500 backdrop-blur-xl group
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_100px_rgba(43,43,238,0.6)] bg-agent-navy/90 scale-105 z-30 ring-4 ring-agent-blue/30'
+                    ? 'border-agent-blue shadow-[0_0_100px_rgba(43,43,238,0.6),inset_0_0_30px_rgba(43,43,238,0.2)] bg-agent-navy/90 scale-105 z-30 ring-4 ring-agent-blue/30'
                     : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/20 hover:bg-black/40'}
             `}
         >
@@ -124,12 +124,12 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                         <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_19%,#ffffff10_20%)] z-10 pointer-events-none" />
 
                         <div
-                            className={`h-full transition-all duration-1000 ease-out relative overflow-hidden ${
+                            className={`h-full transition-all duration-1000 ease-out relative overflow-hidden backdrop-blur-sm ${
                                 character.hp <= character.maxHp * 0.2
-                                    ? 'bg-red-600 shadow-[0_0_30px_rgba(220,38,38,0.6)]'
+                                    ? 'bg-red-600/90 shadow-[0_0_30px_rgba(220,38,38,0.6)]'
                                     : character.hp <= character.maxHp * 0.5
-                                        ? 'bg-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.6)]'
-                                        : 'bg-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.4)]'
+                                        ? 'bg-yellow-500/90 shadow-[0_0_30px_rgba(234,179,8,0.6)]'
+                                        : 'bg-agent-blue/90 shadow-[0_0_30px_rgba(43,43,238,0.4)]'
                                 }`}
                             style={{ width: `${hpPercent}%`, clipPath: 'polygon(0 0, 100% 0, 98% 100%, 0% 100%)' }}
                         >
