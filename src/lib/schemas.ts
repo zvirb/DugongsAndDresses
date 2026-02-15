@@ -130,6 +130,8 @@ export const SkillCheckActionSchema = z.object({
   skillName: z.string().min(1),
   dc: z.number().optional(),
   roll: z.number().optional(),
+  dieRoll: z.number().optional(),
+  modifier: z.number().optional(),
 });
 export type SkillCheckAction = z.infer<typeof SkillCheckActionSchema>;
 

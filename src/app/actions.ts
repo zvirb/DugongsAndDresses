@@ -733,10 +733,10 @@ export async function performAttack(attackerId: string, targetId: string, damage
     });
 }
 
-export async function performSkillCheck(characterId: string, skillName: string, dc?: number, roll?: number): Promise<ActionResult> {
+export async function performSkillCheck(characterId: string, skillName: string, dc?: number, roll?: number, dieRoll?: number, modifier?: number): Promise<ActionResult> {
     return actionWrapper("performSkillCheck", async () => {
         // Quartermaster: Cleanse Inputs
-        const validated = SkillCheckActionSchema.parse({ characterId, skillName, dc, roll });
+        const validated = SkillCheckActionSchema.parse({ characterId, skillName, dc, roll, dieRoll, modifier });
 
         const character = await prisma.character.findUnique({ where: { id: validated.characterId } });
         if (!character) throw new Error("Character not found");
@@ -744,16 +744,27 @@ export async function performSkillCheck(characterId: string, skillName: string, 
         let content = `**${character.name}** attempts **${skillName}**`;
 
         if (roll !== undefined) {
-             if (dc) {
-                 if (roll >= dc) {
-                     content += `: **SUCCESS**!`;
-                 } else {
-                     content += `: **FAILURE**!`;
-                 }
-                 content += ` (Roll: **${roll}** vs DC **${dc}**)`;
-             } else {
-                 content += ` (Roll: **${roll}**)`;
-             }
+            if (dc) {
+                if (roll >= dc) {
+                    content += `: **SUCCESS**!`;
+                } else {
+                    content += `: **FAILURE**!`;
+                }
+
+                if (dieRoll !== undefined && modifier !== undefined) {
+                    const sign = modifier >= 0 ? '+' : '';
+                    content += ` (Roll: **${dieRoll}**${sign}**${modifier}** = **${roll}** vs DC **${dc}**)`;
+                } else {
+                    content += ` (Roll: **${roll}** vs DC **${dc}**)`;
+                }
+            } else {
+                if (dieRoll !== undefined && modifier !== undefined) {
+                    const sign = modifier >= 0 ? '+' : '';
+                    content += ` (Roll: **${dieRoll}**${sign}**${modifier}** = **${roll}**)`;
+                } else {
+                    content += ` (Roll: **${roll}**)`;
+                }
+            }
         } else {
             if (dc) content += ` (DC **${dc}**)`;
         }

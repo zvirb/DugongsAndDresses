@@ -41,7 +41,8 @@ export default function PlayerSkillsList({ characterId, attributes }: PlayerSkil
 
             startTransition(async () => {
                 try {
-                    await performSkillCheck(characterId, name, undefined, total);
+                    // ARTIFICER: Pass detailed roll components for logging
+                    await performSkillCheck(characterId, name, undefined, total, die, mod);
                 } catch (e) {
                     console.error("Skill check failed:", e);
                 } finally {

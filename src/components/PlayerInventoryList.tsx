@@ -18,10 +18,19 @@ export default function PlayerInventoryList({ characterId, characterName, campai
 
     const handleUse = (item: string) => {
         if (isPending) return;
+
+        // ARTIFICER: Added consumption logic
+        const shouldConsume = confirm(`Consume ${item}? (Cancel to use without removing)`);
+
         setProcessingItem(item);
         startTransition(async () => {
             try {
-                await logAction(campaignId, `**${characterName}** employs **${item}**.`, "PlayerAction");
+                if (shouldConsume) {
+                    await removeInventoryItem(characterId, item);
+                    await logAction(campaignId, `**${characterName}** consumes **${item}**.`, "PlayerAction");
+                } else {
+                    await logAction(campaignId, `**${characterName}** employs **${item}**.`, "PlayerAction");
+                }
             } catch (e) {
                 console.error("Failed to use item:", e);
             } finally {
