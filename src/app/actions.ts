@@ -15,6 +15,10 @@ import { z } from "zod";
 import { CharacterInput, CharacterInputSchema, Participants, LogTypeSchema, AttackActionSchema, SkillCheckActionSchema, SpellCastActionSchema } from "@/lib/schemas";
 import { Character, Settings } from "@prisma/client";
 
+// BARD'S JOURNAL - CRITICAL LEARNINGS ONLY:
+// Format: ## YYYY-MM-DD - [Log] Boring: [Log said "HP Update"] Song: [Changed to "Grom takes 5 damage"]
+// ## 2025-05-24 - [Log] Boring: [Generic "Attacks", "Creates"] Song: [Enhanced with "CRITICAL HIT!", "Manifests", "Unconscious"]
+
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
         const name = formData.get("name") as string;
@@ -51,17 +55,13 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
             }
         });
 
-        await logAction(campaign.id, `The world of **${campaign.name}** awakens.`, "Story");
+        await logAction(campaign.id, `The world of **${campaign.name}** awakens. A new saga begins.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
         return campaign;
     });
 }
-
-// BARD'S JOURNAL - CRITICAL LEARNINGS ONLY:
-// Format: ## YYYY-MM-DD - [Log] Boring: [Log said "HP Update"] Song: [Changed to "Grom takes 5 damage"]
-// ## 2025-05-24 - [Log] Boring: [Generic "Attacks", "Creates"] Song: [Enhanced with "CRITICAL HIT!", "Manifests", "Unconscious"]
 
 export async function logAction(campaignId: string, content: string, type: string = "Story"): Promise<ActionResult> {
     return actionWrapper("logAction", async () => {
@@ -110,9 +110,9 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             const amount = Math.abs(delta);
             let content = "";
             if (delta > 0) {
-                content = `**${character.name}** rallies, reclaiming **${amount}** HP.`;
+                content = `**${character.name}** rallies! Heals for **${amount}** HP.`;
             } else {
-                content = `**${character.name}** takes a hit, suffering **${amount}** damage`;
+                content = `**${character.name}** takes **${amount}** damage`;
                 if (character.hp <= 0) {
                     content += ` and falls **UNCONSCIOUS**!`;
                 } else {
@@ -183,7 +183,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
         // but maybe the user wants to keep the last roll?
         // Let's NOT sync initiative roll to source as it's ephemeral.
 
-        const content = `**${character.name}** prepares for battle! Initiative: **${roll}**.`;
+        const content = `**${character.name}** rolls Initiative: **${roll}**.`;
         await logAction(character.campaignId, content, "Combat");
 
         revalidatePath('/dm');
@@ -271,7 +271,7 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             })
         ]);
 
-        await logAction(campaignId, `It is now **${newActiveChar.name}**'s turn!`, "Combat");
+        await logAction(campaignId, `The spotlight shifts. It is now **${newActiveChar.name}**'s turn.`, "Combat");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -429,8 +429,7 @@ export async function updateCharacter(characterId: string, formData: FormData): 
 
         await syncToSource(character);
 
-        const conditionList = conditions.length > 0 ? conditions.join(", ") : "nothing";
-        await logAction(character.campaignId, `**${character.name}** is now affected by: **${conditionList}**.`, "Combat");
+        await logAction(character.campaignId, `**${character.name}** has been updated.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -448,7 +447,7 @@ export async function deleteCharacter(characterId: string): Promise<ActionResult
             where: { id: characterId }
         });
 
-        await logAction(character.campaignId, `**${character.name}** has fallen.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** vanishes from existence.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -499,7 +498,7 @@ export async function addInventoryItem(characterId: string, item: string): Promi
         // Sync to Library
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** obtains **${item.trim()}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** adds **${item.trim()}** to inventory.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -549,7 +548,7 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
         // Sync Source
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** discards **${item}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** removes **${item}** from inventory.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -667,7 +666,7 @@ export async function performAttack(attackerId: string, targetId: string, damage
 
         if (!attacker || !target) throw new Error("Character not found");
 
-        let content = `**${attacker.name}** attacks **${target.name}**`;
+        let content = `**${attacker.name}** attacks **${target.name}**...`;
         let isHit = true;
         let isCrit = false;
         let isFumble = false;
@@ -687,15 +686,19 @@ export async function performAttack(attackerId: string, targetId: string, damage
             if (damage <= 0) isHit = false;
         }
 
+        // Determine result string first
+        let resultStr = "";
         if (isCrit) {
-            content += `... **CRITICAL HIT**!`;
+            resultStr = "**CRITICAL HIT**!";
         } else if (isFumble) {
-            content += `... **CRITICAL MISS**!`;
+            resultStr = "**CRITICAL MISS**!";
         } else if (isHit) {
-            content += ` and **HITS**!`;
+            resultStr = "**HITS**!";
         } else {
-            content += ` but **MISSES**.`;
+            resultStr = "**MISSES**!";
         }
+
+        content += ` ${resultStr}`;
 
         if (attackRoll !== undefined) {
              content += ` (Roll: **${attackRoll}**)`;
@@ -718,6 +721,8 @@ export async function performAttack(attackerId: string, targetId: string, damage
             }
         } else if (isHit) {
             content += ` but deals no damage.`;
+        } else {
+            // Misses
         }
 
         await logAction(attacker.campaignId, content, "Combat");
