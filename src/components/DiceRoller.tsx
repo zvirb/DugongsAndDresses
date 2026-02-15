@@ -6,6 +6,9 @@
 // ## 2024-05-24 - [Dice] Feedback: [Hiding numbers in UI for Crit/Miss] Fix: [Always show number, moved status to badge]
 // ## 2025-05-25 - [Dice] Feedback: [Vague "CALCULATING..." message] Fix: [Changed to "ROLLING dX..." for specificity]
 // ## 2025-05-26 - [Dice] Interaction: [Buttons small for mobile] Fix: [Increased dice buttons to h-20, modes to h-16]
+// ## 2025-05-27 - [Dice] Logic: [Possible zero-sided die] Fix: [Added guard clause for sides < 1]
+// ## 2025-05-27 - [Dice] Transparency: [Advantage logs redundant] Fix: [Simplified format to [ADVANTAGE: X, Y]]
+// ## 2025-05-27 - [Dice] Interaction: [Mode switching while rolling] Fix: [Disabled mode toggles during roll]
 
 import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
@@ -59,10 +62,10 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 rolls.push(roll2);
                 if (mode === 'ADVANTAGE') {
                     result = Math.max(roll1, roll2);
-                    details = ` [ADVANTAGE] (Rolled: **${roll1}**, **${roll2}**)`;
+                    details = ` [ADVANTAGE: **${roll1}**, **${roll2}**]`;
                 } else {
                     result = Math.min(roll1, roll2);
-                    details = ` [DISADVANTAGE] (Rolled: **${roll1}**, **${roll2}**)`;
+                    details = ` [DISADVANTAGE: **${roll1}**, **${roll2}**]`;
                 }
             }
 
@@ -114,7 +117,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         Dice Tray
                     </CardTitle>
                     {rollingDie !== null ? (
-                        <span className="text-[10px] text-white bg-agent-blue animate-pulse font-black tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.8)] uppercase px-2 py-0.5 rounded-full border border-white/20">
+                        <span className="text-[10px] text-black bg-yellow-400 animate-pulse font-black tracking-widest shadow-[0_0_20px_rgba(250,204,21,0.6)] uppercase px-2 py-0.5 rounded-full border border-yellow-200">
                             ROLLING d{rollingDie}...
                         </span>
                     ) : lastResult ? (
@@ -142,6 +145,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     <Button
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
+                        disabled={rollingDie !== null}
                         className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white hover:bg-white/5' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
                     >
                         Normal
@@ -149,6 +153,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     <Button
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
+                        disabled={rollingDie !== null}
                         className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-neutral-500 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
                     >
                         Adv
@@ -156,6 +161,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     <Button
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
+                        disabled={rollingDie !== null}
                         className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-neutral-500 hover:text-red-400 hover:bg-red-900/20'}`}
                     >
                         Dis
