@@ -3,6 +3,7 @@
 // ## 2024-05-24 - [ActionForm] Thumb Zone: [Quick Actions too small for thumb] Path: [Increased padding to p-4, text to text-base, added active states]
 // ## 2024-05-24 - [HPControls] Legibility: [Numbers hard to read in heat of moment] Path: [Increased to text-4xl/text-3xl]
 // ## 2024-05-24 - [DiceRoller] Readability: [Mode toggles squint-inducing] Path: [Bumped to text-sm, increased container padding]
+// ## 2025-05-26 - [ActionForm] Thumb Zone: [Inputs and buttons small on mobile] Path: [Increased buttons to h-20, text to text-xl, expanded touch targets]
 
 import { getPlayerDashboard } from "@/lib/queries";
 import { notFound } from "next/navigation";

@@ -5,6 +5,7 @@
 // ## 2024-05-24 - [Dice] Transparency: [Hiding numbers in Crit/Miss logs] Fix: [Added explicit roll numbers to log]
 // ## 2024-05-24 - [Dice] Feedback: [Hiding numbers in UI for Crit/Miss] Fix: [Always show number, moved status to badge]
 // ## 2025-05-25 - [Dice] Feedback: [Vague "CALCULATING..." message] Fix: [Changed to "ROLLING dX..." for specificity]
+// ## 2025-05-26 - [Dice] Interaction: [Buttons small for mobile] Fix: [Increased dice buttons to h-20, modes to h-16]
 
 import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
@@ -141,21 +142,21 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     <Button
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
-                        className={`h-14 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white hover:bg-white/5' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white hover:bg-white/5' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
                     >
                         Normal
                     </Button>
                     <Button
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
-                        className={`h-14 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-neutral-500 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-neutral-500 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
                     >
                         Adv
                     </Button>
                     <Button
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
-                        className={`h-14 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-neutral-500 hover:text-red-400 hover:bg-red-900/20'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-neutral-500 hover:text-red-400 hover:bg-red-900/20'}`}
                     >
                         Dis
                     </Button>
@@ -170,7 +171,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                             onClick={() => rollDice(d)}
                             variant={getDiceVariant()}
                             aria-label={rollingDie === d ? "Rolling" : undefined}
-                            className="font-black text-xl h-16 p-4 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg touch-manipulation border border-white/5 hover:border-agent-blue/50"
+                            className="font-black text-2xl h-20 p-4 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg touch-manipulation border border-white/5 hover:border-agent-blue/50"
                         >
                             {rollingDie === d ? <Spinner /> : `d${d}`}
                         </Button>
