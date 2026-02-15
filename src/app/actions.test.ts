@@ -35,16 +35,7 @@ vi.mock('@/lib/prisma', () => ({
         create: vi.fn(),
         update: vi.fn(),
     },
-    $transaction: vi.fn((actions) => Promise.resolve(actions)), // Simple mock that returns the actions array (incorrect for array destructuring but sufficient if we mock the return of the function that uses it, or if we adjust implementation)
-    // Wait, the implementation is: const [, newActiveChar] = await prisma.$transaction(...)
-    // If $transaction returns the array of promises (or results), and we mock the results...
-    // The implementation of $transaction in the mock:
-    // It receives an array of Promises (from updateMany and update calls).
-    // It should return the results of those promises.
-    // However, here we are passing the *results* of the calls if we mock them to return promises?
-    // Actually, prisma calls inside $transaction usually return Prisma Promises.
-    // If we mock prisma.character.update to return a value (e.g. { id: '...' }), then the array passed to $transaction is [value1, value2].
-    // So returning that array is fine.
+    $transaction: vi.fn((actions) => Promise.resolve(actions)),
   },
 }));
 
@@ -85,7 +76,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-123',
-        content: expect.stringContaining('The world of **Test Campaign** awakens.'),
+        content: expect.stringContaining('The world of **Test Campaign** awakens. A new saga begins.'),
         type: 'Story',
       },
     });
@@ -104,7 +95,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** rallies, reclaiming **5** HP.'),
+        content: expect.stringContaining('**Grom** rallies! Heals for **5** HP.'),
         type: 'Combat',
       },
     });
@@ -123,7 +114,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** takes a hit, suffering **5** damage.'),
+        content: expect.stringContaining('**Grom** takes **5** damage'),
         type: 'Combat',
       },
     });
@@ -141,7 +132,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** prepares for battle! Initiative: **15**.'),
+        content: expect.stringContaining('**Grom** rolls Initiative: **15**.'),
         type: 'Combat',
       },
     });
@@ -216,7 +207,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** has fallen.'),
+        content: expect.stringContaining('**Grom** vanishes from existence.'),
         type: 'Story',
       },
     });
@@ -241,7 +232,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** obtains **Sword**.'),
+        content: expect.stringContaining('**Grom** adds **Sword** to inventory.'),
         type: 'Story',
       },
     });
@@ -266,7 +257,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** discards **Sword**.'),
+        content: expect.stringContaining('**Grom** removes **Sword** from inventory.'),
         type: 'Story',
       },
     });
@@ -315,7 +306,7 @@ describe('Server Actions Logging', () => {
         expect(prisma.logEntry.create).toHaveBeenCalledWith({
             data: {
                 campaignId,
-                content: expect.stringContaining("It is now **Char2**'s turn!"),
+                content: expect.stringContaining("The spotlight shifts. It is now **Char2**'s turn."),
                 type: 'Combat',
             }
         });
@@ -346,7 +337,7 @@ describe('Server Actions Logging', () => {
         expect(prisma.logEntry.create).toHaveBeenCalledWith({
             data: {
                 campaignId,
-                content: expect.stringContaining("It is now **Char1**'s turn!"),
+                content: expect.stringContaining("The spotlight shifts. It is now **Char1**'s turn."),
                 type: 'Combat',
             }
         });
@@ -436,7 +427,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Attacker** attacks **Target** and **HITS**! (Roll: **18**) dealing **5** damage'),
+        content: expect.stringContaining('**Attacker** attacks **Target**... **HITS**! (Roll: **18**) dealing **5** damage'),
         type: 'Combat',
       },
     });
