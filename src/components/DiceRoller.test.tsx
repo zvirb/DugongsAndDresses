@@ -92,7 +92,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(' [ADVANTAGE]'),
+        expect.stringContaining(' [ADVANTAGE:'),
         'Roll'
       )
     })
@@ -107,7 +107,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(' [DISADVANTAGE]'),
+        expect.stringContaining(' [DISADVANTAGE:'),
         'Roll'
       )
     })
@@ -125,6 +125,11 @@ describe('DiceRoller', () => {
     const d4Button = screen.getByText('d4')
     expect(d4Button).toBeDisabled()
 
+    // Mode buttons should be disabled
+    expect(screen.getByText('Normal')).toBeDisabled()
+    expect(screen.getByText('Adv')).toBeDisabled()
+    expect(screen.getByText('Dis')).toBeDisabled()
+
     // The rolling button itself should be disabled (text changes to spinner)
     expect(screen.getByTestId('spinner')).toBeInTheDocument()
 
@@ -136,6 +141,7 @@ describe('DiceRoller', () => {
     // After roll, "CALCULATING..." should be gone and buttons enabled
     expect(screen.queryByText('ROLLING d20...')).not.toBeInTheDocument()
     expect(screen.getByText('d20')).not.toBeDisabled()
+    expect(screen.getByText('Normal')).not.toBeDisabled()
   })
 
   it('resets rolling state and re-enables buttons even if logAction fails', async () => {
@@ -169,7 +175,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/\[ADVANTAGE\] \(Rolled: \*\*\d+\*\*, \*\*\d+\*\*\)/),
+        expect.stringMatching(/\[ADVANTAGE: \*\*\d+\*\*, \*\*\d+\*\*\]/),
         'Roll'
       )
     })
@@ -184,7 +190,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/\[DISADVANTAGE\] \(Rolled: \*\*\d+\*\*, \*\*\d+\*\*\)/),
+        expect.stringMatching(/\[DISADVANTAGE: \*\*\d+\*\*, \*\*\d+\*\*\]/),
         'Roll'
       )
     })
@@ -254,7 +260,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\*\. \[ADVANTAGE\] \(Rolled: \*\*20\*\*, \*\*15\*\*\)/), // New format
+          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\*\. \[ADVANTAGE: \*\*20\*\*, \*\*15\*\*\]/), // New format
           'Roll'
         )
     })
