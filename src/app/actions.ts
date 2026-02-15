@@ -12,7 +12,7 @@ import { join } from 'path';
 import { createBackup, restoreBackup, listBackups, deleteBackup, checkAutoBackup } from "@/lib/backup";
 import { generateStory } from "@/lib/ai";
 import { z } from "zod";
-import { CharacterInput, CharacterInputSchema, Participants } from "@/lib/schemas";
+import { CharacterInput, CharacterInputSchema, Participants, LogTypeSchema, AttackActionSchema, SkillCheckActionSchema, SpellCastActionSchema } from "@/lib/schemas";
 import { Character, Settings } from "@prisma/client";
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
@@ -68,7 +68,19 @@ export async function logAction(campaignId: string, content: string, type: strin
         if (!campaignId) throw new Error("Campaign ID is required");
         if (!content) throw new Error("Content is required");
 
-        const entry = await prisma.logEntry.create({ data: { campaignId, content, type } });
+        // Validate Log Type
+        const validType = LogTypeSchema.safeParse(type);
+        const finalType = validType.success ? validType.data : "Story";
+        if (!validType.success) console.warn(`[Quartermaster] Invalid log type '${type}' defaulted to 'Story'.`);
+
+        // Sanitize Content
+        // Limit length to prevent database abuse, but allow reasonable story length
+        let sanitizedContent = content.trim();
+        if (sanitizedContent.length > 1000) {
+            sanitizedContent = sanitizedContent.substring(0, 1000) + "... (truncated)";
+        }
+
+        const entry = await prisma.logEntry.create({ data: { campaignId, content: sanitizedContent, type: finalType } });
 
         // Fire-and-forget auto-backup check
         checkAutoBackup().catch(err => console.error("Auto-backup error:", err));
@@ -644,10 +656,14 @@ export async function saveEncounter(campaignId: string, participants: Participan
 
 export async function performAttack(attackerId: string, targetId: string, damage: number, attackRoll?: number): Promise<ActionResult> {
     return actionWrapper("performAttack", async () => {
-        if (!attackerId || !targetId) throw new Error("Attacker and Target IDs are required");
+        // Quartermaster: Cleanse Inputs
+        const validated = AttackActionSchema.parse({ attackerId, targetId, damage, attackRoll });
+        // Use validated inputs to ensure type safety
+        // Note: We use original vars for now as they are destructured from validated object if we want,
+        // but schema parsing throws if invalid, so we are safe.
 
-        const attacker = await prisma.character.findUnique({ where: { id: attackerId } });
-        const target = await prisma.character.findUnique({ where: { id: targetId } });
+        const attacker = await prisma.character.findUnique({ where: { id: validated.attackerId } });
+        const target = await prisma.character.findUnique({ where: { id: validated.targetId } });
 
         if (!attacker || !target) throw new Error("Character not found");
 
@@ -714,10 +730,10 @@ export async function performAttack(attackerId: string, targetId: string, damage
 
 export async function performSkillCheck(characterId: string, skillName: string, dc?: number, roll?: number): Promise<ActionResult> {
     return actionWrapper("performSkillCheck", async () => {
-        if (!characterId) throw new Error("Character ID is required");
-        if (!skillName) throw new Error("Skill name is required");
+        // Quartermaster: Cleanse Inputs
+        const validated = SkillCheckActionSchema.parse({ characterId, skillName, dc, roll });
 
-        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        const character = await prisma.character.findUnique({ where: { id: validated.characterId } });
         if (!character) throw new Error("Character not found");
 
         let content = `**${character.name}** attempts **${skillName}**`;
@@ -744,30 +760,31 @@ export async function performSkillCheck(characterId: string, skillName: string, 
 
 export async function castSpell(casterId: string, targetId: string | undefined, spellName: string, condition?: string): Promise<ActionResult> {
     return actionWrapper("castSpell", async () => {
-        if (!casterId || !spellName) throw new Error("Caster and Spell Name are required");
+        // Quartermaster: Cleanse Inputs
+        const validated = SpellCastActionSchema.parse({ casterId, targetId, spellName, condition });
 
-        const caster = await prisma.character.findUnique({ where: { id: casterId } });
+        const caster = await prisma.character.findUnique({ where: { id: validated.casterId } });
         if (!caster) throw new Error("Caster not found");
 
         let targetName = "";
         let target = null;
 
-        if (targetId) {
-            target = await prisma.character.findUnique({ where: { id: targetId } });
+        if (validated.targetId) {
+            target = await prisma.character.findUnique({ where: { id: validated.targetId } });
             if (target) targetName = target.name;
         }
 
-        let content = `**${caster.name}** casts **${spellName}**`;
+        let content = `**${caster.name}** casts **${validated.spellName}**`;
         if (targetName) {
             content += ` on **${targetName}**`;
         }
 
-        if (condition && target) {
-            content += `. Condition **${condition}** applied`;
+        if (validated.condition && target) {
+            content += `. Condition **${validated.condition}** applied`;
 
             const currentConditions = parseConditions(target.conditions);
-            if (!currentConditions.includes(condition)) {
-                currentConditions.push(condition);
+            if (!currentConditions.includes(validated.condition)) {
+                currentConditions.push(validated.condition);
                 const updatedTarget = await prisma.character.update({
                     where: { id: target.id },
                     data: { conditions: stringifyConditions(currentConditions) }
