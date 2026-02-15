@@ -112,3 +112,31 @@ export const CharacterFormSchema = z.object({
 });
 
 export type CharacterForm = z.infer<typeof CharacterFormSchema>;
+
+// Action Types
+export const LogTypeSchema = z.enum(["Story", "Combat", "Roll", "PlayerAction", "AI"]);
+export type LogType = z.infer<typeof LogTypeSchema>;
+
+export const AttackActionSchema = z.object({
+  attackerId: z.string().min(1),
+  targetId: z.string().min(1),
+  damage: z.number().nonnegative(),
+  attackRoll: z.number().optional(),
+});
+export type AttackAction = z.infer<typeof AttackActionSchema>;
+
+export const SkillCheckActionSchema = z.object({
+  characterId: z.string().min(1),
+  skillName: z.string().min(1),
+  dc: z.number().optional(),
+  roll: z.number().optional(),
+});
+export type SkillCheckAction = z.infer<typeof SkillCheckActionSchema>;
+
+export const SpellCastActionSchema = z.object({
+  casterId: z.string().min(1),
+  targetId: z.string().min(1).optional(),
+  spellName: z.string().min(1),
+  condition: z.string().optional(),
+});
+export type SpellCastAction = z.infer<typeof SpellCastActionSchema>;
