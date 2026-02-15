@@ -66,14 +66,14 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                 <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Declare Intent</label>
 
                 {/* Quick Actions */}
-                <div className="grid grid-cols-2 gap-2 mb-2">
+                <div className="grid grid-cols-2 gap-3 mb-4">
                     {QUICK_ACTIONS.map((action) => (
                         <Button
                             key={action}
                             type="button"
                             variant="ghost"
                             onClick={() => setIntent(action)}
-                            className="h-16 p-4 text-base font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-[0.98] transition-all touch-manipulation"
+                            className="h-20 p-4 text-lg font-bold uppercase tracking-wider bg-black/20 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-[0.96] transition-all touch-manipulation"
                         >
                             {action}
                         </Button>
@@ -89,23 +89,23 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                 />
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
                 <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         <Input
                             type="number"
                             placeholder="Dice Roll"
                             value={roll}
                             onChange={(e) => setRoll(e.target.value)}
                             disabled={isPending}
-                            className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-16 text-lg rounded-xl touch-manipulation flex-1"
+                            className="bg-black/20 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation flex-1"
                         />
                         <Button
                             type="button"
                             onClick={handleRoll}
                             disabled={isPending}
-                            className="h-16 w-24 bg-agent-blue/20 border border-agent-blue/50 text-agent-blue font-bold rounded-xl uppercase tracking-wider hover:bg-agent-blue/40"
+                            className="h-20 flex-1 bg-agent-blue/20 border border-agent-blue/50 text-agent-blue text-lg font-black rounded-xl uppercase tracking-widest hover:bg-agent-blue/40 active:scale-[0.96] transition-transform"
                         >
                             Roll D20
                         </Button>
@@ -115,7 +115,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                     type="submit"
                     variant="agent"
                     disabled={isPending || !intent}
-                    className="h-16 p-4 w-full rounded-xl uppercase text-xl font-black tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.2)] active:scale-[0.98] transition-transform touch-manipulation"
+                    className="h-20 p-4 w-full rounded-xl uppercase text-2xl font-black tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.2)] active:scale-[0.96] transition-transform touch-manipulation"
                 >
                     {isPending ? "Transmitting..." : "Execute"}
                 </Button>

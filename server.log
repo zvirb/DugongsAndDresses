@@ -1,0 +1,22 @@
+
+> temp-app@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 2.7s
+ ○ Compiling /player/[id] ...
+ ✓ Compiled /player/[id] in 4.8s (671 modules)
+ GET /player/4fc4dcad-1977-41c3-9fec-b2c06898a4ba 200 in 5901ms
+ GET /player/4fc4dcad-1977-41c3-9fec-b2c06898a4ba 200 in 71ms
+ ✓ Compiled in 300ms (278 modules)
+ ✓ Compiled in 501ms (663 modules)
+ ✓ Compiled in 117ms (278 modules)
+[?25h
