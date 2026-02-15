@@ -10,6 +10,7 @@ import { prisma } from "./prisma";
  * ## 2025-05-25 - [getPublicCampaign] Slow: [AutoRefresh polling] Sight: [Wrapped in unstable_cache to deduplicate across requests]
  * ## 2025-05-25 - [getPlayerDashboard] Slow: [Player polling] Sight: [Wrapped in unstable_cache for protection]
  * ## 2025-05-25 - [getSpectatorCampaign] Slow: [Fetched all characters] Sight: [Split into Players/Active queries]
+ * ## 2025-05-26 - [getSpectatorCampaign] Slow: [Multiple round trips] Sight: [Consolidated Campaign+Players, conditional NPC fetch]
  */
 
 // Reusable select constants for consistency and optimization
@@ -174,33 +175,42 @@ export const getPublicCampaign = unstable_cache(
  */
 export const getSpectatorCampaign = unstable_cache(
   async function getSpectatorCampaign() {
+    // 1. Fetch Campaign AND Players in one go (Select over Include)
     const campaign = await prisma.campaign.findFirst({
       where: { active: true },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
-        name: true
+        name: true,
+        characters: {
+          where: { type: 'PLAYER' },
+          orderBy: { name: 'asc' },
+          select: PUBLIC_CHAR_SELECT
+        }
       }
     });
 
     if (!campaign) return null;
 
-    const [players, activeContestant] = await Promise.all([
-      prisma.character.findMany({
-        where: { campaignId: campaign.id, type: 'PLAYER' },
-        orderBy: { name: 'asc' },
-        select: PUBLIC_CHAR_SELECT
-      }),
-      prisma.character.findFirst({
-        where: { campaignId: campaign.id, activeTurn: true },
+    // 2. Determine Active Contestant
+    // Optimization: Check players first to avoid extra DB call
+    const activePlayer = campaign.characters.find(c => c.activeTurn);
+    let activeContestant = activePlayer
+      ? { name: activePlayer.name, type: activePlayer.type }
+      : null;
+
+    // 3. If no player is active, fetch active NPC (Lazy Load)
+    if (!activeContestant) {
+      activeContestant = await prisma.character.findFirst({
+        where: { campaignId: campaign.id, activeTurn: true, type: 'NPC' },
         select: { name: true, type: true }
-      })
-    ]);
+      });
+    }
 
     return {
       name: campaign.name,
-      characters: players,
-      activeContestant: activeContestant
+      characters: campaign.characters,
+      activeContestant
     };
   },
   ['spectator-campaign'],
