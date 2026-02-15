@@ -35,10 +35,8 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
 
         if (!cleanIntent) return;
 
-        // Ensure roll is strictly numeric if provided
-        if (cleanRoll && isNaN(Number(cleanRoll))) {
-            cleanRoll = "";
-        }
+        // ARTIFICER: Allow free text for rolls (e.g. "18 (Adv)")
+        // Validation removed to support text input
 
         const content = cleanRoll
             ? `**${characterName}** attempts: **${cleanIntent}** (Roll: **${cleanRoll}**).`
@@ -94,7 +92,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                     <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
                     <div className="flex gap-3">
                         <Input
-                            type="number"
+                            type="text"
                             placeholder="Dice Roll"
                             value={roll}
                             onChange={(e) => setRoll(e.target.value)}
