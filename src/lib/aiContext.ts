@@ -4,6 +4,7 @@
 // ## 2024-05-24 - [Context] Gap: [AI ignoring low HP] Fix: [Added MECHANICS instruction for flavor]
 // ## 2024-05-24 - [Context] Gap: [AI missing NPC type] Fix: [Added [Type] to character summary]
 // ## 2025-02-14 - [Context] Gap: [Missing Passive Perception] Fix: [Added PP:X to stats]
+// ## 2025-05-21 - [Context] Gap: [AI missed active turn] Fix: [Added 'CURRENT' marker and extra attributes]
 
 import { parseConditions, parseAttributes, parseInventory } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
@@ -23,10 +24,26 @@ export function generateAIContext(
         const keyMap: Record<string, string> = {
             str: 'STR', dex: 'DEX', con: 'CON', int: 'INT', wis: 'WIS', cha: 'CHA'
         };
-        // Dense attribute format: STR:18 DEX:12
-        const attrText = Object.entries(attributes)
-            .map(([k, v]) => `${keyMap[k.toLowerCase()] || k}:${v}`)
+
+        const standardStats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+
+        // Standard stats first
+        const standardAttrText = standardStats
+            .map(k => `${keyMap[k]}:${attributes[k] || 10}`)
             .join(' ');
+
+        // Extra stats (Spell Slots, Ki, etc)
+        const extraStats = Object.entries(attributes)
+            .filter(([k]) => !standardStats.includes(k.toLowerCase()) && typeof attributes[k] === 'number')
+            .map(([k, v]) => {
+                // Capitalize first letter of key (e.g. spellSlots -> SpellSlots)
+                const cleanKey = k.charAt(0).toUpperCase() + k.slice(1);
+                return `${cleanKey}:${v}`;
+            })
+            .join(' ');
+
+        // Combine
+        const attrText = [standardAttrText, extraStats].filter(Boolean).join(' ');
 
         // Calculate Passive Perception
         let wis = attributes.wis || 10;
@@ -67,7 +84,7 @@ export function generateAIContext(
     }).join('\n');
 
     const turnSummary = turnOrder.map(t =>
-        `${t.current ? '▶ ACTIVE: ' : '  '}${t.name} (Init: ${t.init})`
+        `${t.current ? '▶ [CURRENT] ' : '  '}${t.name} (Init: ${t.init})`
     ).join('\n');
 
     // Filter out hidden/private logs and take 5 most recent

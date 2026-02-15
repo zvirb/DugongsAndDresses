@@ -73,7 +73,7 @@ describe('AICopyButton', () => {
     expect(copiedText).toContain('Truth: Strict adherence to logs. Do NOT invent rolls, outcomes, or dialogue not in logs.')
 
     // Initiative
-    expect(copiedText).toContain('▶ ACTIVE: Grom (Init: 15)')
+    expect(copiedText).toContain('▶ [CURRENT] Grom (Init: 15)')
     expect(copiedText).toContain('  Goblin (Init: 8)')
     
     // Characters
@@ -128,5 +128,31 @@ describe('AICopyButton', () => {
 
     const copiedText = vi.mocked(navigator.clipboard.writeText).mock.calls[0][0]
     expect(copiedText).toContain('PP:14')
+  })
+
+  it('includes extra attributes like Spell Slots in context', async () => {
+    const charWithSlots = {
+        id: '1', name: 'Wizard', hp: 20, maxHp: 25, type: 'PLAYER', conditions: '[]',
+        armorClass: 14, level: 3, class: 'Wizard', race: 'Human',
+        attributes: JSON.stringify({ str: 10, dex: 10, con: 10, int: 18, wis: 12, cha: 10, spellSlots: 3, ki: 2 }),
+        speed: 30,
+        inventory: '[]',
+        activeTurn: true,
+        initiativeRoll: 15
+    } as unknown as Character
+    const oneCharLogs: LogEntry[] = []
+    const oneCharTurn: any[] = [{ name: 'Wizard', init: 15, current: true }]
+
+    render(<AICopyButton logs={oneCharLogs} characters={[charWithSlots]} turnOrder={oneCharTurn} />)
+
+    fireEvent.click(screen.getByText('Copy AI Context'))
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalled()
+    })
+
+    const copiedText = vi.mocked(navigator.clipboard.writeText).mock.calls[0][0]
+    expect(copiedText).toContain('SpellSlots:3')
+    expect(copiedText).toContain('Ki:2')
   })
 })
