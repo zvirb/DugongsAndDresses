@@ -4,6 +4,7 @@
 // Format: ## YYYY-MM-DD - [Logic] Break: [Turn skipped index 0] Fix: [Corrected modulo arithmetic]
 // ## 2024-05-23 - [UI] Break: [Active status hidden] Fix: [Changed "Active Unit" to "ACTIVE TURN"]
 // ## 2025-05-24 - [Logic] Break: [Empty list race condition] Fix: [Guard clause for 0 participants]
+// ## 2025-05-24 - [UI] Fortify: [Active Turn Visibility] Fix: [Updated drop-shadow style to #2b2bee]
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
@@ -240,11 +241,11 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 <span className={cn(
                                     "block font-bold uppercase tracking-wide text-sm",
                                     p.type === 'NPC' ? 'text-red-400 drop-shadow-sm' : 'text-white drop-shadow-sm',
-                                    p.activeTurn && "text-agent-blue drop-shadow-[0_0_5px_rgba(43,43,238,0.8)]"
+                                    p.activeTurn && "text-agent-blue drop-shadow-[0_0_5px_#2b2bee]"
                                 )}>
                                     {p.name}
                                 </span>
-                                {p.activeTurn && <span className="text-xs text-agent-blue font-black animate-pulse uppercase tracking-[0.2em] block mt-1 drop-shadow-[0_0_5px_rgba(43,43,238,0.8)]">&gt;&gt; ACTIVE TURN &lt;&lt;</span>}
+                                {p.activeTurn && <span className="text-xs text-agent-blue font-black animate-pulse uppercase tracking-[0.2em] block mt-1 drop-shadow-[0_0_5px_#2b2bee]">&gt;&gt; ACTIVE TURN &lt;&lt;</span>}
                             </div>
                         </div>
 
