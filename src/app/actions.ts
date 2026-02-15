@@ -186,6 +186,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // ## 2024-05-22 - [Logic] Break: [Stale client state causes confusion] Fix: [Detect and log mismatch when DB has no active char but client expects one]
 // ## 2024-05-23 - [Logic] Audit: [Race conditions & Sorting] Fix: [Verified Idempotency check returns actual active char; verified DB sort order matches UI]
 // ## 2025-05-24 - [Logic] Fortify: [Turn Loop Integrity] Fix: [Verified loop safety and race condition logging]
+// ## 2025-05-24 - [Logic] Fortify: [Defensive Coding] Fix: [Added explicit nextCharId check before transaction]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
@@ -241,7 +242,11 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             nextIndex = (currentIndex + 1) % characters.length;
         }
 
-        const nextCharId = characters[nextIndex].id;
+        const nextCharId = characters[nextIndex]?.id;
+
+        if (!nextCharId) {
+            throw new Error(`[SENTRY] Critical Failure: Unable to determine next character ID (Index: ${nextIndex}, Total: ${characters.length})`);
+        }
 
         const [, newActiveChar] = await prisma.$transaction([
             prisma.character.updateMany({
