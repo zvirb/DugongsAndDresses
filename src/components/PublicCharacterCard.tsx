@@ -94,7 +94,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                             LVL {character.level}
                         </Badge>
                         <div className="text-right">
-                            <span className="block text-xl text-agent-blue/80 uppercase font-mono tracking-widest mb-1">Defense</span>
+                            <span className="block text-4xl text-agent-blue/80 uppercase font-mono tracking-widest mb-1">Defense</span>
                             <span className={`text-7xl font-black leading-none tracking-tighter ${character.activeTurn ? 'text-white drop-shadow-[0_0_10px_rgba(43,43,238,0.8)]' : 'text-neutral-400'}`}>{character.armorClass}</span>
                         </div>
                     </div>
@@ -109,7 +109,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
 
                 <div className="mt-8">
                     <div className="flex justify-between items-end mb-4">
-                        <span className="text-2xl text-neutral-400 uppercase font-black tracking-[0.2em]">Vitality</span>
+                        <span className="text-4xl text-neutral-400 uppercase font-black tracking-[0.2em]">Vitality</span>
                         <div className="text-right flex items-baseline justify-end gap-3">
                             <span className={`text-8xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
                                 {displayHp}

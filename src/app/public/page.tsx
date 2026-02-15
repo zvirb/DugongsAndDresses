@@ -8,6 +8,7 @@ import { PublicCharacterCard } from "@/components/PublicCharacterCard";
  *
  * ## 2025-05-24 - [View] Blur: [Text too small on TV] Shout: [Bumped font size to 9xl and 7xl]
  * ## 2025-05-25 - [Logic] Secret: [NPCs were hidden but active turn was broken] Shout: [Added 'OPPONENT TURN' indicator using getSpectatorCampaign]
+ * ## 2026-02-15 - [View] Blur: [Labels too small] Shout: [Bumped labels to 4xl, Current Turn to 5xl]
  */
 
 export const dynamic = 'force-dynamic';
@@ -81,8 +82,8 @@ export default async function PublicPage() {
                             <div className="relative group cursor-default">
                                 <div className="absolute inset-0 bg-agent-blue/20 blur-xl animate-pulse rounded-full opacity-50" />
                                 <h3 className="text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white drop-shadow-[0_0_30px_rgba(43,43,238,0.8)] relative z-10 flex items-center gap-6">
-                                    <span className="text-4xl text-neutral-500 font-mono tracking-widest self-center opacity-70">CURRENT TURN</span>
-                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50' : 'text-red-500 border-red-500/50'}`}>
+                                    <span className="text-5xl text-white/60 font-mono tracking-widest self-center opacity-70">CURRENT TURN</span>
+                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md animate-pulse ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50' : 'text-red-500 border-red-500/50'}`}>
                                         {activeContestant.type === 'PLAYER' ? activeContestant.name : 'OPPONENT TURN'}
                                     </span>
                                 </h3>
