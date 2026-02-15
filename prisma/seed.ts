@@ -3,6 +3,7 @@
 // ## 2024-05-22 - [Seed] Gap: Missing Paladin/Monk archetypes and a cold-themed campaign. Summon: Added Sir Alistair, Morgana, Kael, and 'The Frozen Expanse' campaign.
 // ## 2025-02-18 - [Seed] Gap: Limited high-level intrigue campaign. Summon: Added 'The Crimson Citadel' with Lord Blackthorn and Lady Vespera.
 // ## 2025-05-23 - [Seed] Gap: No aquatic themed campaign. Summon: Added 'The Sunken City' with Captain Saltbeard and Marina.
+// ## 2025-05-24 - [Seed] Gap: No tournament or arena style campaign. Summon: Added 'The Gilded Tournament' with Grandmaster Thorne and Champion Urga.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -922,6 +923,89 @@ const sunkenCityCharacters: CharacterTemplate[] = [
   }
 ]
 
+const tournamentCharacters: CharacterTemplate[] = [
+  {
+    name: 'Grandmaster Thorne',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Fighter',
+    imageUrl: '/avatars/fighter_male_1770266290109.png',
+    hp: 50,
+    maxHp: 50,
+    armorClass: 16,
+    initiative: 5,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 18, dex: 14, con: 16, int: 14, wis: 14, cha: 16 },
+    activeTurn: false,
+    level: 10,
+  },
+  {
+    name: 'Champion Urga',
+    type: 'NPC',
+    race: 'Orc',
+    class: 'Barbarian',
+    imageUrl: '/avatars/fantasy_barbarian_female_1770266826511.png',
+    hp: 45,
+    maxHp: 45,
+    armorClass: 15,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 20, dex: 12, con: 18, int: 8, wis: 10, cha: 12 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Zola the Announcer',
+    type: 'NPC',
+    race: 'Tiefling',
+    class: 'Bard',
+    imageUrl: '/avatars/jester_female_1770267550485.png',
+    hp: 20,
+    maxHp: 20,
+    armorClass: 12,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 14, con: 12, int: 14, wis: 12, cha: 18 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Swiftshot',
+    type: 'NPC',
+    race: 'Elf',
+    class: 'Ranger',
+    imageUrl: '/avatars/elf_archer_male_1770268242137.png',
+    hp: 25,
+    maxHp: 25,
+    armorClass: 16,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 12, dex: 18, con: 12, int: 10, wis: 14, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Sir Gallant',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Paladin',
+    imageUrl: '/avatars/fighter_male_1770266139273.png',
+    hp: 30,
+    maxHp: 30,
+    armorClass: 18,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 16, dex: 10, con: 14, int: 10, wis: 12, cha: 16 },
+    activeTurn: true,
+    level: 3,
+  },
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -1154,6 +1238,42 @@ async function main() {
   })
 
   console.log(`🌊 Campaign "${sunkenCityCampaign.name}" created.`)
+
+  // Create The Gilded Tournament Campaign (Inactive)
+  const tournamentCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Gilded Tournament',
+      active: false,
+      characters: {
+        create: tournamentCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'Welcome to **The Gilded Tournament**!', type: 'Story' },
+          { content: '**Zola the Announcer** amplifies her voice with magic.', type: 'Story' },
+          { content: '**Grandmaster Thorne** observes from his throne.', type: 'Story' },
+          { content: '**Champion Urga** flexes her muscles, intimidating the crowd.', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`⚔️ Campaign "${tournamentCampaign.name}" created.`)
 }
 
 main()
