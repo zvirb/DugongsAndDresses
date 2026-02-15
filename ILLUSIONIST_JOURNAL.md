@@ -7,3 +7,6 @@
 ## 2025-05-25 - [DMPage] Dull: [Background was too clean] Glow: [Added CRT scanline overlay and enhanced header glow]
 ## 2025-05-25 - [PublicCharacterCard] Dull: [Active turn needed more punch] Glow: [Added inner glow and stronger shadow]
 ## 2025-05-25 - [QuickActions] Dull: [Forms looked like standard inputs] Glow: [Applied holographic panel borders and inset shadows]
+## 2025-05-27 - [PlayerPage] Dull: [Dashboard looked like a website] Glow: [Added tactical grid background, scanlines, and neon log headers]
+## 2025-05-27 - [PlayerHPControls] Dull: [Health bar was flat] Glow: [Added segmented technical border and dynamic color glow]
+## 2025-05-27 - [PlayerActionForm] Dull: [Inputs were standard gray] Glow: [Applied holographic glass style with focus bloom]

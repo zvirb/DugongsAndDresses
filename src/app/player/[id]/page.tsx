@@ -5,6 +5,7 @@
 // ## 2024-05-24 - [DiceRoller] Readability: [Mode toggles squint-inducing] Path: [Bumped to text-sm, increased container padding]
 // ## 2025-05-26 - [ActionForm] Thumb Zone: [Inputs and buttons small on mobile] Path: [Increased buttons to h-20, text to text-xl, expanded touch targets]
 
+import React from 'react';
 import { getPlayerDashboard } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import PlayerHPControls from "@/components/PlayerHPControls";
@@ -28,12 +29,16 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     }
 
     return (
-        <main className="flex flex-col p-4 space-y-6 pb-32 min-h-[100dvh]">
-            {/* Visual Section */}
-            <div className="relative h-32 md:h-auto w-full md:aspect-square max-w-sm mx-auto rounded-3xl overflow-hidden border-2 border-white/5 shadow-2xl shrink-0">
+        <main className="flex flex-col p-4 space-y-6 pb-32 min-h-[100dvh] bg-agent-navy relative overflow-x-hidden">
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:20px_20px] opacity-20" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-agent-navy/50 to-agent-navy" />
+            </div>
+
+            <div className="relative z-10 h-32 md:h-auto w-full md:aspect-square max-w-sm mx-auto rounded-3xl overflow-hidden border-4 border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)] shrink-0 bg-neutral-900 group">
                 {character.imageUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={character.imageUrl} alt={character.name} className="w-full h-full object-cover" />
+                    <img src={character.imageUrl} alt={character.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
                 ) : (
                     <div className="w-full h-full bg-neutral-900 flex items-center justify-center">
                         <svg className="w-20 h-20 text-neutral-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -42,29 +47,30 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     </div>
                 )}
 
-                {/* Active Turn Overlay */}
                 {character.activeTurn && (
-                    <div className="absolute inset-0 border-4 border-agent-blue animate-pulse pointer-events-none" />
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute inset-0 border-4 border-agent-blue animate-pulse z-20" />
+                        <div className="absolute top-0 left-0 w-full h-1 bg-agent-blue shadow-[0_0_20px_#2b2bee] animate-scan z-20" />
+                    </div>
                 )}
 
-                {/* Character Name/Class Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-12">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-agent-navy via-agent-navy/90 to-transparent p-6 pt-16 z-10">
                      <div className="flex justify-between items-end">
                         <div>
-                            <h2 className="text-3xl font-black italic tracking-tighter uppercase leading-none">{character.name}</h2>
-                            <p className="text-sm text-neutral-400 font-medium mt-1">{character.race} {character.class}</p>
+                            <h2 className="text-3xl font-black italic tracking-tighter uppercase leading-none text-white drop-shadow-md">{character.name}</h2>
+                            <p className="text-sm text-agent-blue font-mono font-bold uppercase tracking-widest mt-1">{character.race} // {character.class}</p>
                         </div>
                         <div className="flex gap-4 text-right items-end">
                             <div>
-                                <span className="block text-xs text-neutral-500 uppercase font-bold tracking-widest">Def</span>
-                                <span className="text-2xl font-black text-agent-blue">{character.armorClass}</span>
+                                <span className="block text-[10px] text-neutral-500 uppercase font-black tracking-widest">Def</span>
+                                <span className="text-2xl font-black text-agent-blue drop-shadow-[0_0_10px_rgba(43,43,238,0.5)]">{character.armorClass}</span>
                             </div>
                             <div>
-                                <span className="block text-xs text-neutral-500 uppercase font-bold tracking-widest">Spd</span>
+                                <span className="block text-[10px] text-neutral-500 uppercase font-black tracking-widest">Spd</span>
                                 <span className="text-2xl font-black text-white">{character.speed}</span>
                             </div>
                             <div>
-                                <span className="block text-xs text-neutral-500 uppercase font-bold tracking-widest">Init</span>
+                                <span className="block text-[10px] text-neutral-500 uppercase font-black tracking-widest">Init</span>
                                 <span className="text-2xl font-black text-white">+{character.initiative}</span>
                             </div>
                         </div>
@@ -72,19 +78,18 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </div>
             </div>
 
-            {/* Recent Events Log */}
-            <div className="space-y-3 shrink-0">
-                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-agent-blue rounded-full" />
+            <div className="space-y-3 shrink-0 relative z-10">
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 flex items-center gap-2 ml-1">
+                    <span className="w-1.5 h-1.5 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]" />
                     Tactical Log
                 </h3>
-                <Card variant="agent" className="bg-black/40 border-white/5 overflow-hidden">
+                <Card variant="agent" className="bg-black/40 border border-agent-blue/20 overflow-hidden shadow-[0_0_15px_rgba(43,43,238,0.1)] backdrop-blur-sm">
                     <CardContent className="p-0">
-                        <div className="max-h-48 overflow-y-auto font-mono text-sm divide-y divide-white/5">
+                        <div className="max-h-48 overflow-y-auto font-mono text-sm divide-y divide-white/5 scrollbar-thin scrollbar-thumb-agent-blue/20 scrollbar-track-transparent">
                             {character.logs.length > 0 ? (
                                 character.logs.map((log) => (
-                                    <div key={log.id} className="p-3 flex gap-3">
-                                        <span className="text-agent-blue shrink-0">[{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]</span>
+                                    <div key={log.id} className="p-3 flex gap-3 hover:bg-white/5 transition-colors">
+                                        <span className="text-agent-blue shrink-0 opacity-70">[{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]</span>
                                         <span className="text-neutral-300">{log.content}</span>
                                     </div>
                                 ))
@@ -98,7 +103,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </Card>
             </div>
 
-            <div className="shrink-0">
+            <div className="shrink-0 relative z-10">
                 <PlayerInitiativeControl
                     characterId={character.id}
                     characterName={character.name}
@@ -107,26 +112,24 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 />
             </div>
 
-            {/* Combat Controls - Pushed to Bottom */}
-            <div className="mt-auto space-y-6">
-                {/* Active Turn Banner */}
+            <div className="mt-auto space-y-6 relative z-10">
                 {character.activeTurn && (
-                    <div className="bg-agent-blue p-4 rounded-2xl text-center shadow-[0_0_20px_rgba(43,43,238,0.4)] animate-bounce">
-                        <span className="text-sm font-black uppercase tracking-[0.2em]">YOUR TURN</span>
+                    <div className="relative overflow-hidden bg-agent-blue p-4 rounded-2xl text-center shadow-[0_0_30px_rgba(43,43,238,0.5)] animate-pulse border border-white/20">
+                        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)] animate-[scan_2s_linear_infinite]" />
+                        <span className="relative z-10 text-sm font-black uppercase tracking-[0.3em] text-white drop-shadow-md">
+                            >> ACTIVE TURN <<
+                        </span>
                     </div>
                 )}
 
-                {/* Dice Roller */}
                 <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
 
-                {/* HP Controls & Status */}
-                <Card variant="agent" className="bg-agent-navy/40 border-white/5">
+                <Card variant="agent" className="bg-agent-navy/60 border-white/10 backdrop-blur-md shadow-lg">
                     <CardContent className="p-4">
                         <PlayerHPControls characterId={character.id} currentHp={character.hp} maxHp={character.maxHp} />
                     </CardContent>
                 </Card>
 
-                {/* Player Actions */}
                 <div className="space-y-4">
                     <PlayerActionForm characterName={character.name} campaignId={character.campaignId} />
                 </div>

@@ -41,7 +41,7 @@ describe('PlayerActionForm', () => {
         const input = screen.getByPlaceholderText('I swing my axe...');
         fireEvent.change(input, { target: { value: 'Cast Fireball' } });
 
-        const submitBtn = screen.getByText('Execute');
+        const submitBtn = screen.getByText('EXECUTE');
         fireEvent.click(submitBtn);
 
         await waitFor(() => {
@@ -62,7 +62,7 @@ describe('PlayerActionForm', () => {
         const rollInput = screen.getByPlaceholderText('Dice Roll');
         fireEvent.change(rollInput, { target: { value: '15' } });
 
-        const submitBtn = screen.getByText('Execute');
+        const submitBtn = screen.getByText('EXECUTE');
         fireEvent.click(submitBtn);
 
         await waitFor(() => {
