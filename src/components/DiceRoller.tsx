@@ -146,7 +146,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
                         disabled={rollingDie !== null}
-                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white hover:bg-white/5' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white hover:bg-white/5' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
                     >
                         Normal
                     </Button>
@@ -154,7 +154,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
                         disabled={rollingDie !== null}
-                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-neutral-500 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-neutral-500 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
                     >
                         Adv
                     </Button>
@@ -162,14 +162,14 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
                         disabled={rollingDie !== null}
-                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-neutral-500 hover:text-red-400 hover:bg-red-900/20'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-neutral-500 hover:text-red-400 hover:bg-red-900/20'}`}
                     >
                         Dis
                     </Button>
                 </div>
             </CardHeader>
             <CardContent className="p-4 pt-4 bg-black/20">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-4">
                     {[4, 6, 8, 10, 12, 20].map(d => (
                         <Button
                             key={d}
@@ -177,7 +177,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                             onClick={() => rollDice(d)}
                             variant={getDiceVariant()}
                             aria-label={rollingDie === d ? "Rolling" : undefined}
-                            className="font-black text-2xl h-20 p-4 w-full rounded-xl active:scale-[0.96] transition-transform shadow-lg touch-manipulation border border-white/5 hover:border-agent-blue/50"
+                            className="font-black text-2xl h-20 p-4 w-full rounded-xl active:scale-95 active:brightness-90 transition-transform shadow-lg touch-manipulation border border-white/5 hover:border-agent-blue/50"
                         >
                             {rollingDie === d ? <Spinner /> : `d${d}`}
                         </Button>
