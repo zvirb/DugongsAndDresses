@@ -5,6 +5,7 @@
 // ## 2024-05-24 - [Context] Gap: [AI missing NPC type] Fix: [Added [Type] to character summary]
 // ## 2025-02-14 - [Context] Gap: [Missing Passive Perception] Fix: [Added PP:X to stats]
 // ## 2025-05-21 - [Context] Gap: [AI missed active turn] Fix: [Added 'CURRENT' marker and extra attributes]
+// ## 2025-05-27 - [Context] Gap: [AI missed downed status] Fix: [Added 'DOWN' marker to conditions and optimized timestamp]
 
 import { parseConditions, parseAttributes, parseInventory } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
@@ -16,6 +17,12 @@ export function generateAIContext(
 ) {
     const charSummary = characters.map(c => {
         const conditions = parseConditions(c.conditions);
+
+        // Auto-detect downed state if HP <= 0
+        if (c.hp <= 0 && !conditions.some(cond => ['unconscious', 'down', 'dead', 'dying'].includes(cond.toLowerCase()))) {
+            conditions.push('DOWN');
+        }
+
         // Wrap conditions in brackets for density and parsing clarity
         const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'Healthy';
 
@@ -92,7 +99,7 @@ export function generateAIContext(
 
     // Take 5 most recent logs, then reverse to show chronological order (Old -> New)
     const logSummary = filteredLogs.slice(0, 5).reverse().map(l =>
-        `[${new Date(l.timestamp).toLocaleTimeString()}] ${l.content}`
+        `[${new Date(l.timestamp).toLocaleTimeString('en-US', { hour12: false })}] ${l.content}`
     ).join('\n');
 
     return `== CURRENT GAME STATE ==
