@@ -9,6 +9,7 @@
 // ## 2025-05-27 - [Dice] Logic: [Possible zero-sided die] Fix: [Added guard clause for sides < 1]
 // ## 2025-05-27 - [Dice] Transparency: [Advantage logs redundant] Fix: [Simplified format to [ADVANTAGE: X, Y]]
 // ## 2025-05-27 - [Dice] Interaction: [Mode switching while rolling] Fix: [Disabled mode toggles during roll]
+// ## 2025-05-28 - [Dice] Log: [Period placement in Advantage logs] Fix: [Moved period to end of sentence]
 
 import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
@@ -84,11 +85,11 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             let logMessage = '';
 
             if (isCrit) {
-                logMessage = `A natural 20! **${rollerName}** rolls d${sides}: **${result}**.${details}`;
+                logMessage = `A natural 20! **${rollerName}** rolls d${sides}: **${result}**${details}.`;
             } else if (isFumble) {
-                logMessage = `Disaster strikes! **${rollerName}** rolls d${sides}: **${result}**.${details}`;
+                logMessage = `Disaster strikes! **${rollerName}** rolls d${sides}: **${result}**${details}.`;
             } else {
-                logMessage = `**${rollerName}** rolls d${sides}: **${result}**.${details}`;
+                logMessage = `**${rollerName}** rolls d${sides}: **${result}**${details}.`;
             }
 
             const resultAction = await logAction(campaignId, logMessage, 'Roll');
