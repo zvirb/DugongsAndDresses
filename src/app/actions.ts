@@ -18,6 +18,7 @@ import { Character, Settings } from "@prisma/client";
 // BARD'S JOURNAL - CRITICAL LEARNINGS ONLY:
 // Format: ## YYYY-MM-DD - [Log] Boring: [Log said "HP Update"] Song: [Changed to "Grom takes 5 damage"]
 // ## 2025-05-24 - [Log] Boring: [Generic "Attacks", "Creates"] Song: [Enhanced with "CRITICAL HIT!", "Manifests", "Unconscious"]
+// ## 2025-05-25 - [Log] Boring: [Generic "Casts", "Checks"] Song: [Enhanced with "The air shimmers", "The attempt succeeds"]
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
@@ -690,13 +691,13 @@ export async function performAttack(attackerId: string, targetId: string, damage
         // Determine result string first
         let resultStr = "";
         if (isCrit) {
-            resultStr = "**CRITICAL HIT**!";
+            resultStr = "**CRITICAL HIT**! A devastating blow!";
         } else if (isFumble) {
-            resultStr = "**CRITICAL MISS**!";
+            resultStr = "**CRITICAL MISS**! A clumsy fumble!";
         } else if (isHit) {
             resultStr = "**HITS**!";
         } else {
-            resultStr = "**MISSES**!";
+            resultStr = "**MISSES**! The attack goes wide.";
         }
 
         content += ` ${resultStr}`;
@@ -742,14 +743,14 @@ export async function performSkillCheck(characterId: string, skillName: string, 
         const character = await prisma.character.findUnique({ where: { id: validated.characterId } });
         if (!character) throw new Error("Character not found");
 
-        let content = `**${character.name}** attempts **${skillName}**`;
+        let content = `**${character.name}** checks **${skillName}**`;
 
         if (roll !== undefined) {
             if (dc) {
                 if (roll >= dc) {
-                    content += `: **SUCCESS**!`;
+                    content += `: **SUCCESS**! The attempt succeeds.`;
                 } else {
-                    content += `: **FAILURE**!`;
+                    content += `: **FAILURE**! The attempt falls short.`;
                 }
 
                 if (dieRoll !== undefined && modifier !== undefined) {
@@ -797,7 +798,7 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
         }
 
         if (validated.condition && target) {
-            content += `. Condition **${validated.condition}** applied`;
+            content += `. The air shimmers as **${validated.condition}** takes hold`;
 
             const currentConditions = parseConditions(target.conditions);
             if (!currentConditions.includes(validated.condition)) {
