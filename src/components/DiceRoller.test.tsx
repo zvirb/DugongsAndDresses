@@ -260,7 +260,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\*\. \[ADVANTAGE: \*\*20\*\*, \*\*15\*\*\]/), // New format
+          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\* \[ADVANTAGE: \*\*20\*\*, \*\*15\*\*\]\./), // New format
           'Roll'
         )
     })
