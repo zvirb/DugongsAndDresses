@@ -90,7 +90,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
 
                 <div className="mb-auto">
                     <div className="flex justify-between items-start mb-6">
-                        <Badge variant={character.activeTurn ? 'agent' : 'player'} className="font-black italic text-3xl px-4 py-2 uppercase tracking-widest shadow-lg">
+                        <Badge variant={character.activeTurn ? 'agent' : 'player'} className="font-black italic text-5xl px-6 py-3 uppercase tracking-widest shadow-lg">
                             LVL {character.level}
                         </Badge>
                         <div className="text-right">
@@ -102,7 +102,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words ${character.activeTurn ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'text-neutral-300'}`}>
                         {character.name}
                     </h2>
-                    <p className="text-agent-blue text-xl font-mono font-bold uppercase tracking-widest mb-10 opacity-80">
+                    <p className="text-agent-blue text-4xl font-mono font-bold uppercase tracking-widest mb-10 opacity-80 truncate">
                         {character.race} // {character.class}
                     </p>
                 </div>

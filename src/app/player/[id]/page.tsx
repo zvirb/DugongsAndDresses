@@ -117,7 +117,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     <div className="relative overflow-hidden bg-agent-blue p-4 rounded-2xl text-center shadow-[0_0_30px_rgba(43,43,238,0.5)] animate-pulse border border-white/20">
                         <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)] animate-[scan_2s_linear_infinite]" />
                         <span className="relative z-10 text-sm font-black uppercase tracking-[0.3em] text-white drop-shadow-md">
-                            >> ACTIVE TURN <<
+                            &gt;&gt; ACTIVE TURN &lt;&lt;
                         </span>
                     </div>
                 )}
