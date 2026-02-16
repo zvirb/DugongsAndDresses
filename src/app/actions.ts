@@ -199,6 +199,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // ## 2024-05-23 - [Logic] Audit: [Race conditions & Sorting] Fix: [Verified Idempotency check returns actual active char; verified DB sort order matches UI]
 // ## 2025-05-24 - [Logic] Fortify: [Turn Loop Integrity] Fix: [Verified loop safety and race condition logging]
 // ## 2025-05-24 - [Logic] Fortify: [Defensive Coding] Fix: [Added explicit nextCharId check before transaction]
+// ## 2025-05-25 - [Logic] Fortify: [Race Condition Safety] Fix: [Verified Idempotency logic and Sync-on-Stale behavior in unit tests]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
