@@ -11,6 +11,7 @@ import { prisma } from "./prisma";
  * ## 2025-05-25 - [getPlayerDashboard] Slow: [Player polling] Sight: [Wrapped in unstable_cache for protection]
  * ## 2025-05-25 - [getSpectatorCampaign] Slow: [Fetched all characters] Sight: [Split into Players/Active queries]
  * ## 2025-05-26 - [getSpectatorCampaign] Slow: [Multiple round trips] Sight: [Consolidated Campaign+Players, conditional NPC fetch]
+ * ## 2025-05-27 - [getCampaignPulse] Slow: [Uncached polling] Sight: [Wrapped in unstable_cache, Optimized Select]
  */
 
 // Reusable select constants for consistency and optimization
@@ -220,25 +221,30 @@ export const getSpectatorCampaign = unstable_cache(
 /**
  * Optimized fetch for polling updates.
  * Selects only vital stats and recent logs to reduce database load.
+ * Cached with unstable_cache for polling performance (revalidate: 1s).
  */
-export async function getCampaignPulse(campaignId: string) {
-  return prisma.campaign.findUnique({
-    where: { id: campaignId },
-    select: {
-      id: true,
-      active: true,
-      characters: {
-        orderBy: { name: 'asc' },
-        select: PULSE_CHAR_SELECT
-      },
-      logs: {
-        take: 5,
-        orderBy: { timestamp: 'desc' },
-        select: DM_LOG_SELECT
+export const getCampaignPulse = unstable_cache(
+  async function getCampaignPulse(campaignId: string) {
+    return prisma.campaign.findUnique({
+      where: { id: campaignId },
+      select: {
+        id: true,
+        active: true,
+        characters: {
+          orderBy: { name: 'asc' },
+          select: PULSE_CHAR_SELECT
+        },
+        logs: {
+          take: 5,
+          orderBy: { timestamp: 'desc' },
+          select: DM_LOG_SELECT
+        }
       }
-    }
-  });
-}
+    });
+  },
+  ['campaign-pulse'],
+  { revalidate: 1, tags: ['campaign-pulse'] }
+);
 
 /**
  * Optimized fetch for the Player Dashboard (Status Page).
