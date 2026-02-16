@@ -24,6 +24,8 @@ describe('TurnTracker', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(actions.advanceTurn).mockResolvedValue({ success: true, data: {} as any })
+    vi.mocked(actions.listEncounters).mockResolvedValue({ success: true, data: [] })
   })
 
   it('renders all participants sorted by initiative', () => {

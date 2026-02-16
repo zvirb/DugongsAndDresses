@@ -5,6 +5,7 @@
 // ## 2024-05-23 - [UI] Break: [Active status hidden] Fix: [Changed "Active Unit" to "ACTIVE TURN"]
 // ## 2025-05-24 - [Logic] Break: [Empty list race condition] Fix: [Guard clause for 0 participants]
 // ## 2025-05-24 - [UI] Fortify: [Active Turn Visibility] Fix: [Updated drop-shadow style to #2b2bee]
+// ## 2025-05-25 - [Logic] Fortify: [Turn Loop Integrity] Fix: [Verified loop safety and race condition logging]
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
@@ -37,7 +38,11 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
         const currentActive = sortedParticipants.find(p => p.activeTurn);
 
         startTransition(async () => {
-            await advanceTurn(campaignId, currentActive?.id);
+            const result = await advanceTurn(campaignId, currentActive?.id);
+            if (!result.success) {
+                console.error("[SENTRY] Turn advancement failed:", result.error);
+                alert(`Failed to advance turn: ${result.error}`);
+            }
         });
     };
 
@@ -151,7 +156,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                     </Button>
                     <Button
                         onClick={handleNextTurn}
-                        disabled={isPending}
+                        disabled={isPending || sortedParticipants.length === 0}
                         variant="agent"
                         size="sm"
                         className="text-[10px] h-7 px-4 font-black tracking-widest uppercase shadow-[0_0_15px_rgba(43,43,238,0.4)] hover:shadow-[0_0_25px_rgba(43,43,238,0.7)] hover:scale-105 transition-all"
