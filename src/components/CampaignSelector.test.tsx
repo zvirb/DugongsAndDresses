@@ -6,6 +6,7 @@ import * as actions from '@/app/actions'
 // Mock the server action
 vi.mock('@/app/actions', () => ({
   activateCampaign: vi.fn(),
+  createCampaign: vi.fn(),
 }))
 
 describe('CampaignSelector', () => {
@@ -61,7 +62,10 @@ describe('CampaignSelector', () => {
     
     fireEvent.change(select, { target: { value: '2' } })
 
-    expect(select).toBeDisabled()
+    // Wait for the disabled state to appear
+    await waitFor(() => {
+        expect(select).toBeDisabled()
+    })
 
     await waitFor(() => {
       expect(select).not.toBeDisabled()
@@ -74,7 +78,7 @@ describe('CampaignSelector', () => {
     
     fireEvent.click(plusBtn)
 
-    expect(screen.getByPlaceholderText('Campaign Name')).toBeInTheDocument()
-    expect(screen.getByText('Create')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('New Operation...')).toBeInTheDocument()
+    expect(screen.getByText('INIT')).toBeInTheDocument()
   })
 })

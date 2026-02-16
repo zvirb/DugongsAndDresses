@@ -26,23 +26,23 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
                     await createCampaign(formData);
                     setIsCreating(false);
                 });
-            }} className="flex items-center gap-2">
+            }} className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
                 <Input
                     name="name"
-                    placeholder="Campaign Name"
-                    className="h-8 w-[150px] text-xs bg-agent-navy border-agent-blue/50"
+                    placeholder="New Operation..."
+                    className="h-8 w-[180px] text-xs bg-black/50 border-agent-blue/50 text-agent-blue placeholder:text-neutral-600 font-mono focus:bg-black/80 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
                     autoFocus
                     required
                 />
-                <Button type="submit" size="sm" variant="agent" disabled={isPending} className="h-8">
-                    {isPending ? "..." : "Create"}
+                <Button type="submit" size="sm" variant="agent" disabled={isPending} className="h-8 shadow-[0_0_10px_rgba(43,43,238,0.3)]">
+                    {isPending ? "..." : "INIT"}
                 </Button>
                 <Button 
                     type="button" 
                     variant="ghost" 
                     size="sm" 
                     onClick={() => setIsCreating(false)}
-                    className="h-8 px-2 text-neutral-500"
+                    className="h-8 w-8 p-0 text-neutral-500 hover:text-red-400 hover:bg-red-900/20 rounded-full"
                 >
                     ×
                 </Button>
@@ -52,23 +52,23 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
 
     return (
         <div className="flex items-center gap-2">
-            <div className="relative">
+            <div className="relative group">
                 <select
                     value={activeId}
                     onChange={handleChange}
                     disabled={isPending}
                     className={cn(
-                        "h-8 w-[200px] rounded-md border border-agent-blue/30 bg-agent-navy px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-agent-blue disabled:cursor-not-allowed disabled:opacity-50 text-neutral-100 appearance-none cursor-pointer hover:bg-neutral-800",
+                        "h-8 w-[200px] rounded-md border border-agent-blue/30 bg-black/50 px-3 py-1 text-sm shadow-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-agent-blue disabled:cursor-not-allowed disabled:opacity-50 text-agent-blue appearance-none cursor-pointer hover:bg-agent-blue/10 hover:border-agent-blue/60 font-bold uppercase tracking-wider backdrop-blur-sm",
                         isPending && "opacity-50"
                     )}
                 >
                     {campaigns.map(c => (
-                        <option key={c.id} value={c.id}>
+                        <option key={c.id} value={c.id} className="bg-agent-navy text-neutral-300">
                             {c.name}
                         </option>
                     ))}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neutral-400">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-agent-blue/50 group-hover:text-agent-blue transition-colors">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -77,7 +77,7 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
             <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-8 w-8 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10"
+                className="h-8 w-8 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10 hover:text-white hover:border-agent-blue transition-all shadow-[0_0_10px_rgba(43,43,238,0.1)] hover:shadow-[0_0_15px_rgba(43,43,238,0.3)]"
                 onClick={() => setIsCreating(true)}
                 title="New Campaign"
             >

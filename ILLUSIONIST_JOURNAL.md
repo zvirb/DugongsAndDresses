@@ -10,3 +10,5 @@
 ## 2025-05-27 - [PlayerPage] Dull: [Dashboard looked like a website] Glow: [Added tactical grid background, scanlines, and neon log headers]
 ## 2025-05-27 - [PlayerHPControls] Dull: [Health bar was flat] Glow: [Added segmented technical border and dynamic color glow]
 ## 2025-05-27 - [PlayerActionForm] Dull: [Inputs were standard gray] Glow: [Applied holographic glass style with focus bloom]
+## 2025-05-28 - [CampaignWizard] Dull: [Forms looked like a registration page] Glow: [Applied tactical grid, glassmorphism, and neon step indicators]
+## 2025-05-28 - [CampaignSelector] Dull: [Dropdown was generic] Glow: [Added agent-blue borders and tactical tracking]
