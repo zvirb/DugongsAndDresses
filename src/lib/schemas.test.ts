@@ -84,6 +84,17 @@ describe('AttributesSchema', () => {
         }
     });
 
+    it('handles legacy keys (Uppercase/Mixed Case)', () => {
+        const input = { Strength: 15, DEXTERITY: 12, WIS: 18 };
+        const result = AttributesSchema.safeParse(input);
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data.str).toBe(15);
+            expect(result.data.dex).toBe(12);
+            expect(result.data.wis).toBe(18);
+        }
+    });
+
     it('coerces strings to numbers', () => {
         const input = { str: "18", dex: "14.5" };
         const result = AttributesSchema.safeParse(input);

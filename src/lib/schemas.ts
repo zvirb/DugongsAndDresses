@@ -19,10 +19,13 @@ export const AttributesSchema = z.preprocess((val) => {
     for (const [key, value] of entries) {
        let currentKey = key;
        let currentValue = value;
+       const lowerKey = key.toLowerCase();
 
        // Migration
-       if (Object.prototype.hasOwnProperty.call(attributeMappings, key)) {
-         currentKey = attributeMappings[key];
+       if (Object.prototype.hasOwnProperty.call(attributeMappings, lowerKey)) {
+         currentKey = attributeMappings[lowerKey];
+       } else if (['str', 'dex', 'con', 'int', 'wis', 'cha'].includes(lowerKey)) {
+         currentKey = lowerKey;
        }
 
        // Coercion & Cleanup
