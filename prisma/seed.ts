@@ -4,6 +4,7 @@
 // ## 2025-02-18 - [Seed] Gap: Limited high-level intrigue campaign. Summon: Added 'The Crimson Citadel' with Lord Blackthorn and Lady Vespera.
 // ## 2025-05-23 - [Seed] Gap: No aquatic themed campaign. Summon: Added 'The Sunken City' with Captain Saltbeard and Marina.
 // ## 2025-05-24 - [Seed] Gap: No tournament or arena style campaign. Summon: Added 'The Gilded Tournament' with Grandmaster Thorne and Champion Urga.
+// ## 2025-05-25 - [Seed] Gap: No underground/dwarven themed campaign. Summon: Added 'The Iron Depths' with King Thorgar and Guide Brilda.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -559,6 +560,54 @@ const libraryCharacters: CharacterTemplate[] = [
     activeTurn: false,
     level: 1,
   },
+  {
+    name: 'Krix',
+    type: 'PLAYER',
+    race: 'Goblin',
+    class: 'Rogue',
+    imageUrl: '/avatars/rogue_male_1770266194878.png',
+    hp: 8,
+    maxHp: 8,
+    armorClass: 13,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 16, con: 12, int: 10, wis: 10, cha: 8 },
+    activeTurn: false,
+    level: 1,
+  },
+  {
+    name: 'Zara',
+    type: 'PLAYER',
+    race: 'Genasi',
+    class: 'Sorcerer',
+    imageUrl: '/avatars/nymph_female_1770267925456.png',
+    hp: 9,
+    maxHp: 9,
+    armorClass: 12,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 14, con: 12, int: 10, wis: 12, cha: 16 },
+    activeTurn: false,
+    level: 1,
+  },
+  {
+    name: 'Brother Kael',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Monk',
+    imageUrl: '/avatars/cleric_male_1770266221119.png',
+    hp: 10,
+    maxHp: 10,
+    armorClass: 14,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 40,
+    attributes: { str: 12, dex: 16, con: 12, int: 10, wis: 16, cha: 10, Ki: 2 },
+    activeTurn: false,
+    level: 2,
+  },
 ]
 
 const campaignCharacters: CharacterTemplate[] = [
@@ -1006,6 +1055,89 @@ const tournamentCharacters: CharacterTemplate[] = [
   },
 ]
 
+const ironDepthsCharacters: CharacterTemplate[] = [
+  {
+    name: 'King Thorgar',
+    type: 'NPC',
+    race: 'Dwarf',
+    class: 'Fighter',
+    imageUrl: '/avatars/dwarf_fighter_male_1770268439402.png',
+    hp: 45,
+    maxHp: 45,
+    armorClass: 17,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 18, dex: 12, con: 16, int: 10, wis: 14, cha: 16 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Guide Brilda',
+    type: 'NPC',
+    race: 'Dwarf',
+    class: 'Ranger',
+    imageUrl: '/avatars/dwarf_archer_female_1770268683214.png',
+    hp: 24,
+    maxHp: 24,
+    armorClass: 14,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 12, dex: 16, con: 14, int: 10, wis: 14, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Scholar Orin',
+    type: 'NPC',
+    race: 'Dwarf',
+    class: 'Wizard',
+    imageUrl: '/avatars/dwarf_mage_male_1770268698293.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 11,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 10, dex: 12, con: 14, int: 16, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Deep Gnome Spy',
+    type: 'NPC',
+    race: 'Gnome',
+    class: 'Rogue',
+    imageUrl: '/avatars/hobbit_male_1770267994027.png',
+    hp: 14,
+    maxHp: 14,
+    armorClass: 13,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 8, dex: 16, con: 12, int: 14, wis: 10, cha: 10 },
+    activeTurn: false,
+    level: 2,
+  },
+  {
+    name: 'Cave Troll',
+    type: 'NPC',
+    race: 'Troll',
+    class: 'Monster',
+    imageUrl: '/avatars/fantasy_barbarian_male_1770266807624.png',
+    hp: 60,
+    maxHp: 60,
+    armorClass: 14,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 20, dex: 10, con: 18, int: 6, wis: 8, cha: 6 },
+    activeTurn: false,
+    level: 5,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -1274,6 +1406,42 @@ async function main() {
   })
 
   console.log(`⚔️ Campaign "${tournamentCampaign.name}" created.`)
+
+  // Create The Iron Depths Campaign (Inactive)
+  const ironDepthsCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Iron Depths',
+      active: false,
+      characters: {
+        create: ironDepthsCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The tunnels of **The Iron Depths** echo with ancient machinery.', type: 'Story' },
+          { content: '**King Thorgar** leads the expedition into the dark.', type: 'Story' },
+          { content: '**Scholar Orin** studies the glowing runes on the wall.', type: 'Story' },
+          { content: 'A deep rumble shakes the cavern floor...', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`⚒️ Campaign "${ironDepthsCampaign.name}" created.`)
 }
 
 main()
