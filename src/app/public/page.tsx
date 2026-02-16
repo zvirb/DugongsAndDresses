@@ -9,6 +9,7 @@ import { PublicCharacterCard } from "@/components/PublicCharacterCard";
  * ## 2025-05-24 - [View] Blur: [Text too small on TV] Shout: [Bumped font size to 9xl and 7xl]
  * ## 2025-05-25 - [Logic] Secret: [NPCs were hidden but active turn was broken] Shout: [Added 'OPPONENT TURN' indicator using getSpectatorCampaign]
  * ## 2026-02-15 - [View] Blur: [Labels too small] Shout: [Bumped labels to 4xl, Current Turn to 5xl]
+ * ## 2025-05-27 - [View] Blur: [Race/Class and Status text too small] Shout: [Bumped to 4xl/5xl, Centered Grid]
  */
 
 export const dynamic = 'force-dynamic';
@@ -44,8 +45,8 @@ export default async function PublicPage() {
             <div className="p-8 pb-60 h-full overflow-y-auto border-x border-agent-blue/10 max-w-[1920px] mx-auto bg-black/20 backdrop-blur-sm relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
                 <header className="relative z-10 flex justify-between items-end mb-12 border-b-4 border-agent-blue/30 shadow-[0_0_15px_rgba(43,43,238,0.3)] pb-4 backdrop-blur-md bg-agent-navy/30 -mx-4 px-4 pt-4 rounded-t-xl">
                     <div>
-                        <div className="text-agent-blue font-mono text-sm animate-pulse mb-2 tracking-widest uppercase flex items-center gap-2">
-                            <span className="w-2 h-2 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]"></span>
+                        <div className="text-agent-blue font-mono text-3xl animate-pulse mb-2 tracking-widest uppercase flex items-center gap-4">
+                            <span className="w-4 h-4 bg-agent-blue rounded-full shadow-[0_0_10px_#2b2bee]"></span>
                             SYSTEM STATUS: ONLINE // SECURE CONNECTION
                         </div>
                         <h1 className="text-9xl font-black italic tracking-tighter text-white uppercase leading-none drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
@@ -56,15 +57,17 @@ export default async function PublicPage() {
                         </p>
                     </div>
                     <div className="text-right">
-                        <Badge variant="agent" className="text-3xl px-8 py-4 font-black uppercase tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.6)] border border-white/10 animate-pulse">
+                        <Badge variant="agent" className="text-5xl px-8 py-4 font-black uppercase tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.6)] border border-white/10 animate-pulse">
                             System Live
                         </Badge>
                     </div>
                 </header>
 
-                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="relative z-10 flex flex-wrap justify-center gap-8">
                     {campaign.characters.map((char) => (
-                        <PublicCharacterCard key={char.id} character={char} />
+                        <div key={char.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[300px]">
+                            <PublicCharacterCard character={char} />
+                        </div>
                     ))}
                 </div>
             </div>
