@@ -80,7 +80,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(-1)}
                         disabled={isPending}
-                        className="flex-1 h-32 text-6xl font-black rounded-xl border-b-8 border-red-900 active:translate-y-2 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation shadow-[0_10px_0_rgba(127,29,29,0.5)] active:shadow-none bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700"
+                        className="flex-1 h-32 p-6 text-6xl font-black rounded-xl border-b-8 border-red-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[0_10px_0_rgba(127,29,29,0.5)] active:shadow-none bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700"
                     >
                         -1
                     </Button>
@@ -89,7 +89,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(1)}
                         disabled={isPending}
-                        className="flex-1 h-32 text-6xl font-black rounded-xl border-b-8 border-emerald-900 active:translate-y-2 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation shadow-[0_10px_0_rgba(6,78,59,0.5)] active:shadow-none bg-gradient-to-br from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700"
+                        className="flex-1 h-32 p-6 text-6xl font-black rounded-xl border-b-8 border-emerald-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[0_10px_0_rgba(6,78,59,0.5)] active:shadow-none bg-gradient-to-br from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700"
                     >
                         +1
                     </Button>
@@ -100,7 +100,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(-5)}
                         disabled={isPending}
-                        className="flex-1 h-20 text-3xl font-bold rounded-xl border-b-4 border-red-900 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation bg-red-900/50 hover:bg-red-800/80 text-red-100"
+                        className="flex-1 h-20 text-3xl font-bold rounded-xl border-b-4 border-red-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-red-900/50 hover:bg-red-800/80 text-red-100"
                     >
                         -5
                     </Button>
@@ -109,7 +109,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(5)}
                         disabled={isPending}
-                        className="flex-1 h-20 text-3xl font-bold rounded-xl border-b-4 border-emerald-900 active:translate-y-1 active:border-b-0 active:scale-[0.98] transition-all touch-manipulation bg-emerald-900/50 hover:bg-emerald-800/80 text-emerald-100"
+                        className="flex-1 h-20 text-3xl font-bold rounded-xl border-b-4 border-emerald-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-emerald-900/50 hover:bg-emerald-800/80 text-emerald-100"
                     >
                         +5
                     </Button>

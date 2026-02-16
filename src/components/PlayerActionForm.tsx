@@ -55,7 +55,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
     return (
         <form onSubmit={handleSubmit} className="space-y-8 bg-black/40 p-6 rounded-2xl border border-white/5 shadow-lg backdrop-blur-md">
             <div className="space-y-3">
-                <label className="text-xs font-black uppercase tracking-[0.2em] text-agent-blue ml-1 flex items-center gap-2">
+                <label className="text-sm font-black uppercase tracking-[0.2em] text-agent-blue ml-1 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]" />
                     Declare Intent
                 </label>
@@ -68,7 +68,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                             type="button"
                             variant="ghost"
                             onClick={() => setIntent(action)}
-                            className="h-20 p-4 text-lg font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-[0.96] transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
+                            className="h-24 p-4 text-lg font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
                         >
                             {action}
                         </Button>
@@ -86,7 +86,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
 
             <div className="flex flex-col gap-6">
                 <div className="space-y-3">
-                    <label className="text-xs font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
+                    <label className="text-sm font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
                     <div className="flex gap-3">
                         <Input
                             type="text"
@@ -94,13 +94,13 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                             value={roll}
                             onChange={(e) => setRoll(e.target.value)}
                             disabled={isPending}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
                         />
                         <Button
                             type="button"
                             onClick={handleRoll}
                             disabled={isPending}
-                            className="h-20 flex-1 bg-agent-blue/10 border border-agent-blue/30 text-agent-blue text-lg font-black rounded-xl uppercase tracking-widest hover:bg-agent-blue/30 hover:border-agent-blue/60 active:scale-[0.96] transition-all shadow-[0_0_15px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.3)]"
+                            className="h-20 flex-1 bg-agent-blue/10 border border-agent-blue/30 text-agent-blue text-lg font-black rounded-xl uppercase tracking-widest hover:bg-agent-blue/30 hover:border-agent-blue/60 active:scale-95 active:brightness-90 transition-all shadow-[0_0_15px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.3)]"
                         >
                             Roll D20
                         </Button>
@@ -110,7 +110,7 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
                     type="submit"
                     variant="agent"
                     disabled={isPending || !intent}
-                    className="h-24 p-4 w-full rounded-xl uppercase text-3xl font-black tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.4)] active:scale-[0.96] transition-transform touch-manipulation border-t-4 border-agent-blue/50"
+                    className="h-24 p-4 w-full rounded-xl uppercase text-3xl font-black tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.4)] active:scale-95 active:brightness-90 transition-transform touch-manipulation border-t-4 border-agent-blue/50"
                 >
                     {isPending ? "TRANSMITTING..." : "EXECUTE"}
                 </Button>
