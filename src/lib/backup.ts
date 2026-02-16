@@ -20,12 +20,62 @@ export interface BackupData {
     encounters: Encounter[];
 }
 
-const BackupDataSchema = z.object({
+const CampaignSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  active: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+const CharacterBackupSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  race: z.string().nullable(),
+  class: z.string().nullable(),
+  level: z.number(),
+  imageUrl: z.string().nullable(),
+  hp: z.number(),
+  maxHp: z.number(),
+  armorClass: z.number(),
+  speed: z.number(),
+  initiative: z.number(),
+  attributes: z.string(),
+  inventory: z.string(),
+  conditions: z.string(),
+  campaignId: z.string(),
+  activeTurn: z.boolean(),
+  initiativeRoll: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  sourceId: z.string().nullable(),
+});
+
+const LogEntrySchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  type: z.string(),
+  timestamp: z.date(),
+  campaignId: z.string(),
+});
+
+const EncounterBackupSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: z.string(),
+  participants: z.string(),
+  campaignId: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export const BackupDataSchema = z.object({
     timestamp: z.string(),
-    campaigns: z.array(z.any()),
-    characters: z.array(z.any()),
-    logs: z.array(z.any()),
-    encounters: z.array(z.any()),
+    campaigns: z.array(CampaignSchema),
+    characters: z.array(CharacterBackupSchema),
+    logs: z.array(LogEntrySchema),
+    encounters: z.array(EncounterBackupSchema),
 });
 
 // Reviver for JSON.parse to convert ISO date strings back to Date objects
