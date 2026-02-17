@@ -184,7 +184,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
         // but maybe the user wants to keep the last roll?
         // Let's NOT sync initiative roll to source as it's ephemeral.
 
-        const content = `**${character.name}** rolls Initiative: **${roll}**.`;
+        const content = `**${character.name}** prepares for battle! Initiative: **${roll}**.`;
         await logAction(character.campaignId, content, "Combat");
 
         revalidatePath('/dm');
@@ -443,7 +443,17 @@ export async function updateCharacter(characterId: string, formData: FormData): 
 
         await syncToSource(character);
 
-        await logAction(character.campaignId, `**${character.name}** has been updated.`, "Story");
+        let content = `**${character.name}** undergoes a transformation.`;
+
+        if (charData.level && charData.level > existing.level) {
+            content = `**${character.name}** ascends! Reaches Level **${charData.level}**.`;
+        } else if (charData.name && charData.name !== existing.name) {
+            content = `**${existing.name}** is now known as **${charData.name}**.`;
+        } else if ((charData.race && charData.race !== existing.race) || (charData.class && charData.class !== existing.class)) {
+            content = `**${character.name}** is reborn as a **${character.race}** **${character.class}**.`;
+        }
+
+        await logAction(character.campaignId, content, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -512,7 +522,7 @@ export async function addInventoryItem(characterId: string, item: string): Promi
         // Sync to Library
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** adds **${item.trim()}** to inventory.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** obtains **${item.trim()}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -562,7 +572,7 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
         // Sync Source
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** removes **${item}** from inventory.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** discards **${item}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');

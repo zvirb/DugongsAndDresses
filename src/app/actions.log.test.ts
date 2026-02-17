@@ -1,6 +1,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { performAttack, performSkillCheck, castSpell, updateHP } from '@/app/actions';
+import { performAttack, performSkillCheck, castSpell, updateHP, updateCharacter, updateInitiative, addInventoryItem, removeInventoryItem } from '@/app/actions';
 import { prisma } from '@/lib/prisma';
 
 // Mock dependencies
@@ -136,5 +136,135 @@ describe('Bard Logging Enhancements', () => {
         expect(content).toContain('The attempt succeeds.');
         expect(content).toContain('Roll: **14**+**4** = **18**');
       });
+  });
+
+  describe('updateCharacter', () => {
+    it('should log level up', async () => {
+        vi.mocked(prisma.character.findUnique).mockResolvedValue({
+            id: 'char-1', name: 'Grom', level: 1, campaignId: 'camp-1', attributes: '{}'
+        } as any);
+        vi.mocked(prisma.character.update).mockResolvedValue({
+            id: 'char-1', name: 'Grom', level: 2, campaignId: 'camp-1'
+        } as any);
+
+        const formData = new FormData();
+        formData.append('name', 'Grom');
+        formData.append('level', '2');
+
+        await updateCharacter('char-1', formData);
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+        expect(content).toContain('**Grom** ascends! Reaches Level **2**');
+    });
+
+    it('should log name change', async () => {
+        vi.mocked(prisma.character.findUnique).mockResolvedValue({
+            id: 'char-1', name: 'Grom', level: 1, campaignId: 'camp-1', attributes: '{}'
+        } as any);
+        vi.mocked(prisma.character.update).mockResolvedValue({
+            id: 'char-1', name: 'Grom the Great', level: 1, campaignId: 'camp-1'
+        } as any);
+
+        const formData = new FormData();
+        formData.append('name', 'Grom the Great');
+        formData.append('level', '1');
+
+        await updateCharacter('char-1', formData);
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+        expect(content).toContain('**Grom** is now known as **Grom the Great**');
+    });
+
+    it('should log class/race change', async () => {
+        vi.mocked(prisma.character.findUnique).mockResolvedValue({
+            id: 'char-1', name: 'Grom', race: 'Human', class: 'Fighter', campaignId: 'camp-1', attributes: '{}'
+        } as any);
+        vi.mocked(prisma.character.update).mockResolvedValue({
+            id: 'char-1', name: 'Grom', race: 'Elf', class: 'Paladin', campaignId: 'camp-1'
+        } as any);
+
+        const formData = new FormData();
+        formData.append('name', 'Grom');
+        formData.append('race', 'Elf');
+        formData.append('class', 'Paladin');
+
+        await updateCharacter('char-1', formData);
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+        expect(content).toContain('**Grom** is reborn as a **Elf** **Paladin**');
+    });
+
+    it('should log generic update', async () => {
+        vi.mocked(prisma.character.findUnique).mockResolvedValue({
+            id: 'char-1', name: 'Grom', race: 'Human', class: 'Fighter', campaignId: 'camp-1', attributes: '{}'
+        } as any);
+        vi.mocked(prisma.character.update).mockResolvedValue({
+            id: 'char-1', name: 'Grom', race: 'Human', class: 'Fighter', campaignId: 'camp-1'
+        } as any);
+
+        const formData = new FormData();
+        formData.append('name', 'Grom');
+        formData.append('race', 'Human');
+        formData.append('class', 'Fighter');
+
+        await updateCharacter('char-1', formData);
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+        expect(content).toContain('**Grom** undergoes a transformation');
+    });
+  });
+
+  describe('updateInitiative', () => {
+      it('should log initiative with "prepares for battle"', async () => {
+        vi.mocked(prisma.character.update).mockResolvedValue({
+            id: 'char-1', name: 'Grom', campaignId: 'camp-1'
+        } as any);
+
+        await updateInitiative('char-1', 15);
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+
+        expect(content).toContain('**Grom** prepares for battle!');
+        expect(content).toContain('Initiative: **15**');
+      });
+  });
+
+  describe('Inventory', () => {
+      it('should log adding item with "obtains"', async () => {
+          vi.mocked(prisma.character.findUnique).mockResolvedValue({
+              id: 'char-1', name: 'Grom', campaignId: 'camp-1', inventory: '[]'
+          } as any);
+          vi.mocked(prisma.character.update).mockResolvedValue({
+              id: 'char-1', name: 'Grom', campaignId: 'camp-1', inventory: '["Sword"]'
+          } as any);
+
+          await addInventoryItem('char-1', 'Sword');
+
+          const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+          const content = createCall.data.content;
+
+          expect(content).toContain('**Grom** obtains **Sword**');
+      });
+
+      it('should log removing item with "discards"', async () => {
+        vi.mocked(prisma.character.findUnique).mockResolvedValue({
+            id: 'char-1', name: 'Grom', campaignId: 'camp-1', inventory: '["Sword"]'
+        } as any);
+        vi.mocked(prisma.character.update).mockResolvedValue({
+            id: 'char-1', name: 'Grom', campaignId: 'camp-1', inventory: '[]'
+        } as any);
+
+        await removeInventoryItem('char-1', 'Sword');
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+
+        expect(content).toContain('**Grom** discards **Sword**');
+    });
   });
 });
