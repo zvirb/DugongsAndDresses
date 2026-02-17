@@ -132,7 +132,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** rolls Initiative: **15**.'),
+        content: expect.stringContaining('**Grom** prepares for battle! Initiative: **15**.'),
         type: 'Combat',
       },
     });
@@ -232,7 +232,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** adds **Sword** to inventory.'),
+        content: expect.stringContaining('**Grom** obtains **Sword**.'),
         type: 'Story',
       },
     });
@@ -257,7 +257,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** removes **Sword** from inventory.'),
+        content: expect.stringContaining('**Grom** discards **Sword**.'),
         type: 'Story',
       },
     });
