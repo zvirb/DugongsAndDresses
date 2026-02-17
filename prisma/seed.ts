@@ -5,6 +5,7 @@
 // ## 2025-05-23 - [Seed] Gap: No aquatic themed campaign. Summon: Added 'The Sunken City' with Captain Saltbeard and Marina.
 // ## 2025-05-24 - [Seed] Gap: No tournament or arena style campaign. Summon: Added 'The Gilded Tournament' with Grandmaster Thorne and Champion Urga.
 // ## 2025-05-25 - [Seed] Gap: No underground/dwarven themed campaign. Summon: Added 'The Iron Depths' with King Thorgar and Guide Brilda.
+// ## 2025-05-26 - [Seed] Gap: No high-magic feywild campaign. Summon: Added 'The Whispering Woods' with Elara and Thalin.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -1138,6 +1139,89 @@ const ironDepthsCharacters: CharacterTemplate[] = [
   }
 ]
 
+const whisperingWoodsCharacters: CharacterTemplate[] = [
+  {
+    name: 'Elara the Guardian',
+    type: 'PLAYER',
+    race: 'Elf',
+    class: 'Fighter',
+    imageUrl: '/avatars/elf_fighter_female_1770268107753.png',
+    hp: 20,
+    maxHp: 20,
+    armorClass: 16,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 14, dex: 16, con: 12, int: 11, wis: 14, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Thalin Swiftbow',
+    type: 'PLAYER',
+    race: 'Elf',
+    class: 'Ranger',
+    imageUrl: '/avatars/elf_archer_female_1770268263008.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 15,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 10, dex: 18, con: 12, int: 12, wis: 14, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Pip',
+    type: 'NPC',
+    race: 'Fairy',
+    class: 'Guide',
+    imageUrl: '/avatars/fairy_female_1770267946577.png',
+    hp: 10,
+    maxHp: 10,
+    armorClass: 14,
+    initiative: 5,
+    initiativeRoll: 0,
+    speed: 40,
+    attributes: { str: 4, dex: 20, con: 10, int: 12, wis: 14, cha: 16 },
+    activeTurn: false,
+    level: 2,
+  },
+  {
+    name: 'Elder Mossbeard',
+    type: 'NPC',
+    race: 'Treant',
+    class: 'Druid',
+    imageUrl: '/avatars/nymph_male_1770267906487.png',
+    hp: 40,
+    maxHp: 40,
+    armorClass: 16,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 20,
+    attributes: { str: 18, dex: 8, con: 18, int: 14, wis: 18, cha: 12 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Malakor the Rot',
+    type: 'NPC',
+    race: 'Elf',
+    class: 'Necromancer',
+    imageUrl: '/avatars/elf_male_1770267781103.png',
+    hp: 35,
+    maxHp: 35,
+    armorClass: 13,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 14, con: 14, int: 16, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 5,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -1442,6 +1526,42 @@ async function main() {
   })
 
   console.log(`⚒️ Campaign "${ironDepthsCampaign.name}" created.`)
+
+  // Create The Whispering Woods Campaign (Inactive)
+  const whisperingWoodsCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Whispering Woods',
+      active: false,
+      characters: {
+        create: whisperingWoodsCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The ancient canopy of **The Whispering Woods** blocks out the sun.', type: 'Story' },
+          { content: '**Elara the Guardian** detects a disturbance in the ley lines.', type: 'Story' },
+          { content: '**Pip** giggles as she leads the group astray.', type: 'Story' },
+          { content: 'A sinister fog begins to roll in from the north...', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`🍃 Campaign "${whisperingWoodsCampaign.name}" created.`)
 }
 
 main()
