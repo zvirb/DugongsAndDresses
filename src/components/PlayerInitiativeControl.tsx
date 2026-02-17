@@ -1,5 +1,9 @@
 'use client';
 
+// SCOUT'S JOURNAL - CRITICAL LEARNINGS ONLY
+// Format: ## YYYY-MM-DD - [Interaction] Fumble: [Button too small] Path: [Increased padding to p-4]
+// ## 2025-05-29 - [Initiative] Target: [Button height] Path: [Increased to h-20 for thumb ease]
+
 import { useTransition } from 'react';
 import { updateInitiative } from '@/app/actions';
 import { secureRoll } from '@/lib/dice';
@@ -51,7 +55,7 @@ export default function PlayerInitiativeControl({ characterId, characterName, in
                 onClick={handleRoll}
                 disabled={isPending}
                 variant="agent"
-                className="w-full font-black uppercase tracking-widest h-14 text-lg touch-manipulation"
+                className="w-full font-black uppercase tracking-widest h-20 text-lg touch-manipulation"
             >
                 {isPending ? 'Rolling...' : 'Roll Initiative'}
             </Button>

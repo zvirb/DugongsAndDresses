@@ -5,6 +5,7 @@
 // ## 2024-05-24 - [DiceRoller] Readability: [Mode toggles squint-inducing] Path: [Bumped to text-sm, increased container padding]
 // ## 2025-05-26 - [ActionForm] Thumb Zone: [Inputs and buttons small on mobile] Path: [Increased buttons to h-20, text to text-xl, expanded touch targets]
 // ## 2025-05-27 - [Layout] Optimization: [Mobile touch targets and feedback] Path: [Increased padding, gaps, and active states]
+// ## 2025-05-29 - [Layout] Viewport: [Bottom content clipped] Path: [Increased padding to pb-40]
 
 import { getPlayerDashboard } from "@/lib/queries";
 import { notFound } from "next/navigation";
@@ -29,7 +30,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     }
 
     return (
-        <main className="flex flex-col p-4 space-y-6 pb-32 min-h-[100dvh] bg-agent-navy relative overflow-x-hidden">
+        <main className="flex flex-col p-4 space-y-6 pb-40 min-h-[100dvh] bg-agent-navy relative overflow-x-hidden">
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:20px_20px] opacity-20" />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-agent-navy/50 to-agent-navy" />
