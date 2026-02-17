@@ -30,7 +30,7 @@ const defaultCharacter: CharacterDraft = {
 };
 
 const inputClass = "bg-black/50 border-white/10 text-white focus-visible:ring-agent-blue focus:border-agent-blue h-9 text-sm font-mono transition-all focus:bg-black/70 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] backdrop-blur-sm";
-const selectClass = "flex h-9 w-full rounded-md border border-white/10 bg-black/50 px-3 py-1 text-sm text-agent-blue focus:outline-none focus:ring-1 focus:ring-agent-blue placeholder:text-neutral-600 font-mono transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] backdrop-blur-sm appearance-none";
+const selectClass = "flex h-9 w-full rounded-md border border-white/10 bg-black/50 px-3 py-1 text-sm text-agent-blue focus:outline-none focus:ring-1 focus:ring-agent-blue placeholder:text-agent-blue/40 font-mono transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] backdrop-blur-sm appearance-none";
 
 export default function CampaignWizard() {
     const [step, setStep] = useState(1);
@@ -132,7 +132,7 @@ export default function CampaignWizard() {
                                 <span className="w-2 h-2 bg-agent-blue rounded-full animate-pulse shadow-[0_0_10px_#2b2bee]" />
                                 Character Archives
                             </CardTitle>
-                            <Button variant="ghost" size="sm" onClick={() => setLibraryOpen(false)} className="text-neutral-400 hover:text-white uppercase tracking-wider text-xs font-bold">Close</Button>
+                            <Button variant="ghost" size="sm" onClick={() => setLibraryOpen(false)} className="text-agent-blue/60 hover:text-white uppercase tracking-wider text-xs font-bold">Close</Button>
                         </CardHeader>
                         <CardContent className="flex-1 overflow-y-auto p-4 bg-black/40 relative z-10 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
                             {libraryLoading ? (
@@ -146,7 +146,7 @@ export default function CampaignWizard() {
                                         >
                                             <div className="relative z-10">
                                                 <div className="font-bold text-white group-hover:text-agent-blue uppercase tracking-wider">{char.name}</div>
-                                                <div className="text-xs text-neutral-400 font-mono mt-1">
+                                                <div className="text-xs text-agent-blue/60 font-mono mt-1">
                                                     {char.race} {char.class} (Lv{char.level})
                                                 </div>
                                                 <div className="text-xs text-agent-blue/70 mt-1 font-mono uppercase tracking-tight">
@@ -158,7 +158,7 @@ export default function CampaignWizard() {
                                             </div>
                                         </div>
                                     ))}
-                                    {libraryList.length === 0 && <p className="text-neutral-500 font-mono text-center col-span-2 py-8">No records found in archive.</p>}
+                                    {libraryList.length === 0 && <p className="text-agent-blue/40 font-mono text-center col-span-2 py-8">No records found in archive.</p>}
                                 </div>
                             )}
                         </CardContent>
@@ -194,10 +194,10 @@ export default function CampaignWizard() {
                                         value={campaignName}
                                         onChange={(e) => setCampaignName(e.target.value)}
                                         placeholder="e.g. OPERATION BLACKSTONE"
-                                        className="h-16 text-xl px-4 bg-black/50 border-agent-blue/30 focus:border-agent-blue focus:bg-black/70 font-mono tracking-wider shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] placeholder:text-neutral-700"
+                                        className="h-16 text-xl px-4 bg-black/50 border-agent-blue/30 focus:border-agent-blue focus:bg-black/70 font-mono tracking-wider shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] placeholder:text-agent-blue/20"
                                         autoFocus
                                     />
-                                    <p className="text-[10px] text-neutral-500 font-mono ml-1 uppercase tracking-wider">Define the operation identifier.</p>
+                                    <p className="text-[10px] text-agent-blue/40 font-mono ml-1 uppercase tracking-wider">Define the operation identifier.</p>
                                 </div>
                                 <div className="pt-4">
                                     <Button
@@ -218,7 +218,7 @@ export default function CampaignWizard() {
                                 <div className="flex justify-between items-end border-b border-white/10 pb-2">
                                     <div>
                                         <h4 className="text-sm font-bold text-white uppercase tracking-widest">Combatant Manifest</h4>
-                                        <p className="text-[10px] text-neutral-500 font-mono mt-0.5">Register initial personnel.</p>
+                                        <p className="text-[10px] text-agent-blue/40 font-mono mt-0.5">Register initial personnel.</p>
                                     </div>
                                     <span className="text-xs font-mono text-agent-blue font-bold bg-agent-blue/10 px-2 py-0.5 rounded border border-agent-blue/30">
                                         COUNT: {characters.length.toString().padStart(2, '0')}
@@ -233,12 +233,12 @@ export default function CampaignWizard() {
                                                     <div className="w-1 h-8 bg-agent-blue/50 rounded-full" />
                                                     <div>
                                                         <span className="font-bold text-white uppercase tracking-wide text-sm block">{c.name}</span>
-                                                        <span className="text-neutral-500 text-[10px] font-mono uppercase tracking-wider">
+                                                        <span className="text-agent-blue/40 text-[10px] font-mono uppercase tracking-wider">
                                                             {c.race} {c.class} Lv{c.level}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <Button variant="ghost" size="sm" onClick={() => removeCharacter(i)} className="text-neutral-500 hover:text-red-400 h-6 px-2 text-[10px] uppercase tracking-wider hover:bg-white/5">
+                                                <Button variant="ghost" size="sm" onClick={() => removeCharacter(i)} className="text-agent-blue/40 hover:text-red-400 h-6 px-2 text-[10px] uppercase tracking-wider hover:bg-white/5">
                                                     Remove
                                                 </Button>
                                             </div>
@@ -258,11 +258,11 @@ export default function CampaignWizard() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="col-span-2 md:col-span-1">
-                                            <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold">Name *</label>
+                                            <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold">Name *</label>
                                             <Input value={current.name} onChange={e => setCurrent(p => ({ ...p, name: e.target.value }))} className={inputClass} placeholder="e.g. Sgt. Stone" />
                                         </div>
                                         <div className="col-span-2 md:col-span-1">
-                                            <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold">Type</label>
+                                            <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold">Type</label>
                                             <div className="relative">
                                                 <select
                                                     value={current.type}
@@ -278,34 +278,34 @@ export default function CampaignWizard() {
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold">Race</label>
+                                            <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold">Race</label>
                                             <Input value={current.race} onChange={e => setCurrent(p => ({ ...p, race: e.target.value }))} className={inputClass} placeholder="Human" />
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold">Class</label>
+                                            <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold">Class</label>
                                             <Input value={current.class} onChange={e => setCurrent(p => ({ ...p, class: e.target.value }))} className={inputClass} placeholder="Fighter" />
                                         </div>
                                         <div className="grid grid-cols-3 gap-2 col-span-2">
                                             <div>
-                                                <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold text-center">Lvl</label>
+                                                <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold text-center">Lvl</label>
                                                 <Input type="number" value={current.level} onChange={e => setCurrent(p => ({ ...p, level: parseInt(e.target.value) || 1 }))} className={`${inputClass} text-center`} />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold text-center">HP</label>
+                                                <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold text-center">HP</label>
                                                 <Input type="number" value={current.hp} onChange={e => { const v = parseInt(e.target.value) || 1; setCurrent(p => ({ ...p, hp: v, maxHp: v })); }} className={`${inputClass} text-center`} />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold text-center">AC</label>
+                                                <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold text-center">AC</label>
                                                 <Input type="number" value={current.armorClass} onChange={e => setCurrent(p => ({ ...p, armorClass: parseInt(e.target.value) || 10 }))} className={`${inputClass} text-center`} />
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 col-span-2">
                                             <div>
-                                                <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold text-center">Speed</label>
+                                                <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold text-center">Speed</label>
                                                 <Input type="number" value={current.speed} onChange={e => setCurrent(p => ({ ...p, speed: parseInt(e.target.value) || 30 }))} className={`${inputClass} text-center`} />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] text-neutral-400 mb-1 uppercase tracking-wider font-bold text-center">Init Bonus</label>
+                                                <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-wider font-bold text-center">Init Bonus</label>
                                                 <Input type="number" value={current.initiative} onChange={e => setCurrent(p => ({ ...p, initiative: parseInt(e.target.value) || 0 }))} className={`${inputClass} text-center`} />
                                             </div>
                                         </div>
@@ -316,7 +316,7 @@ export default function CampaignWizard() {
                                         <div className="grid grid-cols-6 gap-1">
                                             {ATTRIBUTE_KEYS.map(attr => (
                                                 <div key={attr}>
-                                                    <label className="block text-[9px] text-neutral-500 text-center uppercase tracking-wider mb-0.5">{attr}</label>
+                                                    <label className="block text-[9px] text-agent-blue/60 text-center uppercase tracking-wider mb-0.5">{attr}</label>
                                                     <Input
                                                         type="number"
                                                         value={current.attributes[attr]}
@@ -359,15 +359,15 @@ export default function CampaignWizard() {
                                     </div>
 
                                     <div className="bg-black/40 rounded-lg p-4 border border-white/5">
-                                        <h4 className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest mb-3 border-b border-white/5 pb-1">Personnel ({characters.length})</h4>
+                                        <h4 className="text-[10px] text-agent-blue/40 font-mono uppercase tracking-widest mb-3 border-b border-white/5 pb-1">Personnel ({characters.length})</h4>
                                         {characters.length === 0 ? (
-                                            <p className="text-neutral-500 text-xs italic p-4 text-center border border-dashed border-white/10 rounded">No personnel assigned. Reinforcements can be deployed later.</p>
+                                            <p className="text-agent-blue/40 text-xs italic p-4 text-center border border-dashed border-white/10 rounded">No personnel assigned. Reinforcements can be deployed later.</p>
                                         ) : (
                                             <div className="space-y-2 max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                                                 {characters.map((c, i) => (
                                                     <div key={i} className="text-sm flex justify-between items-center p-2 hover:bg-white/5 rounded transition-colors border-b border-white/5 last:border-0">
                                                         <span className="font-bold text-white uppercase tracking-wide">{c.name}</span>
-                                                        <span className="text-neutral-400 text-xs font-mono">
+                                                        <span className="text-agent-blue/60 text-xs font-mono">
                                                             Lv{c.level} {c.class}
                                                         </span>
                                                     </div>

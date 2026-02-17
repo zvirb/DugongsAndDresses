@@ -12,3 +12,4 @@
 ## 2025-05-27 - [PlayerActionForm] Dull: [Inputs were standard gray] Glow: [Applied holographic glass style with focus bloom]
 ## 2025-05-28 - [CampaignWizard] Dull: [Forms looked like a registration page] Glow: [Applied tactical grid, glassmorphism, and neon step indicators]
 ## 2025-05-28 - [CampaignSelector] Dull: [Dropdown was generic] Glow: [Added agent-blue borders and tactical tracking]
+## 2025-05-30 - [Global] Dull: [Generic grays in UI primitives] Glow: [Enforced Dark Mode and replaced neutrals with Agent Blue tints]

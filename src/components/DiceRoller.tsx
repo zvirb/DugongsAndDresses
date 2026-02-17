@@ -132,7 +132,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                                 {lastResult.total}
                             </span>
                             {(lastResult.mode !== 'NORMAL' || lastResult.isCrit || lastResult.isFumble) && (
-                                <span className="text-xs text-neutral-400 font-mono opacity-80 bg-black/40 px-1 rounded border border-white/5">
+                                <span className="text-xs text-agent-blue/60 font-mono opacity-80 bg-black/40 px-1 rounded border border-agent-blue/10">
                                     {lastResult.isCrit && 'CRIT! '}
                                     {lastResult.isFumble && 'MISS! '}
                                     {lastResult.mode !== 'NORMAL' ? `[${lastResult.rolls.join(', ')}]` : `[${lastResult.total}]`}
@@ -148,7 +148,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
                         disabled={rollingDie !== null}
-                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode !== 'NORMAL' ? 'text-neutral-500 hover:text-white hover:bg-white/5' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode !== 'NORMAL' ? 'text-agent-blue/40 hover:text-white hover:bg-agent-blue/10' : 'shadow-[0_0_15px_rgba(43,43,238,0.3)] ring-1 ring-agent-blue/50'}`}
                     >
                         Normal
                     </Button>
@@ -156,7 +156,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
                         disabled={rollingDie !== null}
-                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-neutral-500 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-agent-blue/40 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
                     >
                         Adv
                     </Button>
@@ -164,7 +164,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
                         disabled={rollingDie !== null}
-                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-neutral-500 hover:text-red-400 hover:bg-red-900/20'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-agent-blue/40 hover:text-red-400 hover:bg-red-900/20'}`}
                     >
                         Dis
                     </Button>
