@@ -102,8 +102,8 @@ export default function BackupManager() {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    <p className="text-sm text-neutral-400">
-                        Backups are saved to the project folder on your host machine (<code className="bg-neutral-800 px-1 rounded">./backups</code>),
+                    <p className="text-sm text-agent-blue/60">
+                        Backups are saved to the project folder on your host machine (<code className="bg-black/50 border border-agent-blue/20 px-1 rounded">./backups</code>),
                         keeping them safe even if Docker containers are reset.
                     </p>
 
@@ -111,28 +111,29 @@ export default function BackupManager() {
                         <Button
                             onClick={handleCreate}
                             disabled={loading}
-                            className="bg-agent-blue hover:bg-blue-600 text-white"
+                            variant="agent"
+                            className="shadow-[0_0_15px_rgba(43,43,238,0.3)]"
                         >
                             {loading && status?.includes('Creating') ? 'Backing up...' : 'Create New Backup'}
                         </Button>
-                        {status && <span className="text-sm text-agent-act">{status}</span>}
+                        {status && <span className="text-sm text-white animate-pulse">{status}</span>}
                     </div>
 
-                    <div className="border border-neutral-700 rounded-lg overflow-hidden">
-                        <div className="bg-neutral-900 px-4 py-2 border-b border-neutral-700 font-semibold text-sm text-neutral-300">
+                    <div className="border border-agent-blue/20 rounded-lg overflow-hidden bg-black/20">
+                        <div className="bg-agent-navy/80 px-4 py-2 border-b border-agent-blue/20 font-bold text-sm text-agent-blue uppercase tracking-wider">
                             Available Backups
                         </div>
-                        <div className="max-h-60 overflow-y-auto">
+                        <div className="max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
                             {backups.length === 0 ? (
-                                <div className="p-4 text-center text-neutral-500 text-sm">No backups found.</div>
+                                <div className="p-4 text-center text-agent-blue/40 text-sm">No backups found.</div>
                             ) : (
-                                <ul className="divide-y divide-neutral-800">
+                                <ul className="divide-y divide-agent-blue/10">
                                     {backups.map(file => (
-                                        <li key={file} className="flex items-center justify-between p-3 hover:bg-neutral-800/50 transition-colors">
-                                            <span className="text-sm font-mono text-neutral-300">{file}</span>
+                                        <li key={file} className="flex items-center justify-between p-3 hover:bg-agent-blue/10 transition-colors">
+                                            <span className="text-sm font-mono text-agent-blue/80">{file}</span>
                                             <div className="flex gap-2">
                                                 <Button
-                                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                                    variant="destructive"
                                                     size="sm"
                                                     onClick={() => handleRestore(file)}
                                                     disabled={loading}
@@ -140,7 +141,8 @@ export default function BackupManager() {
                                                     Restore
                                                 </Button>
                                                 <Button
-                                                    className="bg-neutral-700 hover:bg-red-900 text-white border border-neutral-600"
+                                                    variant="ghost"
+                                                    className="text-agent-blue/60 hover:text-red-400 hover:bg-red-900/20"
                                                     size="sm"
                                                     onClick={() => handleDelete(file)}
                                                     disabled={loading}

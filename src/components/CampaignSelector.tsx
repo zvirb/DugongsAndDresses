@@ -30,7 +30,7 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
                 <Input
                     name="name"
                     placeholder="New Operation..."
-                    className="h-8 w-[180px] text-xs bg-black/50 border-agent-blue/50 text-agent-blue placeholder:text-neutral-600 font-mono focus:bg-black/80 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
+                    className="h-8 w-[180px] text-xs bg-black/50 border-agent-blue/50 text-agent-blue placeholder:text-agent-blue/40 font-mono focus:bg-black/80 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
                     autoFocus
                     required
                 />
@@ -42,7 +42,7 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
                     variant="ghost" 
                     size="sm" 
                     onClick={() => setIsCreating(false)}
-                    className="h-8 w-8 p-0 text-neutral-500 hover:text-red-400 hover:bg-red-900/20 rounded-full"
+                    className="h-8 w-8 p-0 text-agent-blue/60 hover:text-red-400 hover:bg-red-900/20 rounded-full"
                 >
                     ×
                 </Button>
@@ -63,7 +63,7 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
                     )}
                 >
                     {campaigns.map(c => (
-                        <option key={c.id} value={c.id} className="bg-agent-navy text-neutral-300">
+                        <option key={c.id} value={c.id} className="bg-agent-navy text-agent-blue font-bold">
                             {c.name}
                         </option>
                     ))}

@@ -9,11 +9,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const buttonVariants = ({ variant = 'primary', size = 'md', className }: { variant?: ButtonProps['variant'], size?: ButtonProps['size'], className?: string } = {}) => {
     const variants = {
       primary: 'bg-agent-blue text-white hover:bg-blue-600 font-bold shadow-[0_0_20px_rgba(43,43,238,0.5)] border border-agent-blue/50',
-      secondary: 'bg-neutral-800 text-neutral-100 hover:bg-neutral-700 border border-neutral-700 hover:border-neutral-600',
+      secondary: 'bg-agent-navy text-agent-blue hover:bg-agent-blue/10 border border-agent-blue/30 font-bold shadow-[0_0_10px_rgba(43,43,238,0.1)]',
       destructive: 'bg-red-900 text-red-100 hover:bg-red-800 shadow-[0_0_15px_rgba(220,38,38,0.4)] border border-red-800',
       success: 'bg-emerald-900 text-emerald-100 hover:bg-emerald-800 shadow-[0_0_15px_rgba(16,185,129,0.4)] border border-emerald-800',
-      outline: 'border border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-500',
-      ghost: 'hover:bg-neutral-800 text-neutral-400 hover:text-white',
+      outline: 'border border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10 hover:text-white hover:border-agent-blue hover:shadow-[0_0_15px_rgba(43,43,238,0.3)] transition-all',
+      ghost: 'hover:bg-agent-blue/10 text-agent-blue/60 hover:text-white',
       agent: 'bg-agent-blue text-white hover:bg-blue-600 font-bold shadow-[0_0_20px_rgba(43,43,238,0.5)] border border-agent-blue/50',
     };
 

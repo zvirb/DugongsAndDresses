@@ -10,7 +10,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, variant = 'defa
     ref={ref}
     className={cn(
       "rounded-lg border shadow-sm transition-all duration-300",
-      variant === 'default' && "border-neutral-700/50 bg-neutral-900/60 backdrop-blur-md text-neutral-100",
+      variant === 'default' && "border-agent-blue/20 bg-agent-navy/60 backdrop-blur-md text-white shadow-[0_0_20px_rgba(0,0,0,0.2)]",
       variant === 'agent' && "border-agent-blue/60 bg-agent-navy/90 backdrop-blur-2xl text-white shadow-[0_0_30px_rgba(43,43,238,0.3)]",
       className
     )}

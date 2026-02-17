@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #101022;
+  --foreground: #ededed;
   --agent-mesh-blue: #2b2bee;
   --agent-mesh-navy: #101022;
 }
@@ -42,13 +42,6 @@
     25% { transform: translate(5px, 5px); }
     50% { transform: translate(0, 10px); }
     75% { transform: translate(-5px, 5px); }
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #101022;
-    --foreground: #ededed;
   }
 }
 

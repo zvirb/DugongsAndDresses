@@ -25,7 +25,7 @@ export default async function DMPage() {
     }
 
     return (
-        <div className="min-h-screen bg-agent-navy text-neutral-100 p-4 font-sans relative overflow-hidden">
+        <div className="min-h-screen bg-agent-navy text-white p-4 font-sans relative overflow-hidden">
             {/* Background elements for technical feel */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
                 <div className="absolute inset-0 bg-[repeating-linear-gradient(transparent_0%,transparent_50%,rgba(0,0,0,0.2)_50%,rgba(0,0,0,0.2)_100%)] bg-[length:100%_4px] opacity-20 mix-blend-overlay" />
@@ -51,7 +51,7 @@ export default async function DMPage() {
                     <div className="flex items-center space-x-4">
                         <Link
                             href="/settings"
-                            className={buttonVariants({ variant: "ghost", size: "sm", className: "text-neutral-400 hover:text-white uppercase tracking-wider text-xs font-bold" })}
+                            className={buttonVariants({ variant: "ghost", size: "sm", className: "text-agent-blue/60 hover:text-white uppercase tracking-wider text-xs font-bold" })}
                         >
                             Settings
                         </Link>
@@ -75,7 +75,7 @@ export default async function DMPage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="h-full p-4 bg-black/20">
-                                <TurnTracker initialParticipants={campaign.characters} campaignId={campaign.id} />
+                                <TurnTracker initialParticipants={campaign.characters as any} campaignId={campaign.id} />
                             </CardContent>
                         </Card>
                         <DiceRoller campaignId={campaign.id} />
@@ -91,8 +91,8 @@ export default async function DMPage() {
                                     Terminal Log
                                 </CardTitle>
                                 <AICopyButton
-                                    logs={campaign.logs}
-                                    characters={campaign.characters}
+                                    logs={campaign.logs as any}
+                                    characters={campaign.characters as any}
                                     turnOrder={campaign.characters
                                         .sort((a, b) => b.initiativeRoll - a.initiativeRoll)
                                         .map((c) => ({ name: c.name, init: c.initiativeRoll, current: c.activeTurn }))
@@ -127,7 +127,7 @@ export default async function DMPage() {
                                 <CardTitle className="text-agent-blue uppercase tracking-widest text-xs font-bold">Characters</CardTitle>
                             </CardHeader>
                             <CardContent className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent bg-black/20">
-                                <CharacterManager characters={campaign.characters} campaignId={campaign.id} />
+                                <CharacterManager characters={campaign.characters as any} campaignId={campaign.id} />
                             </CardContent>
                         </Card>
                     </div>

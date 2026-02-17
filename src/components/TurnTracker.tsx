@@ -179,25 +179,25 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 <span className="w-2 h-2 bg-agent-blue rounded-full animate-pulse" />
                                 Load Encounter
                             </h3>
-                            <button onClick={() => setShowLoadModal(false)} className="text-neutral-400 hover:text-white px-2 hover:bg-white/10 rounded transition-colors">✕</button>
+                            <button onClick={() => setShowLoadModal(false)} className="text-agent-blue hover:text-white px-2 hover:bg-agent-blue/10 rounded transition-colors">✕</button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 space-y-2 relative z-10">
                             {loadingEncounters ? (
-                                <p className="text-xs text-neutral-500 text-center p-4 animate-pulse">Scanning archives...</p>
+                                <p className="text-xs text-agent-blue/60 text-center p-4 animate-pulse">Scanning archives...</p>
                             ) : encounters.length === 0 ? (
-                                <p className="text-xs text-neutral-500 text-center p-4">No saved encounters found.</p>
+                                <p className="text-xs text-agent-blue/40 text-center p-4">No saved encounters found.</p>
                             ) : (
                                 encounters.map(enc => (
                                     <div
                                         key={enc.id}
-                                        className="w-full flex justify-between items-center gap-2 p-1 rounded hover:bg-white/5 transition-colors group"
+                                        className="w-full flex justify-between items-center gap-2 p-1 rounded hover:bg-agent-blue/10 transition-colors group"
                                     >
                                         <button
                                             onClick={() => handleLoadEncounter(enc.id)}
                                             className="flex-1 text-left p-2 rounded hover:bg-agent-blue/20 hover:text-agent-blue transition-colors focus:outline-none focus:ring-2 focus:ring-agent-blue"
                                         >
                                             <div className="text-sm font-bold text-white">{enc.name}</div>
-                                            <div className="text-[10px] text-neutral-500 font-mono">
+                                            <div className="text-[10px] text-agent-blue/60 font-mono">
                                                 {new Date(enc.createdAt).toLocaleString()}
                                             </div>
                                         </button>
@@ -242,7 +242,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         )}
 
                         <div className="relative z-10 flex items-center gap-3">
-                            <span className="font-mono text-xs text-neutral-500 w-4">#{index + 1}</span>
+                            <span className="font-mono text-xs text-agent-blue/40 w-4">#{index + 1}</span>
                             <div>
                                 <span className={cn(
                                     "block font-bold uppercase tracking-wide text-sm",
@@ -263,7 +263,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                     "text-center font-mono h-8 border-transparent focus-visible:ring-agent-blue transition-all",
                                     p.activeTurn
                                         ? "bg-black/60 text-white shadow-inner border-agent-blue/30"
-                                        : "bg-black/30 text-neutral-400 hover:text-white hover:bg-black/50"
+                                        : "bg-black/30 text-agent-blue/50 hover:text-white hover:bg-black/50"
                                 )}
                                 defaultValue={p.initiativeRoll}
                                 onBlur={(e) => updateInit(p.id, e.target.value)}

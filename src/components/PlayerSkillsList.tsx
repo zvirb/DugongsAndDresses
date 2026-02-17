@@ -32,7 +32,7 @@ export default function PlayerSkillsList({ characterId, attributes }: PlayerSkil
 
         const score = attributes[key] ?? 10;
         const mod = calcModifier(score);
-        const name = ABILITY_NAMES[key] || key.toUpperCase();
+        const name = ABILITY_NAMES[key as string] || String(key).toUpperCase();
 
         // Simulate roll delay
         setTimeout(() => {
@@ -58,7 +58,7 @@ export default function PlayerSkillsList({ characterId, attributes }: PlayerSkil
                 const score = attributes[key] ?? 10;
                 const mod = calcModifier(score);
                 const formattedMod = formatModifier(mod);
-                const name = ABILITY_NAMES[key] || key.toUpperCase();
+                const name = ABILITY_NAMES[key as string] || String(key).toUpperCase();
                 const isRolling = rolling === key;
 
                 return (
