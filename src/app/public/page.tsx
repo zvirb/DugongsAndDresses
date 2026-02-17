@@ -10,6 +10,7 @@ import { PublicCharacterCard } from "@/components/PublicCharacterCard";
  * ## 2025-05-25 - [Logic] Secret: [NPCs were hidden but active turn was broken] Shout: [Added 'OPPONENT TURN' indicator using getSpectatorCampaign]
  * ## 2026-02-15 - [View] Blur: [Labels too small] Shout: [Bumped labels to 4xl, Current Turn to 5xl]
  * ## 2025-05-27 - [View] Blur: [Race/Class and Status text too small] Shout: [Bumped to 4xl/5xl, Centered Grid]
+ * ## 2025-05-28 - [View] Blur: [Max HP too small, Health Bar too thin] Shout: [Bumped Max HP to 4xl, Bar to h-16, Added Unconscious Overlay]
  */
 
 export const dynamic = 'force-dynamic';
@@ -45,7 +46,7 @@ export default async function PublicPage() {
             <div className="p-8 pb-60 h-full overflow-y-auto border-x border-agent-blue/10 max-w-[1920px] mx-auto bg-black/20 backdrop-blur-sm relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
                 <header className="relative z-10 flex justify-between items-end mb-12 border-b-4 border-agent-blue/30 shadow-[0_0_15px_rgba(43,43,238,0.3)] pb-4 backdrop-blur-md bg-agent-navy/30 -mx-4 px-4 pt-4 rounded-t-xl">
                     <div>
-                        <div className="text-agent-blue font-mono text-3xl animate-pulse mb-2 tracking-widest uppercase flex items-center gap-4">
+                        <div className="text-agent-blue font-mono text-4xl animate-pulse mb-2 tracking-widest uppercase flex items-center gap-4">
                             <span className="w-4 h-4 bg-agent-blue rounded-full shadow-[0_0_10px_#2b2bee]"></span>
                             SYSTEM STATUS: ONLINE // SECURE CONNECTION
                         </div>
@@ -85,7 +86,7 @@ export default async function PublicPage() {
                             <div className="relative group cursor-default">
                                 <div className="absolute inset-0 bg-agent-blue/20 blur-xl animate-pulse rounded-full opacity-50" />
                                 <h3 className="text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white drop-shadow-[0_0_30px_rgba(43,43,238,0.8)] relative z-10 flex items-center gap-6">
-                                    <span className="text-5xl text-white/60 font-mono tracking-widest self-center opacity-70">CURRENT TURN</span>
+                                    <span className="text-6xl text-agent-blue font-mono tracking-widest self-center opacity-100 drop-shadow-[0_0_10px_rgba(43,43,238,0.5)] whitespace-nowrap">CURRENT TURN</span>
                                     <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md animate-pulse ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50' : 'text-red-500 border-red-500/50'}`}>
                                         {activeContestant.type === 'PLAYER' ? activeContestant.name : 'OPPONENT TURN'}
                                     </span>

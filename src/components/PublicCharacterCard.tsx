@@ -62,11 +62,21 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
         <div
             className={`
                 relative overflow-hidden rounded-3xl border-4 transition-all duration-500 backdrop-blur-xl group
+                ${character.hp <= 0 ? 'grayscale brightness-50' : ''}
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_100px_rgba(43,43,238,0.6),inset_0_0_30px_rgba(43,43,238,0.2)] bg-agent-navy/90 scale-105 z-30 ring-4 ring-agent-blue/30'
+                    ? 'border-agent-blue shadow-[0_0_100px_rgba(43,43,238,0.8),inset_0_0_50px_rgba(43,43,238,0.4)] bg-agent-navy/90 scale-105 z-30 ring-4 ring-agent-blue/50 ring-offset-4 ring-offset-agent-navy'
                     : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/20 hover:bg-black/40'}
             `}
         >
+            {/* Unconscious Overlay */}
+            {character.hp <= 0 && (
+                <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none overflow-hidden">
+                    <h2 className="text-6xl font-black text-red-600 uppercase tracking-widest -rotate-12 border-8 border-red-600 p-6 bg-black/80 backdrop-blur-md shadow-[0_0_50px_rgba(220,38,38,0.6)] animate-pulse">
+                        Unconscious
+                    </h2>
+                </div>
+            )}
+
             {/* Flash Overlay */}
             <div className={`absolute inset-0 pointer-events-none z-50 transition-opacity duration-500 ${flashState === 'damage' ? 'bg-red-600/40 opacity-100' : flashState === 'heal' ? 'bg-green-500/40 opacity-100' : 'opacity-0'}`} />
 
@@ -114,12 +124,12 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                             <span className={`text-8xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
                                 {displayHp}
                             </span>
-                            <span className="text-3xl text-neutral-600 font-bold">/ {character.maxHp}</span>
+                            <span className="text-4xl text-neutral-600 font-bold">/ {character.maxHp}</span>
                         </div>
                     </div>
 
                     {/* Technical Health Bar */}
-                    <div className="h-12 bg-black/60 rounded-none overflow-hidden p-1 border border-white/10 relative">
+                    <div className="h-16 bg-black/60 rounded-none overflow-hidden p-1 border border-white/10 relative">
                          {/* Tick Marks */}
                         <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_19%,#ffffff10_20%)] z-10 pointer-events-none" />
 
