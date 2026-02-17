@@ -6,6 +6,7 @@
 // ## 2025-02-14 - [Context] Gap: [Missing Passive Perception] Fix: [Added PP:X to stats]
 // ## 2025-05-21 - [Context] Gap: [AI missed active turn] Fix: [Added 'CURRENT' marker and extra attributes]
 // ## 2025-05-27 - [Context] Gap: [AI missed downed status] Fix: [Added 'DOWN' marker to conditions and optimized timestamp]
+// ## 2025-05-29 - [Context] Gap: [Missing HP Context, Crowded Stats] Fix: [Added HP%, Separated Resources, Refined Instructions]
 
 import { parseConditions, parseAttributes, parseInventory } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
@@ -49,9 +50,6 @@ export function generateAIContext(
             })
             .join(' ');
 
-        // Combine
-        const attrText = [standardAttrText, extraStats].filter(Boolean).join(' ');
-
         // Calculate Passive Perception
         let wis = attributes.wis || 10;
         // Check for uppercase keys if default is returned (to handle case-sensitive JSON parsing edge cases)
@@ -68,9 +66,12 @@ export function generateAIContext(
             ? `[${inventory.slice(0, 5).join(', ')}${inventory.length > 5 ? '...' : ''}]`
             : null;
 
-        // Combat stats group: HP:X/Y AC:Z Spd:S Init:N PP:P
+        // HP Percentage
+        const hpPercent = c.maxHp > 0 ? Math.floor((c.hp / c.maxHp) * 100) : 0;
+
+        // Combat stats group: HP:X/Y (Z%) AC:Z Spd:S Init:N PP:P
         const combatStats = [
-            `HP:${c.hp}/${c.maxHp}`,
+            `HP:${c.hp}/${c.maxHp} (${hpPercent}%)`,
             `AC:${c.armorClass}`,
             c.speed !== undefined ? `Spd:${c.speed}` : null,
             c.initiativeRoll !== undefined ? `Init:${c.initiativeRoll}` : null,
@@ -78,12 +79,13 @@ export function generateAIContext(
         ].filter(Boolean).join(' ');
 
         // Construct line parts
-        // Format: ▶ [ACTIVE] Name [Type] (Race Class Lvl X) | HP:X/Y AC:Z Spd:S Init:N PP:P | Cond:[...] | STR:X DEX:Y ... | Inv:[...]
+        // Format: ▶ [ACTIVE] Name [Type] (Race Class Lvl X) | HP:X/Y (Z%) AC:Z Spd:S Init:N PP:P | Cond:[...] | Stats:STR:X ... | Res:SpellSlots:N ... | Inv:[...]
         const parts = [
             `${c.activeTurn ? '▶ [ACTIVE] ' : ''}${c.name} [${c.type || '?'}] (${c.race || '?'} ${c.class || '?'} Lvl ${c.level})`,
             combatStats,
             `Cond:${conditionText}`,
-            attrText ? `${attrText}` : null,
+            `Stats:${standardAttrText}`,
+            extraStats ? `Res:${extraStats}` : null,
             inventoryText ? `Inv:${inventoryText}` : null
         ].filter(item => item !== null && item !== undefined && item !== '');
 
@@ -118,10 +120,10 @@ Role: Dungeon Master's Narrator.
 Task: Narrate the [ACTIVE] character's action based on RECENT LOGS.
 Context:
 - [ACTIVE] = Current turn taker.
-- HP/Conditions = Physical state (e.g. <50% HP is "bloodied").
+- HP% = Vitality (e.g. <50% is "bloodied", 0% is DOWN).
 - Logs = The absolute truth.
 Constraints:
-- Length: Max 2 sentences.
+- Length: Max 2 sentences. No fluff.
 - Tone: Gritty, sensory, immediate.
 - Truth: Strict adherence to logs. Do NOT invent rolls, outcomes, or dialogue not in logs.
 - Focus: Describe the ACTION and its IMMEDIATE IMPACT.`;
