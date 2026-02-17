@@ -12,6 +12,7 @@ import { prisma } from "./prisma";
  * ## 2025-05-25 - [getSpectatorCampaign] Slow: [Fetched all characters] Sight: [Split into Players/Active queries]
  * ## 2025-05-26 - [getSpectatorCampaign] Slow: [Multiple round trips] Sight: [Consolidated Campaign+Players, conditional NPC fetch]
  * ## 2025-05-27 - [getCampaignPulse] Slow: [Uncached polling] Sight: [Wrapped in unstable_cache, Optimized Select]
+ * ## 2025-05-28 - [getPlayerDashboard] Slow: [Fetching 10 logs on 2s poll] Sight: [Reduced to 5 logs, verified Select]
  */
 
 // Reusable select constants for consistency and optimization
@@ -261,7 +262,7 @@ export const getPlayerDashboard = unstable_cache(
         campaign: {
           select: {
             logs: {
-              take: 10,
+              take: 5,
               orderBy: { timestamp: 'desc' },
               select: {
                 id: true,
