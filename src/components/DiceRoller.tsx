@@ -10,6 +10,7 @@
 // ## 2025-05-27 - [Dice] Transparency: [Advantage logs redundant] Fix: [Simplified format to [ADVANTAGE: X, Y]]
 // ## 2025-05-27 - [Dice] Interaction: [Mode switching while rolling] Fix: [Disabled mode toggles during roll]
 // ## 2025-05-28 - [Dice] Log: [Period placement in Advantage logs] Fix: [Moved period to end of sentence]
+// ## 2025-05-29 - [Dice] Feedback: [Static result on Crit/Miss] Fix: [Added animate-bounce for dramatic effect]
 
 import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
@@ -124,8 +125,8 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     ) : lastResult ? (
                         <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
                              <span className={`text-4xl font-black italic tracking-tighter ${
-                                lastResult.isCrit ? 'text-green-400 drop-shadow-[0_0_25px_rgba(74,222,128,1)]' :
-                                lastResult.isFumble ? 'text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,1)]' :
+                                lastResult.isCrit ? 'text-green-400 drop-shadow-[0_0_25px_rgba(74,222,128,1)] animate-bounce' :
+                                lastResult.isFumble ? 'text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,1)] animate-bounce' :
                                 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]'
                             }`}>
                                 {lastResult.total}
