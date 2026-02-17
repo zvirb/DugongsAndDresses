@@ -6,6 +6,7 @@
 // ## 2025-05-26 - [ActionForm] Thumb Zone: [Inputs and buttons small on mobile] Path: [Increased buttons to h-20, text to text-xl, expanded touch targets]
 // ## 2025-05-27 - [Layout] Optimization: [Mobile touch targets and feedback] Path: [Increased padding, gaps, and active states]
 // ## 2025-05-29 - [Layout] Viewport: [Bottom content clipped] Path: [Increased padding to pb-40]
+// ## 2025-05-30 - [Interaction] Clarity: [Active turn feedback generic] Path: [Changed to ">> YOUR TURN <<"]
 
 import { getPlayerDashboard } from "@/lib/queries";
 import { notFound } from "next/navigation";
@@ -118,7 +119,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     <div className="relative overflow-hidden bg-agent-blue p-4 rounded-2xl text-center shadow-[0_0_30px_rgba(43,43,238,0.5)] animate-pulse border border-white/20">
                         <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)] animate-[scan_2s_linear_infinite]" />
                         <span className="relative z-10 text-sm font-black uppercase tracking-[0.3em] text-white drop-shadow-md">
-                            &gt;&gt; ACTIVE TURN &lt;&lt;
+                            &gt;&gt; YOUR TURN &lt;&lt;
                         </span>
                     </div>
                 )}

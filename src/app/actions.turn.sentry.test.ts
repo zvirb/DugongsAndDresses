@@ -138,4 +138,40 @@ describe('Sentry Logic Fortification', () => {
 
         expect(result).toEqual({ success: true, data: updateResult });
     });
+
+    it('Scenario: Loop Safety (Last -> First)', async () => {
+        // Setup: A (0), B (1), C (2 - Active). Next should be A (0).
+        const characters = [
+            { id: '1', name: 'Char1', activeTurn: false, initiativeRoll: 20 },
+            { id: '2', name: 'Char2', activeTurn: false, initiativeRoll: 15 },
+            { id: '3', name: 'Char3', activeTurn: true, initiativeRoll: 10 },
+        ];
+        vi.mocked(prisma.character.findMany).mockResolvedValue(characters as any);
+
+        const updateResult = { id: '1', name: 'Char1', activeTurn: true };
+        vi.mocked(prisma.$transaction).mockResolvedValue([{ count: 1 }, updateResult] as any);
+
+        // Advance turn from '3' (last one)
+        const result = await advanceTurn(campaignId, '3');
+
+        // Should loop back to '1' (first one)
+        expect(prisma.character.update).toHaveBeenCalledWith({
+            where: { id: '1' },
+            data: { activeTurn: true }
+        });
+
+        expect(result).toEqual({ success: true, data: updateResult });
+    });
+
+    it('Scenario: Empty Campaign (Should Return Error)', async () => {
+        vi.mocked(prisma.character.findMany).mockResolvedValue([]);
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        const result = await advanceTurn(campaignId);
+
+        expect(result).toEqual({ success: false, error: 'No characters in campaign' });
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[SENTRY] AdvanceTurn failed: No characters found'));
+
+        consoleSpy.mockRestore();
+    });
 });
