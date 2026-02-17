@@ -38,8 +38,9 @@ describe('generateAIContext', () => {
         const turnOrder: any[] = [];
 
         const context = generateAIContext(logs, characters, turnOrder);
-        expect(context).toContain('SpellSlots:3');
-        expect(context).toContain('Ki:2');
+        // We expect these to be present, formatting might change in next steps
+        expect(context).toMatch(/SpellSlots:3/);
+        expect(context).toMatch(/Ki:2/);
     });
 
     it('marks the active turn correctly', () => {
@@ -54,5 +55,22 @@ describe('generateAIContext', () => {
         const context = generateAIContext(logs, characters, turnOrder);
         expect(context).toContain('▶ [ACTIVE] Hero');
         expect(context).toContain('▶ [CURRENT] Hero');
+    });
+
+    it('formats HP with percentage and separates resources', () => {
+        const characters = [{
+            id: '1', name: 'Warrior', hp: 5, maxHp: 10, type: 'PLAYER',
+            conditions: '[]', attributes: JSON.stringify({ str: 18, spellSlots: 2 }), inventory: '[]',
+            activeTurn: false, level: 1, armorClass: 16
+        }] as unknown as Character[];
+        const logs: LogEntry[] = [];
+        const turnOrder: any[] = [];
+
+        const context = generateAIContext(logs, characters, turnOrder);
+        // Expect HP percentage
+        expect(context).toContain('HP:5/10 (50%)');
+        // Expect Stats separation
+        expect(context).toContain('Stats:STR:18');
+        expect(context).toContain('Res:SpellSlots:2');
     });
 });
