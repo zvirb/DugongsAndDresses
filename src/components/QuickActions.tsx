@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { logAction, performAttack, performSkillCheck, castSpell } from '@/app/actions';
+import { logAction, performAttack, performSkillCheck, castSpell, performLongRest } from '@/app/actions';
+import { secureRoll } from '@/lib/dice';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -17,7 +18,7 @@ interface QuickActionsProps {
     characters: CharacterOption[];
 }
 
-type ActionType = 'attack' | 'skill' | 'spell' | 'note' | null;
+type ActionType = 'attack' | 'skill' | 'spell' | 'note' | 'rest' | null;
 
 const COMMON_CONDITIONS = [
     'Blinded', 'Charmed', 'Frightened', 'Grappled',
@@ -45,11 +46,12 @@ export default function QuickActions({ campaignId, characters }: QuickActionsPro
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0 space-y-3 mt-3">
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-5 gap-2">
                     <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('attack')}>Attack</Button>
                     <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('skill')}>Check</Button>
                     <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('spell')}>Spell</Button>
                     <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('note')}>Log</Button>
+                    <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('rest')}>Rest</Button>
                 </div>
 
                 {active === 'attack' && (
@@ -63,6 +65,9 @@ export default function QuickActions({ campaignId, characters }: QuickActionsPro
                 )}
                 {active === 'note' && (
                     <NoteForm campaignId={campaignId} onComplete={() => setActive(null)} onCancel={() => setActive(null)} />
+                )}
+                {active === 'rest' && (
+                    <RestForm campaignId={campaignId} characters={characters} onComplete={() => setActive(null)} onCancel={() => setActive(null)} />
                 )}
             </CardContent>
         </Card>
@@ -152,6 +157,10 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
         }
     };
 
+    const handleRoll = () => {
+        setResult(secureRoll(20).toString());
+    };
+
     return (
         <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-2 gap-2">
@@ -172,7 +181,10 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
                 </div>
                 <div>
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Roll Result</label>
-                    <Input type="number" value={result} onChange={e => setResult(e.target.value)} placeholder="18" className={inputClass} />
+                    <div className="flex gap-1">
+                        <Input type="number" value={result} onChange={e => setResult(e.target.value)} placeholder="18" className={inputClass} />
+                        <Button type="button" variant="outline" size="sm" onClick={handleRoll} className="h-9 px-2 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/10 text-[10px] font-bold">D20</Button>
+                    </div>
                 </div>
             </div>
             <div className="flex gap-2 pt-1">
@@ -183,6 +195,44 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
                     onClick={handleSubmit}
                 >
                     {submitting ? '...' : 'LOG CHECK'}
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+function RestForm({ characters = [], onComplete, onCancel }: FormProps) {
+    const [characterId, setCharacterId] = useState(characters[0]?.id || '');
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubmit = async () => {
+        setSubmitting(true);
+        try {
+            await performLongRest(characterId);
+            onComplete();
+        } catch (e) {
+            console.error(e);
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+             <div>
+                <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Character</label>
+                <select value={characterId} onChange={e => setCharacterId(e.target.value)} className={selectClass}>
+                    <option value="">Select...</option>
+                    {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+            </div>
+            <div className="flex gap-2 pt-1">
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-white/10 hover:bg-white/5 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-neutral-400">Cancel</Button>
+                <Button
+                    variant="outline" size="sm" className="flex-1 border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/20 hover:text-white touch-manipulation shadow-[0_0_15px_rgba(16,185,129,0.3)] uppercase tracking-widest font-bold"
+                    disabled={!characterId || submitting}
+                    onClick={handleSubmit}
+                >
+                    {submitting ? '...' : 'LONG REST'}
                 </Button>
             </div>
         </div>

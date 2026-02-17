@@ -7,10 +7,12 @@
 import { updateHP } from "@/app/actions";
 import { useTransition, useState, useEffect } from "react";
 import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
 
 export default function PlayerHPControls({ characterId, currentHp, maxHp }: { characterId: string, currentHp: number, maxHp: number }) {
     const [isPending, startTransition] = useTransition();
     const [optimisticHp, setOptimisticHp] = useState(currentHp);
+    const [customAmount, setCustomAmount] = useState("");
 
     useEffect(() => {
         setOptimisticHp(currentHp);
@@ -116,6 +118,43 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         className="flex-1 h-24 p-8 text-3xl font-bold rounded-xl border-b-4 border-emerald-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-emerald-900/50 hover:bg-emerald-800/80 text-emerald-100"
                     >
                         +5
+                    </Button>
+                </div>
+
+                {/* Custom Amount */}
+                <div className="flex gap-3 items-center bg-black/40 p-3 rounded-2xl border border-white/5 shadow-inner">
+                    <Button
+                        variant="destructive"
+                        size="lg"
+                        onClick={() => {
+                            const val = parseInt(customAmount);
+                            if (val > 0) handleUpdate(-val);
+                            setCustomAmount("");
+                        }}
+                        disabled={isPending || !customAmount || parseInt(customAmount) <= 0}
+                        className="h-20 w-24 text-4xl font-black rounded-xl border-b-4 border-red-900 active:border-b-0 active:translate-y-1 transition-all bg-red-900/40 hover:bg-red-800/60 text-red-200"
+                    >
+                        -
+                    </Button>
+                    <Input
+                        type="number"
+                        placeholder="Custom"
+                        value={customAmount}
+                        onChange={(e) => setCustomAmount(e.target.value)}
+                        className="h-20 text-center text-3xl font-mono bg-black/60 border-white/10 focus:border-agent-blue text-white rounded-xl flex-1 shadow-inner placeholder:text-neutral-700 placeholder:text-xl placeholder:font-bold placeholder:uppercase"
+                    />
+                    <Button
+                        variant="success"
+                        size="lg"
+                        onClick={() => {
+                            const val = parseInt(customAmount);
+                            if (val > 0) handleUpdate(val);
+                            setCustomAmount("");
+                        }}
+                        disabled={isPending || !customAmount || parseInt(customAmount) <= 0}
+                        className="h-20 w-24 text-4xl font-black rounded-xl border-b-4 border-emerald-900 active:border-b-0 active:translate-y-1 transition-all bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-200"
+                    >
+                        +
                     </Button>
                 </div>
             </div>

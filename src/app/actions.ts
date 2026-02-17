@@ -132,6 +132,29 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
     });
 }
 
+export async function performLongRest(characterId: string): Promise<ActionResult> {
+    return actionWrapper("performLongRest", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const updated = await prisma.character.update({
+            where: { id: characterId },
+            data: { hp: character.maxHp }
+        });
+
+        await syncToSource(updated);
+
+        await logAction(character.campaignId, `**${character.name}** takes a long rest. Vitality is restored.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        revalidatePath('/public');
+        return updated;
+    });
+}
+
 export async function duplicateCharacter(characterId: string): Promise<ActionResult> {
     return actionWrapper("duplicateCharacter", async () => {
         if (!characterId) throw new Error("Character ID is required");
