@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
-import { stringifyAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs, parseCharacterForm, createDefaultAttributes } from "@/lib/safe-json";
+import { stringifyAttributes, parseAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs, parseCharacterForm, createDefaultAttributes } from "@/lib/safe-json";
 import { mkdir } from 'fs/promises';
 import { createWriteStream } from 'fs';
 import { Readable } from 'stream';
@@ -152,9 +152,9 @@ export async function duplicateCharacter(characterId: string): Promise<ActionRes
                 armorClass: source.armorClass,
                 speed: source.speed,
                 initiative: source.initiative,
-                attributes: source.attributes,
-                inventory: source.inventory,
-                conditions: source.conditions,
+                attributes: stringifyAttributes(parseAttributes(source.attributes)),
+                inventory: stringifyInventory(parseInventory(source.inventory)),
+                conditions: stringifyConditions(parseConditions(source.conditions)),
                 imageUrl: source.imageUrl,
                 initiativeRoll: 0,
                 // If source has a sourceId, use it (it's a clone). If not, use its own ID (it's the original).
@@ -411,7 +411,18 @@ export async function updateCharacter(characterId: string, formData: FormData): 
     return actionWrapper("updateCharacter", async () => {
         if (!characterId) throw new Error("Character ID is required");
 
+        // Fetch existing character to preserve attributes not in the form
+        const existing = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!existing) throw new Error("Character not found");
+
         const charData = parseCharacterForm(formData, true);
+
+        // Merge existing attributes with new ones
+        let finalAttributes = undefined;
+        if (charData.attributes) {
+            const existingAttributes = parseAttributes(existing.attributes);
+            finalAttributes = stringifyAttributes({ ...existingAttributes, ...charData.attributes });
+        }
 
         const character = await prisma.character.update({
             where: { id: characterId },
@@ -426,7 +437,7 @@ export async function updateCharacter(characterId: string, formData: FormData): 
                 armorClass: charData.armorClass,
                 speed: charData.speed,
                 initiative: charData.initiative,
-                attributes: charData.attributes ? stringifyAttributes(charData.attributes) : undefined,
+                attributes: finalAttributes,
             }
         });
 
@@ -941,8 +952,8 @@ export async function importCharacterFromLibrary(campaignId: string, libraryChar
                 armorClass: source.armorClass,
                 speed: source.speed,
                 initiative: source.initiative,
-                attributes: source.attributes,
-                inventory: source.inventory,
+                attributes: stringifyAttributes(parseAttributes(source.attributes)),
+                inventory: stringifyInventory(parseInventory(source.inventory)),
                 conditions: "[]",
                 initiativeRoll: 0,
                 sourceId: source.id // Link to source for future sync if needed
