@@ -38,6 +38,12 @@ describe('PublicCharacterCard', () => {
         expect(screen.getByText('POISONED')).toBeDefined();
         expect(screen.getByText('STUNNED')).toBeDefined();
     });
+
+    it('displays unconscious overlay when hp <= 0', () => {
+        const deadChar = { ...mockChar, hp: 0 };
+        render(<PublicCharacterCard character={deadChar} />);
+        expect(screen.getByText('Unconscious')).toBeDefined();
+    });
 });
 
 describe('PublicCharacterCard Flash Animation', () => {
