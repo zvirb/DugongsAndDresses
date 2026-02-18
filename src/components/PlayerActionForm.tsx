@@ -91,22 +91,22 @@ export default function PlayerActionForm({ characterName, campaignId }: { charac
             <div className="flex flex-col gap-6">
                 <div className="space-y-3">
                     <label className="text-sm font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
-                    <div className="flex flex-col gap-3">
+                    <div className="flex gap-3">
                         <Input
                             type="text"
                             placeholder="Dice Roll"
                             value={roll}
                             onChange={(e) => setRoll(e.target.value)}
                             disabled={isPending}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation w-full font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
                         />
                         <Button
                             type="button"
                             onClick={handleRoll}
                             disabled={isPending}
-                            className="h-20 w-full bg-agent-blue/10 border border-agent-blue/30 text-agent-blue text-lg font-black rounded-xl uppercase tracking-widest hover:bg-agent-blue/30 hover:border-agent-blue/60 active:scale-95 active:brightness-90 transition-all shadow-[0_0_15px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.3)]"
+                            className="h-20 w-24 bg-agent-blue/10 border border-agent-blue/30 text-agent-blue text-lg font-black rounded-xl uppercase tracking-widest hover:bg-agent-blue/30 hover:border-agent-blue/60 active:scale-95 active:brightness-90 transition-all shadow-[0_0_15px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.3)]"
                         >
-                            Roll D20
+                            Roll
                         </Button>
                     </div>
                 </div>

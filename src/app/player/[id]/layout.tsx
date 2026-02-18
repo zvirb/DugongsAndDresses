@@ -2,6 +2,7 @@ import Link from "next/link";
 import AutoRefresh from "@/components/AutoRefresh";
 import { notFound } from "next/navigation";
 import PlayerBottomNav from "./PlayerBottomNav";
+import { getPlayerDashboard } from "@/lib/queries";
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -10,14 +11,7 @@ interface LayoutProps {
 
 export default async function PlayerLayout({ children, params }: LayoutProps) {
     const { id } = await params;
-    const character = {
-        name: 'Valerius',
-        race: 'Human',
-        class: 'Paladin',
-        level: 3,
-        activeTurn: true,
-        type: 'PLAYER'
-    };
+    const character = await getPlayerDashboard(id);
 
     if (!character || character.type !== 'PLAYER') {
         notFound();

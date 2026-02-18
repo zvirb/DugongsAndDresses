@@ -132,7 +132,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                             setCustomAmount("");
                         }}
                         disabled={isPending || !customAmount || parseInt(customAmount) <= 0}
-                        className="h-20 w-24 text-4xl font-black rounded-xl border-b-4 border-red-900 active:border-b-0 active:translate-y-1 transition-all bg-red-900/40 hover:bg-red-800/60 text-red-200"
+                        className="h-20 w-20 text-4xl font-black rounded-xl border-b-4 border-red-900 active:border-b-0 active:translate-y-1 transition-all bg-red-900/40 hover:bg-red-800/60 text-red-200"
                     >
                         -
                     </Button>
@@ -141,7 +141,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         placeholder="Custom"
                         value={customAmount}
                         onChange={(e) => setCustomAmount(e.target.value)}
-                        className="h-20 text-center text-3xl font-mono bg-black/60 border-white/10 focus:border-agent-blue text-white rounded-xl flex-1 shadow-inner placeholder:text-neutral-700 placeholder:text-xl placeholder:font-bold placeholder:uppercase"
+                        className="h-20 min-w-[4rem] text-center text-3xl font-mono bg-black/60 border-white/10 focus:border-agent-blue text-white rounded-xl flex-1 shadow-inner placeholder:text-neutral-700 placeholder:text-xl placeholder:font-bold placeholder:uppercase"
                     />
                     <Button
                         variant="success"
@@ -152,7 +152,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                             setCustomAmount("");
                         }}
                         disabled={isPending || !customAmount || parseInt(customAmount) <= 0}
-                        className="h-20 w-24 text-4xl font-black rounded-xl border-b-4 border-emerald-900 active:border-b-0 active:translate-y-1 transition-all bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-200"
+                        className="h-20 w-20 text-4xl font-black rounded-xl border-b-4 border-emerald-900 active:border-b-0 active:translate-y-1 transition-all bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-200"
                     >
                         +
                     </Button>
