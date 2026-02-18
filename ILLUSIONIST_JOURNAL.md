@@ -13,3 +13,7 @@
 ## 2025-05-28 - [CampaignWizard] Dull: [Forms looked like a registration page] Glow: [Applied tactical grid, glassmorphism, and neon step indicators]
 ## 2025-05-28 - [CampaignSelector] Dull: [Dropdown was generic] Glow: [Added agent-blue borders and tactical tracking]
 ## 2025-05-30 - [Global] Dull: [Generic grays in UI primitives] Glow: [Enforced Dark Mode and replaced neutrals with Agent Blue tints]
+## 2025-05-31 - [PublicCharacterCard] Dull: [Active glow was generic] Glow: [Added scanner effect and corner reticles]
+## 2025-05-31 - [PublicPage] Dull: [Current turn text was plain] Glow: [Added animated brackets and reduced grid noise]
+## 2025-05-31 - [TurnTracker] Dull: [Active row was hard to see] Glow: [Added blue border-l-4 and background tint]
+## 2025-05-31 - [DiceRoller] Dull: [Instant result was anti-climactic] Glow: [Added rolling number shuffle animation]

@@ -64,7 +64,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                 relative overflow-hidden rounded-3xl border-4 transition-all duration-500 backdrop-blur-xl group
                 ${character.hp <= 0 ? 'grayscale brightness-50' : ''}
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_100px_rgba(43,43,238,0.8),inset_0_0_50px_rgba(43,43,238,0.4)] bg-agent-navy/90 scale-105 z-30 ring-4 ring-agent-blue/50 ring-offset-4 ring-offset-agent-navy'
+                    ? 'border-agent-blue shadow-[0_0_120px_rgba(43,43,238,0.6),inset_0_0_60px_rgba(43,43,238,0.3)] bg-agent-navy/90 scale-105 z-30 ring-4 ring-agent-blue/50 ring-offset-4 ring-offset-agent-navy'
                     : character.hp > 0 && character.hp <= character.maxHp * 0.2
                         ? 'border-red-500/50 bg-red-900/10 shadow-[0_0_30px_rgba(220,38,38,0.5)] animate-pulse'
                         : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/20 hover:bg-black/40'}
@@ -73,48 +73,55 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
             {/* Unconscious Overlay */}
             {character.hp <= 0 && (
                 <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none overflow-hidden">
-                    <h2 className="text-8xl font-black text-red-600 uppercase tracking-widest -rotate-12 border-8 border-red-600 p-6 bg-black/80 backdrop-blur-md shadow-[0_0_50px_rgba(220,38,38,0.6)] animate-pulse">
+                    <div className="absolute inset-0 bg-red-900/20 animate-pulse" />
+                    <h2 className="text-9xl font-black text-red-600 uppercase tracking-widest -rotate-12 border-8 border-red-600 p-8 bg-black/90 backdrop-blur-md shadow-[0_0_80px_rgba(220,38,38,0.8)] animate-pulse mix-blend-hard-light">
                         Unconscious
                     </h2>
                 </div>
             )}
 
             {/* Flash Overlay */}
-            <div className={`absolute inset-0 pointer-events-none z-50 transition-opacity duration-500 ${flashState === 'damage' ? 'bg-red-600/40 opacity-100' : flashState === 'heal' ? 'bg-green-500/40 opacity-100' : 'opacity-0'}`} />
+            <div className={`absolute inset-0 pointer-events-none z-50 transition-opacity duration-500 ${flashState === 'damage' ? 'bg-red-600/40 opacity-100 mix-blend-overlay' : flashState === 'heal' ? 'bg-green-500/40 opacity-100 mix-blend-overlay' : 'opacity-0'}`} />
 
-            {/* Active Turn Scanner Effect */}
+            {/* Active Turn Scanner Effect - Enhanced */}
             {character.activeTurn && (
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-agent-blue shadow-[0_0_30px_#2b2bee] animate-scan" />
-                    <div className="absolute inset-0 border-4 border-agent-blue/20 rounded-3xl" />
+                <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-agent-blue shadow-[0_0_50px_#2b2bee] animate-[scan_2s_linear_infinite]" />
+                    <div className="absolute inset-0 border-2 border-agent-blue/30 rounded-2xl opacity-50" />
+                    {/* Corner Reticles */}
+                    <div className="absolute top-4 left-4 w-8 h-8 border-t-4 border-l-4 border-agent-blue animate-pulse" />
+                    <div className="absolute top-4 right-4 w-8 h-8 border-t-4 border-r-4 border-agent-blue animate-pulse" />
+                    <div className="absolute bottom-4 left-4 w-8 h-8 border-b-4 border-l-4 border-agent-blue animate-pulse" />
+                    <div className="absolute bottom-4 right-4 w-8 h-8 border-b-4 border-r-4 border-agent-blue animate-pulse" />
                 </div>
             )}
 
             <div className="relative z-10 p-6 flex flex-col h-full min-h-[500px]">
                 {/* Portrait Background */}
                 {character.imageUrl && (
-                    <div className="absolute inset-0 z-[-1] opacity-30 mix-blend-overlay group-hover:opacity-50 transition-opacity duration-500">
+                    <div className="absolute inset-0 z-[-1] opacity-40 mix-blend-overlay group-hover:opacity-60 transition-opacity duration-500">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={character.imageUrl} alt="" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-agent-navy via-agent-navy/80 to-transparent" />
+                        <img src={character.imageUrl} alt="" className="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all duration-700" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-agent-navy via-agent-navy/70 to-transparent" />
+                        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,#101022_100%)] opacity-80" />
                     </div>
                 )}
 
                 <div className="mb-auto">
                     <div className="flex justify-between items-start mb-6">
-                        <Badge variant={character.activeTurn ? 'agent' : 'player'} className="font-black italic text-5xl px-6 py-3 uppercase tracking-widest shadow-lg">
+                        <Badge variant={character.activeTurn ? 'agent' : 'player'} className={`font-black italic text-5xl px-6 py-3 uppercase tracking-widest shadow-lg ${character.activeTurn ? 'animate-pulse' : ''}`}>
                             LVL {character.level}
                         </Badge>
                         <div className="text-right">
-                            <span className="block text-4xl text-agent-blue/80 uppercase font-mono tracking-widest mb-1">Defense</span>
-                            <span className={`text-7xl font-black leading-none tracking-tighter ${character.activeTurn ? 'text-white drop-shadow-[0_0_10px_rgba(43,43,238,0.8)]' : 'text-neutral-400'}`}>{character.armorClass}</span>
+                            <span className="block text-4xl text-agent-blue/80 uppercase font-mono tracking-widest mb-1 font-bold">Defense</span>
+                            <span className={`text-7xl font-black leading-none tracking-tighter drop-shadow-lg ${character.activeTurn ? 'text-white drop-shadow-[0_0_15px_rgba(43,43,238,0.8)]' : 'text-neutral-400'}`}>{character.armorClass}</span>
                         </div>
                     </div>
 
-                    <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words ${character.activeTurn ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'text-neutral-300'}`}>
+                    <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words drop-shadow-xl ${character.activeTurn ? 'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]' : 'text-neutral-300'}`}>
                         {character.name}
                     </h2>
-                    <p className="text-agent-blue text-4xl font-mono font-bold uppercase tracking-widest mb-10 opacity-80 truncate">
+                    <p className="text-agent-blue text-4xl font-mono font-bold uppercase tracking-widest mb-10 opacity-90 truncate drop-shadow-md">
                         {character.race} // {character.class}
                     </p>
                 </div>
@@ -131,21 +138,21 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     </div>
 
                     {/* Technical Health Bar */}
-                    <div className="h-24 bg-black/60 rounded-none overflow-hidden p-1 border border-white/10 relative">
-                         {/* Tick Marks */}
-                        <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_19%,#ffffff10_20%)] z-10 pointer-events-none" />
+                    <div className="h-24 bg-black/80 rounded-sm overflow-hidden p-1 border border-white/10 relative shadow-inner">
+                         {/* Tick Marks - Enhanced */}
+                        <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_9%,rgba(255,255,255,0.1)_10%)] z-20 pointer-events-none" />
 
                         <div
-                            className={`h-full transition-all duration-1000 ease-out relative overflow-hidden backdrop-blur-sm ${
+                            className={`h-full transition-all duration-1000 ease-out relative overflow-hidden backdrop-blur-md ${
                                 character.hp <= character.maxHp * 0.2
-                                    ? 'bg-red-600/90 shadow-[0_0_30px_rgba(220,38,38,0.6)]'
+                                    ? 'bg-red-600/90 shadow-[0_0_40px_rgba(220,38,38,0.8)]'
                                     : character.hp <= character.maxHp * 0.5
-                                        ? 'bg-yellow-500/90 shadow-[0_0_30px_rgba(234,179,8,0.6)]'
-                                        : 'bg-agent-blue/90 shadow-[0_0_30px_rgba(43,43,238,0.4)]'
+                                        ? 'bg-yellow-500/90 shadow-[0_0_40px_rgba(234,179,8,0.8)]'
+                                        : 'bg-agent-blue/90 shadow-[0_0_40px_rgba(43,43,238,0.6)]'
                                 }`}
                             style={{ width: `${hpPercent}%`, clipPath: 'polygon(0 0, 100% 0, 98% 100%, 0% 100%)' }}
                         >
-                            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:20px_20px] animate-[pulse_1s_infinite]" />
+                            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.3)_50%,transparent_75%)] bg-[length:40px_40px] animate-[pulse_2s_infinite]" />
                         </div>
                     </div>
 
@@ -153,7 +160,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     {conditions.length > 0 && (
                         <div className="mt-6 flex flex-wrap gap-2 justify-end">
                             {conditions.map((condition, idx) => (
-                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-4xl px-4 py-2 animate-pulse border border-red-500/50 shadow-[0_0_15px_rgba(220,38,38,0.4)]">
+                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-4xl px-4 py-2 animate-pulse border border-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.5)] bg-red-950/80">
                                     {condition}
                                 </Badge>
                             ))}

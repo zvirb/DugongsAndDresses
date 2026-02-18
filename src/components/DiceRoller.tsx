@@ -14,7 +14,7 @@
 // ## 2025-05-30 - [Dice] Safety: [Guard clause missing] Fix: [Added explicit return for sides < 1]
 // ## 2025-05-30 - [Dice] UI: [Rolling badge small] Fix: [Increased text size to text-xs]
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { logAction } from '@/app/actions';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import { Button } from './ui/Button';
@@ -40,8 +40,22 @@ const Spinner = () => (
 
 export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaignId: string, rollerName?: string }) {
     const [rollingDie, setRollingDie] = useState<number | null>(null);
+    const [displayValue, setDisplayValue] = useState<number | null>(null);
     const [mode, setMode] = useState<RollMode>('NORMAL');
     const [lastResult, setLastResult] = useState<RollResult | null>(null);
+
+    useEffect(() => {
+        if (!rollingDie) {
+            setDisplayValue(null);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            setDisplayValue(Math.floor(Math.random() * rollingDie) + 1);
+        }, 50);
+
+        return () => clearInterval(interval);
+    }, [rollingDie]);
 
     const rollDice = useCallback(async (sides: number) => {
         // Safety check: A die must have at least 1 side.
@@ -124,9 +138,14 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         Dice Tray
                     </CardTitle>
                     {rollingDie !== null ? (
-                        <span className="text-xs text-black bg-yellow-400 animate-pulse font-black tracking-widest shadow-[0_0_20px_rgba(250,204,21,0.6)] uppercase px-2 py-0.5 rounded-full border border-yellow-200">
-                            ROLLING d{rollingDie}...
-                        </span>
+                        <div className="flex items-center gap-3">
+                             <span className="text-4xl font-black italic tracking-tighter text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] animate-pulse font-mono">
+                                {displayValue}
+                            </span>
+                            <span className="text-xs text-black bg-yellow-400 animate-pulse font-black tracking-widest shadow-[0_0_20px_rgba(250,204,21,0.6)] uppercase px-2 py-0.5 rounded-full border border-yellow-200">
+                                ROLLING...
+                            </span>
+                        </div>
                     ) : lastResult ? (
                         <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
                              <span className={`text-4xl font-black italic tracking-tighter ${
