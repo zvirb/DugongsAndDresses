@@ -280,22 +280,37 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             nextIndex = (currentIndex + 1) % characters.length;
         }
 
+        // SENTRY: Log loop event
+        if (currentIndex !== -1 && nextIndex === 0 && characters.length > 1) {
+            console.info(`[SENTRY] Turn Cycle Complete. Looping to start for Campaign ${campaignId}.`);
+        }
+
         const nextCharId = characters[nextIndex]?.id;
 
         if (!nextCharId) {
             throw new Error(`[SENTRY] Critical Failure: Unable to determine next character ID (Index: ${nextIndex}, Total: ${characters.length})`);
         }
 
-        const [, newActiveChar] = await prisma.$transaction([
-            prisma.character.updateMany({
-                where: { campaignId, activeTurn: true },
-                data: { activeTurn: false }
-            }),
-            prisma.character.update({
-                where: { id: nextCharId },
-                data: { activeTurn: true }
-            })
-        ]);
+        let newActiveChar;
+        try {
+            const result = await prisma.$transaction([
+                prisma.character.updateMany({
+                    where: { campaignId, activeTurn: true },
+                    data: { activeTurn: false }
+                }),
+                prisma.character.update({
+                    where: { id: nextCharId },
+                    data: { activeTurn: true }
+                })
+            ]);
+            newActiveChar = result[1];
+        } catch (error: any) {
+            if (error.code === 'P2025' || error.message?.includes('Record to update not found')) {
+                console.error(`[SENTRY] Race Condition: Next character ${nextCharId} not found (likely deleted). Retrying...`);
+                 throw new Error("Combatant vanished! The next character cannot be found. Please try advancing again.");
+            }
+            throw error;
+        }
 
         await logAction(campaignId, `The spotlight shifts. It is now **${newActiveChar.name}**'s turn.`, "Combat");
 
