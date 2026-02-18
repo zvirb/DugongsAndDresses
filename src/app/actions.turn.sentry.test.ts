@@ -174,4 +174,31 @@ describe('Sentry Logic Fortification', () => {
 
         consoleSpy.mockRestore();
     });
+
+    it('Scenario: Combatant Vanished (Race Condition - Deleted during turn)', async () => {
+        // Setup: A (Active) -> B.
+        // But B is deleted right before transaction.
+        const characters = [
+            { id: '1', name: 'Char1', activeTurn: true, initiativeRoll: 20 },
+            { id: '2', name: 'Char2', activeTurn: false, initiativeRoll: 15 },
+        ];
+        vi.mocked(prisma.character.findMany).mockResolvedValue(characters as any);
+
+        // Mock transaction to throw P2025
+        const error: any = new Error('Record to update not found.');
+        error.code = 'P2025';
+        vi.mocked(prisma.$transaction).mockRejectedValue(error);
+
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        const result = await advanceTurn(campaignId, '1');
+
+        expect(result).toEqual({
+            success: false,
+            error: expect.stringContaining('Combatant vanished!')
+        });
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[SENTRY] Race Condition: Next character 2 not found'));
+
+        consoleSpy.mockRestore();
+    });
 });
