@@ -29,7 +29,17 @@ describe('PublicCharacterCard', () => {
     it('displays active turn styling', () => {
         const activeChar = { ...mockChar, activeTurn: true };
         const { container } = render(<PublicCharacterCard character={activeChar} />);
+        // The active turn border class
         expect(container.firstChild).toHaveClass('border-agent-blue');
+    });
+
+    it('displays critical health styling', () => {
+        // 20% of 100 is 20. So 15 is critical.
+        const critChar = { ...mockChar, hp: 15, maxHp: 100, activeTurn: false };
+        const { container } = render(<PublicCharacterCard character={critChar} />);
+        // The critical health class we added
+        expect(container.firstChild).toHaveClass('animate-pulse');
+        expect(container.firstChild).toHaveClass('border-red-500/50');
     });
 
     it('displays conditions', () => {
