@@ -124,8 +124,8 @@ export type LogType = z.infer<typeof LogTypeSchema>;
 
 export const AttackActionSchema = z.object({
   attackerId: z.string().min(1),
-  targetId: z.string().min(1),
-  damage: z.number().nonnegative(),
+  targetId: z.string().min(1).optional(),
+  damage: z.number().nonnegative().optional(),
   attackRoll: z.number().optional(),
 });
 export type AttackAction = z.infer<typeof AttackActionSchema>;

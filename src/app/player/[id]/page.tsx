@@ -133,7 +133,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </Card>
 
                 <div className="space-y-4">
-                    <PlayerActionForm characterName={character.name} campaignId={character.campaignId} />
+                    <PlayerActionForm characterName={character.name} campaignId={character.campaignId} characterId={character.id} />
                 </div>
             </div>
         </main>
