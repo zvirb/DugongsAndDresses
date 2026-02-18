@@ -41,6 +41,11 @@ vi.mock('@/lib/prisma', () => ({
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
+  unstable_cache: vi.fn((fn) => fn),
+}));
+
+vi.mock('react', () => ({
+  cache: vi.fn((fn) => fn),
 }));
 
 vi.mock('@/lib/backup', () => ({
@@ -82,6 +87,21 @@ describe('Server Actions Logging', () => {
     });
   });
 
+  it('performAttack logs targetless attack correctly', async () => {
+    vi.mocked(prisma.character.findUnique)
+      .mockResolvedValueOnce({ id: 'char-1', name: 'Attacker', campaignId: 'camp-1' } as any);
+
+    await performAttack('char-1', undefined, undefined, 18);
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**Attacker** attacks... (Roll: **18**)'),
+        type: 'Combat',
+      },
+    });
+  });
+
   it('updateHP logs recovery correctly', async () => {
     vi.mocked(prisma.character.update).mockResolvedValue({
       id: 'char-1',
@@ -95,7 +115,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** rallies! Heals for **5** HP.'),
+        content: expect.stringContaining('**Grom** rallies! Recovers **5** HP.'),
         type: 'Combat',
       },
     });
@@ -114,7 +134,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** takes **5** damage'),
+        content: expect.stringContaining('**Grom** suffers **5** damage'),
         type: 'Combat',
       },
     });
@@ -524,7 +544,8 @@ describe('New Server Actions', () => {
 
     expect(prisma.encounter.findMany).toHaveBeenCalledWith({
       where: { campaignId: 'camp-1' },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, name: true, createdAt: true }
     });
     expect(result).toEqual({ success: true, data: encounters });
   });

@@ -713,20 +713,27 @@ export async function saveEncounter(campaignId: string, participants: Participan
 
 // --- Quick Actions ---
 
-export async function performAttack(attackerId: string, targetId: string, damage: number, attackRoll?: number): Promise<ActionResult> {
+export async function performAttack(attackerId: string, targetId: string | undefined, damage: number | undefined, attackRoll?: number): Promise<ActionResult> {
     return actionWrapper("performAttack", async () => {
         // Quartermaster: Cleanse Inputs
         const validated = AttackActionSchema.parse({ attackerId, targetId, damage, attackRoll });
-        // Use validated inputs to ensure type safety
-        // Note: We use original vars for now as they are destructured from validated object if we want,
-        // but schema parsing throws if invalid, so we are safe.
 
         const attacker = await prisma.character.findUnique({ where: { id: validated.attackerId } });
-        const target = await prisma.character.findUnique({ where: { id: validated.targetId } });
+        if (!attacker) throw new Error("Attacker not found");
 
-        if (!attacker || !target) throw new Error("Character not found");
+        let target = null;
+        if (validated.targetId) {
+            target = await prisma.character.findUnique({ where: { id: validated.targetId } });
+            if (!target) throw new Error("Target not found");
+        }
 
-        let content = `**${attacker.name}** attacks **${target.name}**...`;
+        let content = `**${attacker.name}** attacks`;
+        if (target) {
+            content += ` **${target.name}**...`;
+        } else {
+            content += `...`;
+        }
+
         let isHit = true;
         let isCrit = false;
         let isFumble = false;
@@ -738,12 +745,12 @@ export async function performAttack(attackerId: string, targetId: string, damage
             } else if (attackRoll === 1) {
                 isHit = false;
                 isFumble = true;
-            } else if (target.armorClass && attackRoll < target.armorClass) {
+            } else if (target && target.armorClass && attackRoll < target.armorClass) {
                 isHit = false;
             }
         } else {
-            // If no roll provided, assume miss if 0 damage
-            if (damage <= 0) isHit = false;
+            // If no roll provided, assume miss if 0 damage (only if damage is provided)
+            if ((damage || 0) <= 0) isHit = false;
         }
 
         // Determine result string first
@@ -752,44 +759,45 @@ export async function performAttack(attackerId: string, targetId: string, damage
             resultStr = "**CRITICAL HIT**! A devastating blow!";
         } else if (isFumble) {
             resultStr = "**CRITICAL MISS**! A clumsy fumble!";
-        } else if (isHit) {
-            resultStr = "**HITS**!";
-        } else {
-            resultStr = "**MISSES**! The attack goes wide.";
+        } else if (target) {
+            if (isHit) {
+                resultStr = "**HITS**!";
+            } else {
+                resultStr = "**MISSES**! The attack goes wide.";
+            }
         }
 
-        content += ` ${resultStr}`;
+        if (resultStr) content += ` ${resultStr}`;
 
         if (attackRoll !== undefined) {
              content += ` (Roll: **${attackRoll}**)`;
         }
 
         let updatedTarget = target;
+        const dmg = damage || 0;
 
-        if (isHit && damage > 0) {
+        if (target && isHit && dmg > 0) {
             updatedTarget = await prisma.character.update({
-                where: { id: targetId },
-                data: { hp: { decrement: damage } }
+                where: { id: target.id },
+                data: { hp: { decrement: dmg } }
             });
             await syncToSource(updatedTarget);
 
-            content += ` dealing **${damage}** damage`;
+            content += ` dealing **${dmg}** damage`;
             if (updatedTarget.hp <= 0) {
                 content += ` and knocking them **UNCONSCIOUS**!`;
             } else {
                 content += `.`;
             }
-        } else if (isHit) {
+        } else if (target && isHit) {
             content += ` but deals no damage.`;
-        } else {
-            // Misses
         }
 
         await logAction(attacker.campaignId, content, "Combat");
 
         revalidatePath('/dm');
         revalidatePath('/player');
-        return updatedTarget;
+        return updatedTarget || { success: true };
     });
 }
 
