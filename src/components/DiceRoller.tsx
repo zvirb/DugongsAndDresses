@@ -11,6 +11,8 @@
 // ## 2025-05-27 - [Dice] Interaction: [Mode switching while rolling] Fix: [Disabled mode toggles during roll]
 // ## 2025-05-28 - [Dice] Log: [Period placement in Advantage logs] Fix: [Moved period to end of sentence]
 // ## 2025-05-29 - [Dice] Feedback: [Static result on Crit/Miss] Fix: [Added animate-bounce for dramatic effect]
+// ## 2025-05-30 - [Dice] Safety: [Guard clause missing] Fix: [Added explicit return for sides < 1]
+// ## 2025-05-30 - [Dice] UI: [Rolling badge small] Fix: [Increased text size to text-xs]
 
 import { useState, useCallback } from 'react';
 import { logAction } from '@/app/actions';
@@ -42,6 +44,9 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
     const [lastResult, setLastResult] = useState<RollResult | null>(null);
 
     const rollDice = useCallback(async (sides: number) => {
+        // Safety check: A die must have at least 1 side.
+        if (sides < 1) return;
+
         setRollingDie(sides);
         setLastResult(null); // Clear previous result while rolling
 
@@ -119,7 +124,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         Dice Tray
                     </CardTitle>
                     {rollingDie !== null ? (
-                        <span className="text-[10px] text-black bg-yellow-400 animate-pulse font-black tracking-widest shadow-[0_0_20px_rgba(250,204,21,0.6)] uppercase px-2 py-0.5 rounded-full border border-yellow-200">
+                        <span className="text-xs text-black bg-yellow-400 animate-pulse font-black tracking-widest shadow-[0_0_20px_rgba(250,204,21,0.6)] uppercase px-2 py-0.5 rounded-full border border-yellow-200">
                             ROLLING d{rollingDie}...
                         </span>
                     ) : lastResult ? (
