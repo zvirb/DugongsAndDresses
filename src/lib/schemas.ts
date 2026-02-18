@@ -11,6 +11,15 @@ const attributeMappings: Record<string, string> = {
 
 // Attributes are a flexible dictionary of string keys to number values.
 // e.g. { str: 10, dex: 12, speed: 30 }
+export const BaseAttributesSchema = z.object({
+  str: z.number().default(10),
+  dex: z.number().default(10),
+  con: z.number().default(10),
+  int: z.number().default(10),
+  wis: z.number().default(10),
+  cha: z.number().default(10),
+}).catchall(z.number());
+
 export const AttributesSchema = z.preprocess((val) => {
   if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
     const newVal: Record<string, any> = {};
@@ -45,14 +54,7 @@ export const AttributesSchema = z.preprocess((val) => {
     return newVal;
   }
   return val;
-}, z.object({
-  str: z.number().default(10),
-  dex: z.number().default(10),
-  con: z.number().default(10),
-  int: z.number().default(10),
-  wis: z.number().default(10),
-  cha: z.number().default(10),
-}).catchall(z.number()));
+}, BaseAttributesSchema);
 
 export type Attributes = z.infer<typeof AttributesSchema>;
 

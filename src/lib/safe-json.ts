@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-  Attributes, AttributesSchema,
+  Attributes, AttributesSchema, BaseAttributesSchema,
   Conditions, ConditionsSchema,
   Inventory, InventorySchema,
   Participants, ParticipantsSchema,
@@ -172,7 +172,7 @@ export function stringifyConditions(data: Conditions): string {
  * Can handle partial updates (only fields present in FormData are validated).
  * Attributes are handled separately: if any attribute key is present or it's a full parse, attributes are extracted.
  */
-export function parseCharacterForm(formData: FormData, partial: boolean = false): Partial<CharacterForm> & { attributes?: Attributes } {
+export function parseCharacterForm(formData: FormData, partial: boolean = false): Partial<CharacterForm> & { attributes?: Partial<Attributes> } {
   const rawData: Record<string, any> = {};
   formData.forEach((value, key) => {
     if (typeof value === 'string') {
@@ -192,7 +192,7 @@ export function parseCharacterForm(formData: FormData, partial: boolean = false)
     throw new Error("Invalid character data");
   }
 
-  const result: Partial<CharacterForm> & { attributes?: Attributes } = { ...parsed };
+  const result: Partial<CharacterForm> & { attributes?: Partial<Attributes> } = { ...parsed };
 
   // Check if we should extract attributes
   const hasAttributeKeys = ATTRIBUTE_KEYS.some(k => formData.has(k));
@@ -206,24 +206,23 @@ export function parseCharacterForm(formData: FormData, partial: boolean = false)
 
 /**
  * Extracts attributes from FormData.
- * Defaults to 10 for missing values.
+ * Only returns attributes present in the form data.
  */
-export function extractAttributesFromFormData(formData: FormData): Attributes {
-  const attributes: Record<string, number> = {};
+export function extractAttributesFromFormData(formData: FormData): Partial<Attributes> {
+  const attributes: Partial<Attributes> = {};
 
   for (const key of ATTRIBUTE_KEYS) {
     const value = formData.get(key);
-    if (value) {
+    if (value !== null) {
       const parsed = parseInt(value as string);
       attributes[key] = isNaN(parsed) ? 10 : parsed;
-    } else {
-      attributes[key] = 10;
     }
   }
-  // Safe parsing ensures we conform to the schema (and its defaults/types)
-  const result = AttributesSchema.safeParse(attributes);
+
+  const result = BaseAttributesSchema.partial().safeParse(attributes);
   if (result.success) return result.data;
-  return defaultAttributes;
+
+  return attributes;
 }
 
 /**

@@ -430,7 +430,7 @@ export async function createCharacter(formData: FormData): Promise<ActionResult>
                 armorClass: charData.armorClass || 10,
                 speed: charData.speed || 30,
                 initiative: charData.initiative || 0,
-                attributes: stringifyAttributes(charData.attributes || createDefaultAttributes()),
+                attributes: stringifyAttributes({ ...createDefaultAttributes(), ...(charData.attributes || {}) }),
                 initiativeRoll: 0,
                 sourceId: charData.sourceId || null
             }
