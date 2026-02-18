@@ -112,9 +112,9 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             const amount = Math.abs(delta);
             let content = "";
             if (delta > 0) {
-                content = `**${character.name}** rallies! Heals for **${amount}** HP.`;
+                content = `**${character.name}** rallies! Recovers **${amount}** HP.`;
             } else {
-                content = `**${character.name}** takes **${amount}** damage`;
+                content = `**${character.name}** suffers **${amount}** damage`;
                 if (character.hp <= 0) {
                     content += ` and falls **UNCONSCIOUS**!`;
                 } else {
@@ -804,13 +804,19 @@ export async function performSkillCheck(characterId: string, skillName: string, 
         let content = `**${character.name}** checks **${skillName}**`;
 
         if (roll !== undefined) {
-            if (dc) {
+            if (dieRoll === 20) {
+                content += `: **CRITICAL SUCCESS**! A stroke of brilliance!`;
+            } else if (dieRoll === 1) {
+                content += `: **CRITICAL FAILURE**! A disastrous fumble.`;
+            } else if (dc) {
                 if (roll >= dc) {
                     content += `: **SUCCESS**! The attempt succeeds.`;
                 } else {
                     content += `: **FAILURE**! The attempt falls short.`;
                 }
+            }
 
+            if (dc) {
                 if (dieRoll !== undefined && modifier !== undefined) {
                     const sign = modifier >= 0 ? '+' : '';
                     content += ` (Roll: **${dieRoll}**${sign}**${modifier}** = **${roll}** vs DC **${dc}**)`;
