@@ -13,6 +13,8 @@ import { prisma } from "./prisma";
  * ## 2025-05-26 - [getSpectatorCampaign] Slow: [Multiple round trips] Sight: [Consolidated Campaign+Players, conditional NPC fetch]
  * ## 2025-05-27 - [getCampaignPulse] Slow: [Uncached polling] Sight: [Wrapped in unstable_cache, Optimized Select]
  * ## 2025-05-28 - [getPlayerDashboard] Slow: [Fetching 10 logs on 2s poll] Sight: [Reduced to 5 logs, verified Select]
+ * ## 2025-05-31 - [getLibraryCharacters] Slow: [Fetched full library] Sight: [Optimized Select: Excluded attributes/inventory]
+ * ## 2025-05-31 - [getEncounters] Slow: [Fetched participants JSON] Sight: [Optimized Select: Excluded participants]
  */
 
 // Reusable select constants for consistency and optimization
@@ -88,13 +90,34 @@ const PLAYER_DASHBOARD_SELECT = {
   conditions: true
 } as const;
 
+const LIBRARY_CHAR_SELECT = {
+  id: true,
+  name: true,
+  type: true,
+  race: true,
+  class: true,
+  level: true,
+  hp: true,
+  maxHp: true,
+  armorClass: true
+} as const;
+
+const ENCOUNTER_SELECT = {
+  id: true,
+  name: true,
+  createdAt: true
+} as const;
+
 /**
  * Fetches all campaigns ordered by creation date.
  */
 export async function getCampaigns() {
   return prisma.campaign.findMany({
     select: { id: true, name: true, active: true },
-    orderBy: { createdAt: 'desc' }
+    orderBy: [
+      { active: 'desc' },
+      { createdAt: 'desc' }
+    ]
   });
 }
 
@@ -323,3 +346,26 @@ export const getPlayerInventory = cache(async function getPlayerInventory(id: st
     }
   });
 });
+
+/**
+ * Optimized fetch for Library.
+ * Selects only fields needed for the list view (excludes attributes, inventory, conditions).
+ */
+export async function getLibraryCharacters() {
+  return prisma.character.findMany({
+    orderBy: { name: 'asc' },
+    select: LIBRARY_CHAR_SELECT
+  });
+}
+
+/**
+ * Optimized fetch for Encounter List.
+ * Selects only fields needed for the list view (excludes participants JSON).
+ */
+export async function getEncounters(campaignId: string) {
+  return prisma.encounter.findMany({
+    where: { campaignId },
+    orderBy: { createdAt: 'desc' },
+    select: ENCOUNTER_SELECT
+  });
+}

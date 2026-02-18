@@ -1,6 +1,7 @@
 'use server'
 
 import { prisma } from "@/lib/prisma";
+import { getLibraryCharacters, getEncounters } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
 import { stringifyAttributes, parseAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs, parseCharacterForm, createDefaultAttributes } from "@/lib/safe-json";
@@ -622,10 +623,7 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
 
 export async function getAvailableCharacters(): Promise<ActionResult> {
     return actionWrapper("getAvailableCharacters", async () => {
-        const characters = await prisma.character.findMany({
-            orderBy: { name: 'asc' }
-        });
-        return characters;
+        return getLibraryCharacters();
     });
 }
 
@@ -921,12 +919,7 @@ export async function updateSettings(formData: FormData): Promise<ActionResult<S
 export async function listEncounters(campaignId: string): Promise<ActionResult> {
     return actionWrapper("listEncounters", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
-
-        const encounters = await prisma.encounter.findMany({
-            where: { campaignId },
-            orderBy: { createdAt: 'desc' }
-        });
-        return encounters;
+        return getEncounters(campaignId);
     });
 }
 
@@ -945,13 +938,14 @@ export async function loadEncounter(encounterId: string): Promise<ActionResult> 
             data: { activeTurn: false }
         });
 
-        // Update each character's initiative roll
-        for (const p of participants) {
-            await prisma.character.update({
+        // Update each character's initiative roll - Batched Transaction
+        const updates = participants.map(p =>
+            prisma.character.update({
                 where: { id: p.characterId },
                 data: { initiativeRoll: p.initiative }
-            });
-        }
+            })
+        );
+        await prisma.$transaction(updates);
 
         await logAction(encounter.campaignId, `The encounter **${encounter.name}** has begun!`, "Combat");
 

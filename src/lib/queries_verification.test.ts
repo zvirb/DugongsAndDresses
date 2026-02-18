@@ -110,7 +110,7 @@ describe('Query Optimization', () => {
     expect(campaignSelect.logs).toBeDefined();
 
     const logsArgs = campaignSelect.logs;
-    expect(logsArgs.take).toBe(10);
+    expect(logsArgs.take).toBe(5);
     expect(logsArgs.orderBy.timestamp).toBe('desc');
     expect(logsArgs.select.id).toBe(true);
     expect(logsArgs.select.content).toBe(true);
