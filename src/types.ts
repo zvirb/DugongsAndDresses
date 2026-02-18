@@ -7,6 +7,7 @@
 // ## 2024-05-25 - [Schema] Mess: [Untyped log types and action inputs] Tidy: [Enforced Zod schemas for actions and logs]
 // ## 2025-05-26 - [Schema] Mess: [Inconsistent casing in attribute keys] Tidy: [Enforced lowercase normalization in AttributesSchema]
 // ## 2025-05-26 - [Schema] Mess: [Untyped 'any' in backup data] Tidy: [Implemented strict Zod schemas for all backup entities]
+// ## 2025-05-26 - [Schema] Mess: [Partial attribute updates reset missing keys to 10] Tidy: [Enforced partial extraction and merge-on-update]
 
 import { Character, LogEntry, Campaign, Encounter, Settings } from '@prisma/client';
 import { Attributes, Conditions, Inventory, Participant, Participants, LogType, AttackAction, SkillCheckAction, SpellCastAction } from '@/lib/schemas';
