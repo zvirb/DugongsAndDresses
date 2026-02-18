@@ -11,6 +11,7 @@ import { PublicCharacterCard } from "@/components/PublicCharacterCard";
  * ## 2026-02-15 - [View] Blur: [Labels too small] Shout: [Bumped labels to 4xl, Current Turn to 5xl]
  * ## 2025-05-27 - [View] Blur: [Race/Class and Status text too small] Shout: [Bumped to 4xl/5xl, Centered Grid]
  * ## 2025-05-28 - [View] Blur: [Max HP too small, Health Bar too thin] Shout: [Bumped Max HP to 4xl, Bar to h-16, Added Unconscious Overlay]
+ * ## 2025-05-29 - [View] Blur: [Updates too slow, turn indicator could be bigger] Shout: [Bumped refresh to 2s, Active Name to 8xl]
  */
 
 export const dynamic = 'force-dynamic';
@@ -40,7 +41,7 @@ export default async function PublicPage() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-agent-blue shadow-[0_0_20px_#2b2bee] animate-scan" />
             </div>
 
-            <AutoRefresh intervalMs={3000} />
+            <AutoRefresh intervalMs={2000} />
 
             {/* Content Wrapper with subtle movement */}
             <div className="p-8 pb-60 h-full overflow-y-auto border-x border-agent-blue/10 max-w-[1920px] mx-auto bg-black/20 backdrop-blur-sm relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
@@ -87,7 +88,7 @@ export default async function PublicPage() {
                                 <div className="absolute inset-0 bg-agent-blue/20 blur-xl animate-pulse rounded-full opacity-50" />
                                 <h3 className="text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white drop-shadow-[0_0_30px_rgba(43,43,238,0.8)] relative z-10 flex items-center gap-6">
                                     <span className="text-6xl text-agent-blue font-mono tracking-widest self-center opacity-100 drop-shadow-[0_0_10px_rgba(43,43,238,0.5)] whitespace-nowrap">CURRENT TURN</span>
-                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md animate-pulse ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50' : 'text-red-500 border-red-500/50'}`}>
+                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md animate-pulse text-7xl lg:text-9xl ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50' : 'text-red-500 border-red-500/50'}`}>
                                         {activeContestant.type === 'PLAYER' ? activeContestant.name : 'OPPONENT TURN'}
                                     </span>
                                 </h3>
