@@ -119,7 +119,7 @@ describe('DiceRoller', () => {
     fireEvent.click(d20Button)
 
     // Should show "CALCULATING..." immediately in header
-    expect(screen.getByText('ROLLING d20...')).toBeInTheDocument()
+    expect(screen.getByText('ROLLING...')).toBeInTheDocument()
 
     // All buttons should be disabled
     const d4Button = screen.getByText('d4')
@@ -139,7 +139,7 @@ describe('DiceRoller', () => {
     })
 
     // After roll, "CALCULATING..." should be gone and buttons enabled
-    expect(screen.queryByText('ROLLING d20...')).not.toBeInTheDocument()
+    expect(screen.queryByText('ROLLING...')).not.toBeInTheDocument()
     expect(screen.getByText('d20')).not.toBeDisabled()
     expect(screen.getByText('Normal')).not.toBeDisabled()
   })
@@ -154,12 +154,12 @@ describe('DiceRoller', () => {
     fireEvent.click(d20Button)
 
     // Should show "CALCULATING..." immediately
-    expect(screen.getByText('ROLLING d20...')).toBeInTheDocument()
+    expect(screen.getByText('ROLLING...')).toBeInTheDocument()
     expect(d20Button).toBeDisabled()
 
     // Wait for the async action to complete (and fail)
     await waitFor(() => {
-      expect(screen.queryByText('ROLLING d20...')).not.toBeInTheDocument()
+      expect(screen.queryByText('ROLLING...')).not.toBeInTheDocument()
     })
 
     // Buttons should be enabled again
