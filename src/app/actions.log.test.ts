@@ -18,7 +18,12 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn()
+  revalidatePath: vi.fn(),
+  unstable_cache: vi.fn((fn) => fn),
+}));
+
+vi.mock('react', () => ({
+  cache: vi.fn((fn) => fn),
 }));
 
 vi.mock('@/lib/ai', () => ({
@@ -102,7 +107,7 @@ describe('Bard Logging Enhancements', () => {
           const content = createCall.data.content;
 
           expect(content).toContain('**Grom** rallies!');
-          expect(content).toContain('Heals for **5** HP');
+          expect(content).toContain('Recovers **5** HP');
       });
 
       it('should log unconsciousness dramatically', async () => {
@@ -115,7 +120,7 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** takes **10** damage');
+        expect(content).toContain('**Grom** suffers **10** damage');
         expect(content).toContain('falls **UNCONSCIOUS**!');
     });
   });
@@ -136,6 +141,38 @@ describe('Bard Logging Enhancements', () => {
         expect(content).toContain('The attempt succeeds.');
         expect(content).toContain('Roll: **14**+**4** = **18**');
       });
+
+      it('should log critical success for skill check', async () => {
+          vi.mocked(prisma.character.findUnique).mockResolvedValue({
+              id: 'char-1', name: 'Lyra', campaignId: 'camp-1'
+          } as any);
+
+          // roll 24 (20 + 4), dieRoll 20
+          await performSkillCheck('char-1', 'Stealth', 20, 24, 20, 4);
+
+          const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+          const content = createCall.data.content;
+
+          expect(content).toContain('**Lyra** checks **Stealth**');
+          expect(content).toContain('**CRITICAL SUCCESS**!');
+          expect(content).toContain('A stroke of brilliance!');
+      });
+
+      it('should log critical failure for skill check', async () => {
+        vi.mocked(prisma.character.findUnique).mockResolvedValue({
+            id: 'char-1', name: 'Lyra', campaignId: 'camp-1'
+        } as any);
+
+        // roll 5 (1 + 4), dieRoll 1
+        await performSkillCheck('char-1', 'Stealth', 10, 5, 1, 4);
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+
+        expect(content).toContain('**Lyra** checks **Stealth**');
+        expect(content).toContain('**CRITICAL FAILURE**!');
+        expect(content).toContain('A disastrous fumble');
+    });
   });
 
   describe('updateCharacter', () => {
