@@ -7,6 +7,7 @@
 // ## 2025-05-21 - [Context] Gap: [AI missed active turn] Fix: [Added 'CURRENT' marker and extra attributes]
 // ## 2025-05-27 - [Context] Gap: [AI missed downed status] Fix: [Added 'DOWN' marker to conditions and optimized timestamp]
 // ## 2025-05-29 - [Context] Gap: [Missing HP Context, Crowded Stats] Fix: [Added HP%, Separated Resources, Refined Instructions]
+// ## 2025-05-30 - [Context] Gap: [Verbose context, unstructured data] Fix: [Condensed stats/res into brackets, optimized instructions for density]
 
 import { parseConditions, parseAttributes, parseInventory } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
@@ -79,13 +80,13 @@ export function generateAIContext(
         ].filter(Boolean).join(' ');
 
         // Construct line parts
-        // Format: ▶ [ACTIVE] Name [Type] (Race Class Lvl X) | HP:X/Y (Z%) AC:Z Spd:S Init:N PP:P | Cond:[...] | Stats:STR:X ... | Res:SpellSlots:N ... | Inv:[...]
+        // Format: ▶ [ACTIVE] Name [Type] (Race Class Lvl X) | HP:X/Y (Z%) AC:Z Spd:S Init:N PP:P | Cond:[...] | Stats:[STR:X ...] | Res:[SpellSlots:N ...] | Inv:[...]
         const parts = [
             `${c.activeTurn ? '▶ [ACTIVE] ' : ''}${c.name} [${c.type || '?'}] (${c.race || '?'} ${c.class || '?'} Lvl ${c.level})`,
             combatStats,
             `Cond:${conditionText}`,
-            `Stats:${standardAttrText}`,
-            extraStats ? `Res:${extraStats}` : null,
+            `Stats:[${standardAttrText}]`,
+            extraStats ? `Res:[${extraStats}]` : null,
             inventoryText ? `Inv:${inventoryText}` : null
         ].filter(item => item !== null && item !== undefined && item !== '');
 
@@ -116,15 +117,15 @@ ${charSummary}
 ${logSummary}
 
 == INSTRUCTIONS ==
-Role: Dungeon Master's Narrator.
+Role: Narrative Engine.
 Task: Narrate the [ACTIVE] character's action based on RECENT LOGS.
 Context:
 - [ACTIVE] = Current turn taker.
-- HP% = Vitality (e.g. <50% is "bloodied", 0% is DOWN).
-- Logs = The absolute truth.
+- HP% = Vitality (<50% "bloodied", 0% DOWN).
+- Logs = Absolute TRUTH.
 Constraints:
-- Length: Max 2 sentences. No fluff.
+- Length: Max 2 sentences. concise.
 - Tone: Gritty, sensory, immediate.
-- Truth: Strict adherence to logs. Do NOT invent rolls, outcomes, or dialogue not in logs.
-- Focus: Describe the ACTION and its IMMEDIATE IMPACT.`;
+- Truth: Do NOT invent rolls, outcomes, or dialogue not in logs.
+- Focus: Action & Immediate Impact.`;
 }

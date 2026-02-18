@@ -38,7 +38,7 @@ describe('generateAIContext', () => {
         const turnOrder: any[] = [];
 
         const context = generateAIContext(logs, characters, turnOrder);
-        // We expect these to be present, formatting might change in next steps
+        // We expect these to be present
         expect(context).toMatch(/SpellSlots:3/);
         expect(context).toMatch(/Ki:2/);
     });
@@ -69,8 +69,8 @@ describe('generateAIContext', () => {
         const context = generateAIContext(logs, characters, turnOrder);
         // Expect HP percentage
         expect(context).toContain('HP:5/10 (50%)');
-        // Expect Stats separation
-        expect(context).toContain('Stats:STR:18');
-        expect(context).toContain('Res:SpellSlots:2');
+        // Expect Stats separation with new bracket format
+        expect(context).toContain('Stats:[STR:18');
+        expect(context).toContain('Res:[SpellSlots:2]');
     });
 });
