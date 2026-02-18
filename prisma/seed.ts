@@ -6,6 +6,7 @@
 // ## 2025-05-24 - [Seed] Gap: No tournament or arena style campaign. Summon: Added 'The Gilded Tournament' with Grandmaster Thorne and Champion Urga.
 // ## 2025-05-25 - [Seed] Gap: No underground/dwarven themed campaign. Summon: Added 'The Iron Depths' with King Thorgar and Guide Brilda.
 // ## 2025-05-26 - [Seed] Gap: No high-magic feywild campaign. Summon: Added 'The Whispering Woods' with Elara and Thalin.
+// ## 2025-05-27 - [Seed] Gap: No undead/cleric themed campaign. Summon: Added 'Catacombs of the Faithful' with High Priestess Anara and Cult Leader Malos.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -1222,6 +1223,89 @@ const whisperingWoodsCharacters: CharacterTemplate[] = [
   }
 ]
 
+const catacombsCharacters: CharacterTemplate[] = [
+  {
+    name: 'High Priestess Anara',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Cleric',
+    imageUrl: '/avatars/cleric_female_1770266235967.png',
+    hp: 35,
+    maxHp: 35,
+    armorClass: 18,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 12, dex: 10, con: 14, int: 12, wis: 18, cha: 14 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Brother Thomas',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Cleric',
+    imageUrl: '/avatars/cleric_male_1770266221119.png',
+    hp: 28,
+    maxHp: 28,
+    armorClass: 16,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 14, dex: 10, con: 14, int: 10, wis: 16, cha: 12 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Sir Kaelen',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Paladin',
+    imageUrl: '/avatars/fighter_male_1770266139273.png',
+    hp: 42,
+    maxHp: 42,
+    armorClass: 19,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 18, dex: 10, con: 16, int: 10, wis: 12, cha: 14 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Grave Robber',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Rogue',
+    imageUrl: '/avatars/thief_male_1770267752047.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 14,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 16, con: 12, int: 10, wis: 10, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Cult Leader Malos',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Warlock',
+    imageUrl: '/avatars/wizard_male_1770266164795.png',
+    hp: 45,
+    maxHp: 45,
+    armorClass: 13,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 14, con: 14, int: 12, wis: 10, cha: 18 },
+    activeTurn: false,
+    level: 6,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -1562,6 +1646,42 @@ async function main() {
   })
 
   console.log(`🍃 Campaign "${whisperingWoodsCampaign.name}" created.`)
+
+  // Create Catacombs of the Faithful Campaign (Inactive)
+  const catacombsCampaign = await prisma.campaign.create({
+    data: {
+      name: 'Catacombs of the Faithful',
+      active: false,
+      characters: {
+        create: catacombsCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The air in the **Catacombs of the Faithful** is thick with incense and decay.', type: 'Story' },
+          { content: '**High Priestess Anara** raises her holy symbol against the dark.', type: 'Story' },
+          { content: '**Brother Thomas** tends to the wounded.', type: 'Story' },
+          { content: '**Cult Leader Malos** chants a forbidden ritual in the distance...', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`💀 Campaign "${catacombsCampaign.name}" created.`)
 }
 
 main()
