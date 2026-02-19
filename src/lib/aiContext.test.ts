@@ -43,6 +43,21 @@ describe('generateAIContext', () => {
         expect(context).toMatch(/Ki:2/);
     });
 
+    it('includes string attributes like ClassFeatures', () => {
+        const characters = [{
+            id: '1', name: 'Barbarian', hp: 10, maxHp: 10, type: 'PLAYER',
+            conditions: '[]', attributes: JSON.stringify({ str: 18, rage: 'Active', deity: 'Kord' }), inventory: '[]',
+            activeTurn: false, level: 1, armorClass: 16
+        }] as unknown as Character[];
+        const logs: LogEntry[] = [];
+        const turnOrder: any[] = [];
+
+        const context = generateAIContext(logs, characters, turnOrder);
+        // Expect string attributes to be present in Resources
+        expect(context).toContain('Rage:Active');
+        expect(context).toContain('Deity:Kord');
+    });
+
     it('marks the active turn correctly', () => {
         const characters = [{
             id: '1', name: 'Hero', hp: 10, maxHp: 10, type: 'PLAYER',

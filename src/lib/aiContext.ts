@@ -8,8 +8,10 @@
 // ## 2025-05-27 - [Context] Gap: [AI missed downed status] Fix: [Added 'DOWN' marker to conditions and optimized timestamp]
 // ## 2025-05-29 - [Context] Gap: [Missing HP Context, Crowded Stats] Fix: [Added HP%, Separated Resources, Refined Instructions]
 // ## 2025-05-30 - [Context] Gap: [Verbose context, unstructured data] Fix: [Condensed stats/res into brackets, optimized instructions for density]
+// ## 2025-06-05 - [Context] Gap: [Missing string attributes] Fix: [Switched to raw JSON parsing to include textual traits]
+// ## 2025-06-05 - [Context] Gap: [Verbose Instructions] Fix: [Tightened instructions for better token efficiency]
 
-import { parseConditions, parseAttributes, parseInventory } from '@/lib/safe-json';
+import { parseConditions, parseInventory } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
 
 export function generateAIContext(
@@ -28,22 +30,34 @@ export function generateAIContext(
         // Wrap conditions in brackets for density and parsing clarity
         const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'Healthy';
 
-        // Parse attributes if available
-        const attributes = parseAttributes(c.attributes);
+        // Parse attributes manually to allow strings/complex types that schema might strip
+        let attributes: Record<string, any> = {};
+        try {
+            attributes = JSON.parse(c.attributes || '{}');
+        } catch (e) {
+            attributes = {};
+        }
+
         const keyMap: Record<string, string> = {
             str: 'STR', dex: 'DEX', con: 'CON', int: 'INT', wis: 'WIS', cha: 'CHA'
         };
 
         const standardStats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 
-        // Standard stats first
+        // Standard stats first (using default 10 if missing/invalid)
         const standardAttrText = standardStats
-            .map(k => `${keyMap[k]}:${attributes[k] || 10}`)
+            .map(k => {
+                const val = attributes[k];
+                const numVal = typeof val === 'number' ? val : (parseInt(val) || 10);
+                return `${keyMap[k]}:${numVal}`;
+            })
             .join(' ');
 
-        // Extra stats (Spell Slots, Ki, etc)
+        // Extra stats (Spell Slots, Ki, Class Features, etc)
+        // Now includes strings as well as numbers
         const extraStats = Object.entries(attributes)
-            .filter(([k]) => !standardStats.includes(k.toLowerCase()) && typeof attributes[k] === 'number')
+            .filter(([k]) => !standardStats.includes(k.toLowerCase()))
+            .filter(([_, v]) => typeof v === 'number' || (typeof v === 'string' && v.trim().length > 0))
             .map(([k, v]) => {
                 // Capitalize first letter of key (e.g. spellSlots -> SpellSlots)
                 const cleanKey = k.charAt(0).toUpperCase() + k.slice(1);
@@ -52,12 +66,14 @@ export function generateAIContext(
             .join(' ');
 
         // Calculate Passive Perception
-        let wis = attributes.wis || 10;
+        let wis = 10;
+        if (typeof attributes['wis'] === 'number') wis = attributes['wis'];
+        else if (typeof attributes['wis'] === 'string') wis = parseInt(attributes['wis']) || 10;
+
         // Check for uppercase keys if default is returned (to handle case-sensitive JSON parsing edge cases)
         if (wis === 10) {
-            const raw = attributes as Record<string, any>;
-            if (typeof raw['WIS'] === 'number') wis = raw['WIS'];
-            else if (typeof raw['Wisdom'] === 'number') wis = raw['Wisdom'];
+             if (typeof attributes['WIS'] === 'number') wis = attributes['WIS'];
+             else if (typeof attributes['Wisdom'] === 'number') wis = attributes['Wisdom'];
         }
         const pp = 10 + Math.floor((wis - 10) / 2);
 
@@ -117,15 +133,15 @@ ${charSummary}
 ${logSummary}
 
 == INSTRUCTIONS ==
-Role: Narrative Engine.
-Task: Narrate the [ACTIVE] character's action based on RECENT LOGS.
+Role: Fantasy Combat Narrator.
+Objective: Narrate the latest action of the [ACTIVE] character using the RECENT LOGS.
 Context:
-- [ACTIVE] = Current turn taker.
-- HP% = Vitality (<50% "bloodied", 0% DOWN).
-- Logs = Absolute TRUTH.
-Constraints:
-- Length: Max 2 sentences. concise.
-- Tone: Gritty, sensory, immediate.
-- Truth: Do NOT invent rolls, outcomes, or dialogue not in logs.
-- Focus: Action & Immediate Impact.`;
+- [ACTIVE]: The character currently acting.
+- HP%: <50% is "bloodied", 0% is "down/dying".
+- Logs: The source of truth for actions/rolls.
+Guidelines:
+- Brevity: Max 2 sentences. Punchy.
+- Style: Visceral, sensory, present-tense.
+- Accuracy: Reflect the mechanics (Attack/Damage/Save) in the logs. Do not hallucinate extra attacks.
+- Status: Mention condition changes (e.g. falling unconscious) if they appear in logs.`;
 }
