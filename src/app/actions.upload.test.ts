@@ -27,6 +27,10 @@ vi.mock('next/cache', () => ({
   unstable_cache: vi.fn((fn) => fn),
 }));
 
+vi.mock('react', () => ({
+  cache: vi.fn((fn) => fn),
+}));
+
 vi.mock('@/lib/backup', () => ({
   checkAutoBackup: vi.fn().mockResolvedValue(undefined),
 }));

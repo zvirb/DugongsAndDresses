@@ -115,7 +115,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** rallies! Recovers **5** HP.'),
+        content: expect.stringContaining('**Grom** rallies! Vitality returns (+**5** HP).'),
         type: 'Combat',
       },
     });
@@ -134,7 +134,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** suffers **5** damage'),
+        content: expect.stringContaining('**Grom** reels from the blow, taking **5** damage'),
         type: 'Combat',
       },
     });
@@ -152,7 +152,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** prepares for battle! Initiative: **15**.'),
+        content: expect.stringContaining('**Grom** draws steel! Initiative: **15**.'),
         type: 'Combat',
       },
     });
@@ -252,7 +252,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** obtains **Sword**.'),
+        content: expect.stringContaining('**Grom** finds **Sword**.'),
         type: 'Story',
       },
     });
@@ -277,7 +277,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** discards **Sword**.'),
+        content: expect.stringContaining('**Grom** drops **Sword**.'),
         type: 'Story',
       },
     });
@@ -326,7 +326,7 @@ describe('Server Actions Logging', () => {
         expect(prisma.logEntry.create).toHaveBeenCalledWith({
             data: {
                 campaignId,
-                content: expect.stringContaining("The spotlight shifts. It is now **Char2**'s turn."),
+                content: expect.stringContaining("The flow of battle shifts. It is now **Char2**'s turn."),
                 type: 'Combat',
             }
         });
@@ -357,7 +357,7 @@ describe('Server Actions Logging', () => {
         expect(prisma.logEntry.create).toHaveBeenCalledWith({
             data: {
                 campaignId,
-                content: expect.stringContaining("The spotlight shifts. It is now **Char1**'s turn."),
+                content: expect.stringContaining("The flow of battle shifts. It is now **Char1**'s turn."),
                 type: 'Combat',
             }
         });
@@ -447,7 +447,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Attacker** attacks **Target**... **HITS**! (Roll: **18**) dealing **5** damage'),
+        content: expect.stringContaining('**Attacker** strikes **Target**! (Roll: **18**), dealing **5** damage'),
         type: 'Combat',
       },
     });
@@ -465,7 +465,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Attacker** attacks **Target**... **CRITICAL HIT**! A devastating blow! (Roll: **20**)'),
+        content: expect.stringContaining('**CRITICAL HIT**! **Attacker** lands a devastating blow on **Target**! (Roll: **20**)'),
         type: 'Combat',
       },
     });
@@ -481,7 +481,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Attacker** attacks **Target**... **CRITICAL MISS**! A clumsy fumble! (Roll: **1**)'),
+        content: expect.stringContaining('**CRITICAL MISS**! **Attacker** stumbles and fumbles the attack against **Target**! (Roll: **1**)'),
         type: 'Combat',
       },
     });
@@ -499,7 +499,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Hero** checks **Athletics**: **SUCCESS**! The attempt succeeds. (Roll: **18** vs DC **15**).'),
+        content: expect.stringContaining('**Hero** attempts to **Athletics**: **SUCCESS**! They pull it off. (Roll: **18** vs DC **15**).'),
         type: 'Roll',
       },
     });
@@ -524,7 +524,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Wizard** casts **Fireball** on **Goblin**. The air shimmers as **Burning** takes hold.'),
+        content: expect.stringContaining('**Wizard** invokes **Fireball**, targeting **Goblin**. The air shimmers as **Burning** takes hold.'),
         type: 'Combat',
       },
     });
@@ -606,7 +606,7 @@ describe('New Server Actions', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
         data: {
             campaignId: 'camp-1',
-            content: expect.stringContaining('The encounter **Saved Battle** has begun!'),
+            content: expect.stringContaining('The air grows heavy... The encounter **Saved Battle** has begun!'),
             type: 'Combat',
         }
     });

@@ -20,6 +20,7 @@ import { Character, Settings } from "@prisma/client";
 // Format: ## YYYY-MM-DD - [Log] Boring: [Log said "HP Update"] Song: [Changed to "Grom takes 5 damage"]
 // ## 2025-05-24 - [Log] Boring: [Generic "Attacks", "Creates"] Song: [Enhanced with "CRITICAL HIT!", "Manifests", "Unconscious"]
 // ## 2025-05-25 - [Log] Boring: [Generic "Casts", "Checks"] Song: [Enhanced with "The air shimmers", "The attempt succeeds"]
+// ## 2025-05-26 - [Log] Boring: [Generic "Attacks", "Hits"] Song: [Enhanced with "Strikes", "Devastating blow", "The blow goes wide"]
 
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
@@ -112,11 +113,11 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             const amount = Math.abs(delta);
             let content = "";
             if (delta > 0) {
-                content = `**${character.name}** rallies! Recovers **${amount}** HP.`;
+                content = `**${character.name}** rallies! Vitality returns (+**${amount}** HP).`;
             } else {
-                content = `**${character.name}** suffers **${amount}** damage`;
+                content = `**${character.name}** reels from the blow, taking **${amount}** damage`;
                 if (character.hp <= 0) {
-                    content += ` and falls **UNCONSCIOUS**!`;
+                    content += ` and collapses, falling **UNCONSCIOUS**!`;
                 } else {
                     content += `.`;
                 }
@@ -186,7 +187,7 @@ export async function duplicateCharacter(characterId: string): Promise<ActionRes
             }
         });
 
-        await logAction(source.campaignId, `**${source.name}** splits! A duplicate, **${newChar.name}**, appears.`, "Story");
+        await logAction(source.campaignId, `**${source.name}** splits! A doppelgänger, **${newChar.name}**, emerges from the shadows.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -208,7 +209,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
         // but maybe the user wants to keep the last roll?
         // Let's NOT sync initiative roll to source as it's ephemeral.
 
-        const content = `**${character.name}** prepares for battle! Initiative: **${roll}**.`;
+        const content = `**${character.name}** draws steel! Initiative: **${roll}**.`;
         await logAction(character.campaignId, content, "Combat");
 
         revalidatePath('/dm');
@@ -320,7 +321,7 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
             throw error;
         }
 
-        await logAction(campaignId, `The spotlight shifts. It is now **${newActiveChar.name}**'s turn.`, "Combat");
+        await logAction(campaignId, `The flow of battle shifts. It is now **${newActiveChar.name}**'s turn.`, "Combat");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -568,7 +569,7 @@ export async function addInventoryItem(characterId: string, item: string): Promi
         // Sync to Library
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** obtains **${item.trim()}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** finds **${item.trim()}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -618,7 +619,7 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
         // Sync Source
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** discards **${item}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** drops **${item}**.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -734,13 +735,6 @@ export async function performAttack(attackerId: string, targetId: string | undef
             if (!target) throw new Error("Target not found");
         }
 
-        let content = `**${attacker.name}** attacks`;
-        if (target) {
-            content += ` **${target.name}**...`;
-        } else {
-            content += `...`;
-        }
-
         let isHit = true;
         let isCrit = false;
         let isFumble = false;
@@ -760,21 +754,27 @@ export async function performAttack(attackerId: string, targetId: string | undef
             if ((damage || 0) <= 0) isHit = false;
         }
 
-        // Determine result string first
-        let resultStr = "";
-        if (isCrit) {
-            resultStr = "**CRITICAL HIT**! A devastating blow!";
-        } else if (isFumble) {
-            resultStr = "**CRITICAL MISS**! A clumsy fumble!";
-        } else if (target) {
-            if (isHit) {
-                resultStr = "**HITS**!";
-            } else {
-                resultStr = "**MISSES**! The attack goes wide.";
-            }
-        }
+        let content = "";
 
-        if (resultStr) content += ` ${resultStr}`;
+        if (target) {
+             if (isCrit) {
+                content = `**CRITICAL HIT**! **${attacker.name}** lands a devastating blow on **${target.name}**!`;
+             } else if (isFumble) {
+                content = `**CRITICAL MISS**! **${attacker.name}** stumbles and fumbles the attack against **${target.name}**!`;
+             } else if (isHit) {
+                content = `**${attacker.name}** strikes **${target.name}**!`;
+             } else {
+                content = `**${attacker.name}** attacks **${target.name}**, but the blow goes wide.`;
+             }
+        } else {
+             if (isCrit) {
+                content = `**CRITICAL HIT**! **${attacker.name}** unleashes a devastating attack!`;
+             } else if (isFumble) {
+                content = `**CRITICAL MISS**! **${attacker.name}** stumbles!`;
+             } else {
+                content = `**${attacker.name}** attacks...`;
+             }
+        }
 
         if (attackRoll !== undefined) {
              content += ` (Roll: **${attackRoll}**)`;
@@ -790,9 +790,9 @@ export async function performAttack(attackerId: string, targetId: string | undef
             });
             await syncToSource(updatedTarget);
 
-            content += ` dealing **${dmg}** damage`;
+            content += `, dealing **${dmg}** damage`;
             if (updatedTarget.hp <= 0) {
-                content += ` and knocking them **UNCONSCIOUS**!`;
+                content += `, knocking them **UNCONSCIOUS**!`;
             } else {
                 content += `.`;
             }
@@ -816,7 +816,7 @@ export async function performSkillCheck(characterId: string, skillName: string, 
         const character = await prisma.character.findUnique({ where: { id: validated.characterId } });
         if (!character) throw new Error("Character not found");
 
-        let content = `**${character.name}** checks **${skillName}**`;
+        let content = `**${character.name}** attempts to **${skillName}**`;
 
         if (roll !== undefined) {
             if (dieRoll === 20) {
@@ -825,9 +825,9 @@ export async function performSkillCheck(characterId: string, skillName: string, 
                 content += `: **CRITICAL FAILURE**! A disastrous fumble.`;
             } else if (dc) {
                 if (roll >= dc) {
-                    content += `: **SUCCESS**! The attempt succeeds.`;
+                    content += `: **SUCCESS**! They pull it off.`;
                 } else {
-                    content += `: **FAILURE**! The attempt falls short.`;
+                    content += `: **FAILURE**! It was not enough.`;
                 }
             }
 
@@ -871,9 +871,9 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
             if (target) targetName = target.name;
         }
 
-        let content = `**${caster.name}** casts **${validated.spellName}**`;
+        let content = `**${caster.name}** invokes **${validated.spellName}**`;
         if (targetName) {
-            content += ` on **${targetName}**`;
+            content += `, targeting **${targetName}**`;
         }
 
         if (validated.condition && target) {
@@ -955,7 +955,7 @@ export async function loadEncounter(encounterId: string): Promise<ActionResult> 
         );
         await prisma.$transaction(updates);
 
-        await logAction(encounter.campaignId, `The encounter **${encounter.name}** has begun!`, "Combat");
+        await logAction(encounter.campaignId, `The air grows heavy... The encounter **${encounter.name}** has begun!`, "Combat");
 
         revalidatePath('/dm');
         return { success: true };
