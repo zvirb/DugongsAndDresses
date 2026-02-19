@@ -5,14 +5,15 @@
 // ## 2025-05-29 - [ActionForm] Thumb Zone: [Result section cramped] Path: [Stacked inputs vertically for full width targets]
 // ## 2025-05-30 - [ActionForm] Workflow: [Added specific sub-forms] Path: [Implemented Action Mode state machine]
 // ## 2025-06-01 - [ActionForm] Thumb Zone: [Inputs and buttons small] Path: [Increased inputs to h-20, Submit to h-24, text-2xl]
+// ## 2025-06-03 - [ActionForm] Feature: [Missing Damage/Target] Path: [Added Target Selector and Damage Input]
 
-import { logAction, performAttack, castSpell, updateConditions } from "@/app/actions";
+import { logAction, performAttack, castSpell, performLongRest } from "@/app/actions";
 import { useTransition, useState } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { secureRoll } from "@/lib/dice";
 
-const QUICK_ACTIONS = ["Attack", "Cast", "Dodge", "Dash"];
+const QUICK_ACTIONS = ["Attack", "Cast", "Dodge", "Dash", "Rest"];
 
 type ActionMode = 'INTENT' | 'ATTACK' | 'CAST';
 
@@ -25,7 +26,12 @@ function sanitizeInput(input: string): string {
     return sanitized;
 }
 
-export default function PlayerActionForm({ characterName, campaignId, characterId }: { characterName: string, campaignId: string, characterId: string }) {
+interface Target {
+    id: string;
+    name: string;
+}
+
+export default function PlayerActionForm({ characterName, campaignId, characterId, targets = [] }: { characterName: string, campaignId: string, characterId: string, targets?: Target[] }) {
     const [isPending, startTransition] = useTransition();
     const [mode, setMode] = useState<ActionMode>('INTENT');
     const [intent, setIntent] = useState("");
@@ -34,6 +40,8 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
     // Attack State
     const [weapon, setWeapon] = useState("");
     const [attackRoll, setAttackRoll] = useState("");
+    const [damage, setDamage] = useState("");
+    const [targetId, setTargetId] = useState("");
 
     // Cast State
     const [spell, setSpell] = useState("");
@@ -47,12 +55,19 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
             setMode('ATTACK');
         } else if (action === "Cast") {
             setMode('CAST');
+        } else if (action === "Rest") {
+             if (!confirm("Take a Long Rest? This will restore HP to max.")) return;
+             startTransition(async () => {
+                 try {
+                     await performLongRest(characterId);
+                 } catch (e) {
+                     console.error(e);
+                 }
+             });
         } else if (action === "Dodge") {
             if (!confirm("Take the Dodge action? (Disadvantage on attacks against you)")) return;
             startTransition(async () => {
                 await logAction(campaignId, `**${characterName}** takes a defensive stance, ready to dodge incoming attacks.`, "PlayerAction");
-                // Note: We don't blindly update conditions here to avoid overwriting existing ones without a fetch first.
-                // The log is the primary feedback for now.
             });
         } else if (action === "Dash") {
              startTransition(async () => {
@@ -69,16 +84,19 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
 
         startTransition(async () => {
             const rollVal = parseInt(attackRoll) || undefined;
-            // performAttack(attackerId, targetId, damage, attackRoll)
-            // Passing damage 0 for now as we don't have damage input yet (keeping it simple as per plan)
+            const dmgVal = parseInt(damage) || undefined;
+            const tgt = targetId || undefined;
+
             try {
-                await performAttack(characterId, undefined, undefined, rollVal);
+                await performAttack(characterId, tgt, dmgVal, rollVal);
             } catch (e) {
                 console.error(e);
             }
             setMode('INTENT');
             setWeapon("");
             setAttackRoll("");
+            setDamage("");
+            setTargetId("");
         });
     };
 
@@ -88,16 +106,16 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
 
         startTransition(async () => {
             try {
-                await castSpell(characterId, undefined, spell);
+                await castSpell(characterId, targetId || undefined, spell);
             } catch (e) {
                 console.error(e);
             }
             setMode('INTENT');
             setSpell("");
+            setTargetId("");
         });
     };
 
-    // ... Legacy Intent Form ...
     const handleSubmitIntent = async (e: React.FormEvent) => {
         e.preventDefault();
         const cleanIntent = sanitizeInput(intent);
@@ -115,6 +133,8 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
         });
     };
 
+    const selectClass = "bg-black/40 border-white/10 text-white focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl font-mono w-full rounded-md px-3 appearance-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]";
+
     if (mode === 'ATTACK') {
         return (
              <form onSubmit={handleSubmitAttack} className="space-y-6 bg-black/40 p-6 rounded-2xl border border-agent-blue/30 shadow-lg backdrop-blur-md animate-in zoom-in-95 duration-200">
@@ -127,6 +147,19 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                 </div>
 
                 <div className="space-y-4">
+                    <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-500 mb-1">Target (Optional)</label>
+                        <div className="relative">
+                            <select value={targetId} onChange={e => setTargetId(e.target.value)} className={selectClass}>
+                                <option value="">Select Target...</option>
+                                {targets.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-agent-blue">
+                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-500 mb-1">Weapon / Method</label>
                         <Input
@@ -155,6 +188,17 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         </div>
                     </div>
 
+                    <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-500 mb-1">Damage (Optional)</label>
+                        <Input
+                            type="number"
+                            placeholder="e.g. 8"
+                            value={damage}
+                            onChange={e => setDamage(e.target.value)}
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-2xl font-mono"
+                        />
+                    </div>
+
                     <Button
                         type="submit"
                         variant="agent"
@@ -180,6 +224,19 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                 </div>
 
                 <div className="space-y-4">
+                     <div>
+                        <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-500 mb-1">Target (Optional)</label>
+                        <div className="relative">
+                            <select value={targetId} onChange={e => setTargetId(e.target.value)} className={selectClass}>
+                                <option value="">Select Target...</option>
+                                {targets.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-purple-400">
+                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-500 mb-1">Spell Name</label>
                         <Input

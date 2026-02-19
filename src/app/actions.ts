@@ -750,8 +750,8 @@ export async function performAttack(attackerId: string, targetId: string | undef
                 isHit = false;
             }
         } else {
-            // If no roll provided, assume miss if 0 damage (only if damage is provided)
-            if ((damage || 0) <= 0) isHit = false;
+            // If no roll provided, if damage is provided we assume manual hit.
+            // If no damage is provided and no roll, it's just flavor text (hit without damage).
         }
 
         let content = "";
@@ -796,7 +796,7 @@ export async function performAttack(attackerId: string, targetId: string | undef
             } else {
                 content += `.`;
             }
-        } else if (target && isHit) {
+        } else if (target && isHit && damage !== undefined) {
             content += ` but deals no damage.`;
         }
 
