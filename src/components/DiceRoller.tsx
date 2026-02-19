@@ -13,6 +13,7 @@
 // ## 2025-05-29 - [Dice] Feedback: [Static result on Crit/Miss] Fix: [Added animate-bounce for dramatic effect]
 // ## 2025-05-30 - [Dice] Safety: [Guard clause missing] Fix: [Added explicit return for sides < 1]
 // ## 2025-05-30 - [Dice] UI: [Rolling badge small] Fix: [Increased text size to text-xs]
+// ## 2025-05-31 - [Dice] Feedback: [Rolling state colors static] Fix: [Added mode-specific colors for rolling feedback]
 
 import { useState, useCallback, useEffect } from 'react';
 import { logAction } from '@/app/actions';
@@ -129,6 +130,37 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
         return 'agent';
     };
 
+    const getModeColors = () => {
+        switch (mode) {
+            case 'ADVANTAGE':
+                return {
+                    text: 'text-green-400',
+                    bg: 'bg-green-400',
+                    shadow: 'drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]',
+                    badgeShadow: 'shadow-[0_0_20px_rgba(74,222,128,0.6)]',
+                    border: 'border-green-200'
+                };
+            case 'DISADVANTAGE':
+                 return {
+                    text: 'text-red-500',
+                    bg: 'bg-red-500',
+                    shadow: 'drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]',
+                    badgeShadow: 'shadow-[0_0_20px_rgba(239,68,68,0.6)]',
+                    border: 'border-red-200'
+                };
+            default:
+                return {
+                    text: 'text-yellow-400',
+                    bg: 'bg-yellow-400',
+                    shadow: 'drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]',
+                    badgeShadow: 'shadow-[0_0_20px_rgba(250,204,21,0.6)]',
+                    border: 'border-yellow-200'
+                };
+        }
+    };
+
+    const modeColors = getModeColors();
+
     return (
         <Card variant="agent" className="overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.3)]">
             <CardHeader className="p-4 flex flex-col gap-4 space-y-0 bg-agent-navy/80 backdrop-blur-md border-b border-agent-blue/20">
@@ -139,10 +171,10 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     </CardTitle>
                     {rollingDie !== null ? (
                         <div className="flex items-center gap-3">
-                             <span className="text-4xl font-black italic tracking-tighter text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] animate-pulse font-mono">
+                             <span className={`text-4xl font-black italic tracking-tighter ${modeColors.text} ${modeColors.shadow} animate-pulse font-mono`}>
                                 {displayValue}
                             </span>
-                            <span className="text-xs text-black bg-yellow-400 animate-pulse font-black tracking-widest shadow-[0_0_20px_rgba(250,204,21,0.6)] uppercase px-2 py-0.5 rounded-full border border-yellow-200">
+                            <span className={`text-xs text-black ${modeColors.bg} animate-pulse font-black tracking-widest ${modeColors.badgeShadow} uppercase px-2 py-0.5 rounded-full border ${modeColors.border}`}>
                                 ROLLING...
                             </span>
                         </div>
