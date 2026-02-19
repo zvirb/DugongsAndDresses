@@ -294,6 +294,10 @@ export const getPlayerDashboard = unstable_cache(
                 content: true,
                 timestamp: true
               }
+            },
+            characters: {
+              select: { id: true, name: true, type: true },
+              orderBy: { name: 'asc' }
             }
           }
         }
@@ -305,7 +309,8 @@ export const getPlayerDashboard = unstable_cache(
     const { campaign, ...charData } = character;
     // Although campaign is required by schema, we safely access logs just in case
     const logs = campaign?.logs || [];
-    return { ...charData, logs };
+    const targets = campaign?.characters.filter(c => c.id !== id) || [];
+    return { ...charData, logs, targets };
   },
   ['player-dashboard'],
   { revalidate: 1, tags: ['player-dashboard'] }

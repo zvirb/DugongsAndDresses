@@ -26,15 +26,21 @@ export async function generateStory(campaignId: string) {
 
         let storyContent = "";
 
-        // Simple rules-based generation
-        if (lastLog.content.includes("attacks")) {
+        const contentLower = lastLog.content.toLowerCase();
+
+        // Enhanced rules-based generation
+        if (contentLower.includes("attacks") || contentLower.includes("strikes") || contentLower.includes("damage")) {
             storyContent = "The clash of steel rings out as the battle intensifies.";
-        } else if (lastLog.content.includes("enters the fray")) {
+        } else if (contentLower.includes("enters the fray") || contentLower.includes("approaches")) {
             storyContent = "A new challenger approaches, changing the dynamic of the encounter.";
-        } else if (lastLog.content.includes("fallen")) {
+        } else if (contentLower.includes("fallen") || contentLower.includes("unconscious")) {
             storyContent = "A heavy silence falls over the battlefield as a combatant is defeated.";
-        } else if (lastLog.content.includes("invokes")) {
+        } else if (contentLower.includes("invokes") || contentLower.includes("cast")) {
             storyContent = "Magic crackles in the air, distorting reality around the caster.";
+        } else if (contentLower.includes("rest")) {
+            storyContent = "The party takes a moment to catch their breath, tending to wounds and preparing for the next challenge.";
+        } else if (contentLower.includes("finds") || contentLower.includes("loot")) {
+            storyContent = "Fortune smiles upon the adventurers as they discover something of value.";
         } else {
             // Generic fallback
              storyContent = "The situation evolves, and the adventurers must react quickly.";
