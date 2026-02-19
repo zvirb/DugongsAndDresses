@@ -4,6 +4,7 @@
 // Format: ## YYYY-MM-DD - [Interaction] Fumble: [Button too small] Path: [Increased padding to p-4]
 // ## 2025-05-29 - [ActionForm] Thumb Zone: [Result section cramped] Path: [Stacked inputs vertically for full width targets]
 // ## 2025-05-30 - [ActionForm] Workflow: [Added specific sub-forms] Path: [Implemented Action Mode state machine]
+// ## 2025-06-01 - [ActionForm] Thumb Zone: [Inputs and buttons small] Path: [Increased inputs to h-20, Submit to h-24, text-2xl]
 
 import { logAction, performAttack, castSpell, updateConditions } from "@/app/actions";
 import { useTransition, useState } from "react";
@@ -122,7 +123,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         <span className="w-1.5 h-1.5 bg-agent-blue rounded-full animate-pulse" />
                         Combat Engagement
                     </h3>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setMode('INTENT')} className="text-[10px] uppercase tracking-wider text-neutral-500 hover:text-white">Cancel</Button>
+                    <Button type="button" variant="ghost" onClick={() => setMode('INTENT')} className="h-14 px-6 text-xs uppercase tracking-wider text-neutral-500 hover:text-white border border-white/5 bg-white/5">Cancel</Button>
                 </div>
 
                 <div className="space-y-4">
@@ -133,7 +134,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             placeholder="e.g. Greataxe"
                             value={weapon}
                             onChange={e => setWeapon(e.target.value)}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-14 text-lg font-mono"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-2xl font-mono"
                         />
                     </div>
                      <div className="flex gap-2">
@@ -144,11 +145,11 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                                 placeholder="d20"
                                 value={attackRoll}
                                 onChange={e => setAttackRoll(e.target.value)}
-                                className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-14 text-xl font-mono text-center"
+                                className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-2xl font-mono text-center"
                             />
                         </div>
                         <div className="flex items-end">
-                            <Button type="button" onClick={() => handleRoll(setAttackRoll)} className="h-14 w-20 bg-white/5 border border-white/10 hover:bg-agent-blue/20 hover:border-agent-blue text-agent-blue font-black uppercase tracking-wider">
+                            <Button type="button" onClick={() => handleRoll(setAttackRoll)} className="h-20 w-24 bg-white/5 border border-white/10 hover:bg-agent-blue/20 hover:border-agent-blue text-agent-blue font-black uppercase tracking-wider">
                                 Roll
                             </Button>
                         </div>
@@ -158,7 +159,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         type="submit"
                         variant="agent"
                         disabled={!weapon || isPending}
-                        className="w-full h-16 text-xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)]"
+                        className="w-full h-24 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)]"
                     >
                         {isPending ? 'Engaging...' : 'ATTACK'}
                     </Button>
@@ -175,7 +176,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
                         Spellcasting
                     </h3>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setMode('INTENT')} className="text-[10px] uppercase tracking-wider text-neutral-500 hover:text-white">Cancel</Button>
+                    <Button type="button" variant="ghost" onClick={() => setMode('INTENT')} className="h-14 px-6 text-xs uppercase tracking-wider text-neutral-500 hover:text-white border border-white/5 bg-white/5">Cancel</Button>
                 </div>
 
                 <div className="space-y-4">
@@ -186,7 +187,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             placeholder="e.g. Fireball"
                             value={spell}
                             onChange={e => setSpell(e.target.value)}
-                            className="bg-black/40 border-white/10 focus:border-purple-500/50 focus:ring-purple-500/20 h-14 text-lg font-mono"
+                            className="bg-black/40 border-white/10 focus:border-purple-500/50 focus:ring-purple-500/20 h-20 text-2xl font-mono"
                         />
                     </div>
 
@@ -194,7 +195,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         type="submit"
                         variant="agent"
                         disabled={!spell || isPending}
-                        className="w-full h-16 text-xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.3)] border-purple-500/50 text-purple-200 hover:bg-purple-900/50"
+                        className="w-full h-24 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.3)] border-purple-500/50 text-purple-200 hover:bg-purple-900/50"
                     >
                         {isPending ? 'Channeling...' : 'CAST'}
                     </Button>
