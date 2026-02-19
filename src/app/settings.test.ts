@@ -15,6 +15,7 @@ vi.mock('@/lib/prisma', () => ({
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
+  unstable_cache: vi.fn((fn) => fn),
 }));
 
 describe('Settings Actions', () => {

@@ -18,7 +18,8 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn()
+  revalidatePath: vi.fn(),
+  unstable_cache: vi.fn((fn) => fn),
 }));
 
 vi.mock('@/lib/ai', () => ({

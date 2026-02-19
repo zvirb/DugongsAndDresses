@@ -147,3 +147,12 @@ export const SpellCastActionSchema = z.object({
   condition: z.string().optional(),
 });
 export type SpellCastAction = z.infer<typeof SpellCastActionSchema>;
+
+export const SettingsSchema = z.object({
+  ollamaModel: z.string().default("llama3"),
+  enableStoryGen: z.boolean().default(false),
+  autoBackup: z.boolean().default(true),
+  backupCount: z.number().int().min(1).default(10),
+});
+
+export type SettingsType = z.infer<typeof SettingsSchema>;
