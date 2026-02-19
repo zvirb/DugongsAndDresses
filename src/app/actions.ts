@@ -226,6 +226,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // ## 2025-05-24 - [Logic] Fortify: [Defensive Coding] Fix: [Added explicit nextCharId check before transaction]
 // ## 2025-05-25 - [Logic] Fortify: [Race Condition Safety] Fix: [Verified Idempotency logic and Sync-on-Stale behavior in unit tests]
 // ## 2025-05-26 - [Logic] Fortify: [Turn Loop & Recovery] Fix: [Verified loop safety (last->first) and state recovery in new test suite]
+// ## 2025-05-31 - [Logic] Fortify: [Multiple Active Turns] Fix: [Added detection and auto-recovery logging]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
@@ -249,6 +250,12 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
         if (characters.length === 0) {
             console.error(`[SENTRY] AdvanceTurn failed: No characters found in campaign ${campaignId}`);
             throw new Error("No characters in campaign");
+        }
+
+        // SENTRY: Audit for multiple active turns (Data Integrity)
+        const activeCount = characters.filter(c => c.activeTurn).length;
+        if (activeCount > 1) {
+            console.warn(`[SENTRY] Data Integrity Warning: Multiple active characters (${activeCount}) found in campaign ${campaignId}. Auto-correcting...`);
         }
 
         const currentIndex = characters.findIndex(c => c.activeTurn);

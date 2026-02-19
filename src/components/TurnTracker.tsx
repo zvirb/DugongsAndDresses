@@ -8,6 +8,7 @@
 // ## 2025-05-25 - [Logic] Fortify: [Turn Loop Integrity] Fix: [Verified loop safety and race condition logging]
 // ## 2025-05-26 - [Logic] Fortify: [Client Recovery] Fix: [Verified sync behavior when backend detects race condition]
 // ## 2025-05-27 - [Logic] Fortify: [Race Condition Safety] Fix: [Added try/catch for "Combatant Vanished" edge case and improved loop logging]
+// ## 2025-05-31 - [UI] Fortify: [Active Turn Audit] Fix: [Verified exclusive highlighting relies on single activeTurn flag from DB]
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";

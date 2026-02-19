@@ -20,6 +20,11 @@ vi.mock('@/lib/prisma', () => ({
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
+  unstable_cache: vi.fn((fn) => fn),
+}));
+
+vi.mock('react', () => ({
+  cache: vi.fn((fn) => fn),
 }));
 
 // Mock fire-and-forget side effects to prevent console errors
@@ -199,6 +204,43 @@ describe('Sentry Logic Fortification', () => {
         });
         expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[SENTRY] Race Condition: Next character 2 not found'));
 
+        consoleSpy.mockRestore();
+    });
+
+    it('Scenario: Data Integrity (Multiple Active Turns - Auto-Recovery)', async () => {
+        // Setup: A (Active), B (Active), C.
+        // Should detect multiple actives, clear all, and advance to next from FIRST active (A -> B).
+        const characters = [
+            { id: '1', name: 'Char1', activeTurn: true, initiativeRoll: 20 },
+            { id: '2', name: 'Char2', activeTurn: true, initiativeRoll: 15 },
+            { id: '3', name: 'Char3', activeTurn: false, initiativeRoll: 10 },
+        ];
+        vi.mocked(prisma.character.findMany).mockResolvedValue(characters as any);
+
+        const updateResult = { id: '2', name: 'Char2', activeTurn: true };
+        vi.mocked(prisma.$transaction).mockResolvedValue([{ count: 2 }, updateResult] as any);
+
+        const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        // Must provide expectedActiveId to bypass Idempotency check and proceed to Advance
+        const result = await advanceTurn(campaignId, '1');
+
+        // Expect warning
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[SENTRY] Data Integrity Warning: Multiple active characters (2) found'));
+
+        // Expect cleanup of ALL active turns
+        expect(prisma.character.updateMany).toHaveBeenCalledWith({
+            where: { campaignId, activeTurn: true },
+            data: { activeTurn: false }
+        });
+
+        // Expect advance to '2' (Next after '1')
+        expect(prisma.character.update).toHaveBeenCalledWith({
+            where: { id: '2' },
+            data: { activeTurn: true }
+        });
+
+        expect(result).toEqual({ success: true, data: updateResult });
         consoleSpy.mockRestore();
     });
 });
