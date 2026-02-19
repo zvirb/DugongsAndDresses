@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { createCampaign, getAvailableCharacters } from '@/app/actions';
-import { parseAttributes, createDefaultAttributes, ATTRIBUTE_KEYS } from '@/lib/safe-json';
+import { parseAttributes, createDefaultAttributes, ATTRIBUTE_KEYS, stringifyCharacterInputs } from '@/lib/safe-json';
 import { Attributes } from '@/lib/schemas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -99,8 +99,8 @@ export default function CampaignWizard() {
         setSubmitting(true);
         const formData = new FormData();
         formData.set('name', campaignName);
-        formData.set('characters', JSON.stringify(characters.map(c => ({
-            name: c.name, type: c.type, race: c.race || undefined, class: c.class || undefined,
+        formData.set('characters', stringifyCharacterInputs(characters.map(c => ({
+            name: c.name, type: c.type, race: c.race || null, class: c.class || null,
             level: c.level, hp: c.hp, maxHp: c.maxHp, armorClass: c.armorClass,
             speed: c.speed, initiative: c.initiative,
             attributes: c.attributes,

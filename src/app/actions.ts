@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getLibraryCharacters, getEncounters } from "@/lib/queries";
 import { revalidatePath } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
-import { stringifyAttributes, parseAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs, parseCharacterForm, createDefaultAttributes } from "@/lib/safe-json";
+import { stringifyAttributes, parseAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs, parseCharacterForm, createDefaultAttributes, parseSettingsForm } from "@/lib/safe-json";
 import { mkdir } from 'fs/promises';
 import { createWriteStream } from 'fs';
 import { Readable } from 'stream';
@@ -902,10 +902,7 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
 
 export async function updateSettings(formData: FormData): Promise<ActionResult<Settings>> {
     return actionWrapper("updateSettings", async () => {
-        const ollamaModel = formData.get("ollamaModel") as string;
-        const enableStoryGen = formData.get("enableStoryGen") === "on";
-        const autoBackup = formData.get("autoBackup") === "on";
-        const backupCount = parseInt(formData.get("backupCount") as string) || 10;
+        const settingsData = parseSettingsForm(formData);
 
         // Since we only have one settings record, we find first and update it, or create if missing
         let settings = await prisma.settings.findFirst();
@@ -913,21 +910,11 @@ export async function updateSettings(formData: FormData): Promise<ActionResult<S
         if (settings) {
             settings = await prisma.settings.update({
                 where: { id: settings.id },
-                data: {
-                    ollamaModel,
-                    enableStoryGen,
-                    autoBackup,
-                    backupCount
-                }
+                data: settingsData
             });
         } else {
             settings = await prisma.settings.create({
-                data: {
-                    ollamaModel,
-                    enableStoryGen,
-                    autoBackup,
-                    backupCount
-                }
+                data: settingsData
             });
         }
 

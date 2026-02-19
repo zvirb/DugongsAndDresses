@@ -5,7 +5,8 @@ import {
   Inventory, InventorySchema,
   Participants, ParticipantsSchema,
   CharacterInput, CharacterInputSchema,
-  CharacterForm, CharacterFormSchema
+  CharacterForm, CharacterFormSchema,
+  SettingsSchema, SettingsType
 } from "./schemas";
 
 // Pre-calculate default attributes for fallback
@@ -247,4 +248,47 @@ export function stringifyInventory(data: Inventory): string {
         return "[]";
     }
     return JSON.stringify(data);
+}
+
+/**
+ * Safely parses Settings from FormData.
+ */
+export function parseSettingsForm(formData: FormData): SettingsType {
+  const rawData: Record<string, any> = {};
+
+  const ollamaModel = formData.get("ollamaModel");
+  if (ollamaModel !== null) rawData.ollamaModel = ollamaModel;
+
+  // Checkbox handling: "on" -> true, null -> false
+  // SettingsSchema expects boolean.
+  rawData.enableStoryGen = formData.get("enableStoryGen") === "on";
+  rawData.autoBackup = formData.get("autoBackup") === "on";
+
+  // Number handling
+  const backupCountStr = formData.get("backupCount");
+  if (backupCountStr) {
+      const parsed = parseInt(backupCountStr as string);
+      if (!isNaN(parsed)) rawData.backupCount = parsed;
+  }
+
+  try {
+      return SettingsSchema.parse(rawData);
+  } catch (e) {
+      console.error("Settings form validation failed:", e);
+      // Fallback to default settings
+      return SettingsSchema.parse({});
+  }
+}
+
+/**
+ * Safely stringifies Character Inputs.
+ * Validates against schema before stringifying.
+ */
+export function stringifyCharacterInputs(inputs: CharacterInput[]): string {
+    const result = z.array(CharacterInputSchema).safeParse(inputs);
+    if (!result.success) {
+        console.error("Invalid character inputs provided for stringify:", result.error);
+        return "[]";
+    }
+    return JSON.stringify(result.data);
 }
