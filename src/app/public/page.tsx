@@ -12,6 +12,7 @@ import { PublicCharacterCard } from "@/components/PublicCharacterCard";
  * ## 2025-05-27 - [View] Blur: [Race/Class and Status text too small] Shout: [Bumped to 4xl/5xl, Centered Grid]
  * ## 2025-05-28 - [View] Blur: [Max HP too small, Health Bar too thin] Shout: [Bumped Max HP to 4xl, Bar to h-16, Added Unconscious Overlay]
  * ## 2025-05-29 - [View] Blur: [Updates too slow, turn indicator could be bigger] Shout: [Bumped refresh to 2s, Active Name to 8xl]
+ * ## 2025-06-01 - [View] Blur: [Max HP contrast low, Badges small] Shout: [Bumped Max HP to neutral-400, Forced Badge sizes, Enhanced Active Turn Shadow]
  */
 
 export const dynamic = 'force-dynamic';
@@ -98,7 +99,7 @@ export default async function PublicPage() {
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                         </div>
                     ) : (
-                        <h3 className="text-7xl text-neutral-500 font-bold uppercase tracking-[0.5em] animate-pulse italic drop-shadow-md">
+                        <h3 className="text-7xl text-neutral-400 font-bold uppercase tracking-[0.5em] animate-pulse italic drop-shadow-md">
                             AWAITING INITIATIVE
                         </h3>
                     );
