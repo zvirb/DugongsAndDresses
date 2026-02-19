@@ -15,6 +15,7 @@ import { prisma } from "./prisma";
  * ## 2025-05-28 - [getPlayerDashboard] Slow: [Fetching 10 logs on 2s poll] Sight: [Reduced to 5 logs, verified Select]
  * ## 2025-05-31 - [getLibraryCharacters] Slow: [Fetched full library] Sight: [Optimized Select: Excluded attributes/inventory]
  * ## 2025-05-31 - [getEncounters] Slow: [Fetched participants JSON] Sight: [Optimized Select: Excluded participants]
+ * ## 2025-06-02 - [getSpectatorCampaign] Slow: [Two DB calls for NPC turn] Sight: [Merged into single query with OR clause]
  */
 
 // Reusable select constants for consistency and optimization
@@ -200,7 +201,8 @@ export const getPublicCampaign = unstable_cache(
  */
 export const getSpectatorCampaign = unstable_cache(
   async function getSpectatorCampaign() {
-    // 1. Fetch Campaign AND Players in one go (Select over Include)
+    // 1. Fetch Campaign with Players AND Active Contestant (OR condition)
+    // This avoids a secondary DB call if an NPC is active
     const campaign = await prisma.campaign.findFirst({
       where: { active: true },
       orderBy: { createdAt: 'desc' },
@@ -208,7 +210,12 @@ export const getSpectatorCampaign = unstable_cache(
         id: true,
         name: true,
         characters: {
-          where: { type: 'PLAYER' },
+          where: {
+            OR: [
+              { type: 'PLAYER' },
+              { activeTurn: true }
+            ]
+          },
           orderBy: { name: 'asc' },
           select: PUBLIC_CHAR_SELECT
         }
@@ -217,24 +224,19 @@ export const getSpectatorCampaign = unstable_cache(
 
     if (!campaign) return null;
 
-    // 2. Determine Active Contestant
-    // Optimization: Check players first to avoid extra DB call
-    const activePlayer = campaign.characters.find(c => c.activeTurn);
-    let activeContestant = activePlayer
-      ? { name: activePlayer.name, type: activePlayer.type }
+    // 2. Determine Active Contestant from the fetched list
+    const activeCharacter = campaign.characters.find(c => c.activeTurn);
+    const activeContestant = activeCharacter
+      ? { name: activeCharacter.name, type: activeCharacter.type }
       : null;
 
-    // 3. If no player is active, fetch active NPC (Lazy Load)
-    if (!activeContestant) {
-      activeContestant = await prisma.character.findFirst({
-        where: { campaignId: campaign.id, activeTurn: true, type: 'NPC' },
-        select: { name: true, type: true }
-      });
-    }
+    // 3. Filter characters for display (Players only)
+    // The query might return an active NPC, which shouldn't be in the grid list
+    const displayCharacters = campaign.characters.filter(c => c.type === 'PLAYER');
 
     return {
       name: campaign.name,
-      characters: campaign.characters,
+      characters: displayCharacters,
       activeContestant
     };
   },

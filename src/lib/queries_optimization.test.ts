@@ -10,105 +10,86 @@ vi.mock('next/cache', () => ({
   unstable_cache: (fn: any) => fn,
 }));
 
-import { getSpectatorCampaign } from './queries';
+// Mock Prisma
 import { prisma } from './prisma';
-
 vi.mock('./prisma', () => ({
   prisma: {
     campaign: {
       findFirst: vi.fn(),
     },
     character: {
-        findMany: vi.fn(),
-        findFirst: vi.fn()
+      findFirst: vi.fn(),
     }
   }
 }));
 
-describe('Oracle Optimization', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
+import { getSpectatorCampaign } from './queries';
+
+describe('Spectator Campaign Optimization', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should fetch players and active NPC in a single query', async () => {
+    // Setup mock return
+    const mockCampaign = {
+      id: 'c1',
+      name: 'Test Campaign',
+      characters: [
+        { id: 'p1', name: 'Player 1', type: 'PLAYER', activeTurn: false },
+        { id: 'npc1', name: 'Boss NPC', type: 'NPC', activeTurn: true }
+      ]
+    };
+
+    (prisma.campaign.findFirst as any).mockResolvedValue(mockCampaign);
+
+    const result = await getSpectatorCampaign();
+
+    // Verify correct calls
+    expect(prisma.campaign.findFirst).toHaveBeenCalledTimes(1);
+    expect(prisma.character.findFirst).not.toHaveBeenCalled(); // Should NOT call secondary query
+
+    // Verify the select clause used the OR condition
+    const calls = (prisma.campaign.findFirst as any).mock.calls;
+    const args = calls[0][0];
+
+    expect(args.select.characters.where).toEqual({
+      OR: [
+        { type: 'PLAYER' },
+        { activeTurn: true }
+      ]
     });
 
-    it('getSpectatorCampaign should consolidate fetches and skip NPC query if Player is active', async () => {
-        // Mock campaign with nested players (Player Active)
-        (prisma.campaign.findFirst as any).mockResolvedValue({
-            id: 'c1',
-            name: 'Test Campaign',
-            characters: [
-                { id: 'p1', name: 'Player 1', type: 'PLAYER', activeTurn: true }
-            ]
-        });
+    // Verify result structure
+    // Characters list should ONLY contain players
+    expect(result?.characters).toHaveLength(1);
+    expect(result?.characters[0].name).toBe('Player 1');
+    expect(result?.characters[0].type).toBe('PLAYER');
 
-        const result = await getSpectatorCampaign();
-
-        // 1. Verify Campaign Fetch (Nested)
-        expect(prisma.campaign.findFirst).toHaveBeenCalledTimes(1);
-        const campaignCall = (prisma.campaign.findFirst as any).mock.calls[0][0];
-
-        // Should select ID, Name, and nested characters
-        expect(campaignCall.select).toEqual(expect.objectContaining({
-            id: true,
-            name: true,
-            characters: expect.objectContaining({
-                where: { type: 'PLAYER' },
-                orderBy: { name: 'asc' },
-                // We assume PUBLIC_CHAR_SELECT is used, checking a key field
-                select: expect.objectContaining({ hp: true, type: true, activeTurn: true })
-            })
-        }));
-
-        // 2. Verify NO extra character fetches
-        expect(prisma.character.findMany).not.toHaveBeenCalled(); // Should be zero now
-        expect(prisma.character.findFirst).not.toHaveBeenCalled(); // Should be zero because player is active
-
-        // 3. Verify Result Shape
-        expect(result).toEqual({
-            name: 'Test Campaign',
-            characters: [{ id: 'p1', name: 'Player 1', type: 'PLAYER', activeTurn: true }],
-            activeContestant: { name: 'Player 1', type: 'PLAYER' }
-        });
+    // Active Contestant should be the NPC
+    expect(result?.activeContestant).toEqual({
+      name: 'Boss NPC',
+      type: 'NPC'
     });
+  });
 
-    it('getSpectatorCampaign should fetch active NPC if no Player is active', async () => {
-        // Mock campaign with nested players (No Active Player)
-        (prisma.campaign.findFirst as any).mockResolvedValue({
-            id: 'c1',
-            name: 'Test Campaign',
-            characters: [
-                { id: 'p1', name: 'Player 1', type: 'PLAYER', activeTurn: false }
-            ]
-        });
+  it('should handle no active contestant gracefully', async () => {
+    const mockCampaign = {
+      id: 'c1',
+      name: 'Test Campaign',
+      characters: [
+        { id: 'p1', name: 'Player 1', type: 'PLAYER', activeTurn: false }
+      ]
+    };
 
-        // Mock active char (NPC)
-        (prisma.character.findFirst as any).mockResolvedValue(
-            { name: 'NPC 1', type: 'NPC' }
-        );
+    (prisma.campaign.findFirst as any).mockResolvedValue(mockCampaign);
 
-        const result = await getSpectatorCampaign();
+    const result = await getSpectatorCampaign();
 
-        // 1. Verify Campaign Fetch
-        expect(prisma.campaign.findFirst).toHaveBeenCalledTimes(1);
+    expect(prisma.campaign.findFirst).toHaveBeenCalledTimes(1);
+    expect(prisma.character.findFirst).not.toHaveBeenCalled();
 
-        // 2. Verify Active NPC Fetch
-        expect(prisma.character.findFirst).toHaveBeenCalledTimes(1);
-        const activeCall = (prisma.character.findFirst as any).mock.calls[0][0];
-
-        expect(activeCall.where).toEqual({
-            campaignId: 'c1',
-            activeTurn: true,
-            type: 'NPC' // Optimization: Only look for NPCs
-        });
-        expect(activeCall.select).toEqual({
-            name: true,
-            type: true
-        });
-
-        // 3. Verify Result Shape
-        expect(result).toEqual({
-            name: 'Test Campaign',
-            characters: [{ id: 'p1', name: 'Player 1', type: 'PLAYER', activeTurn: false }],
-            activeContestant: { name: 'NPC 1', type: 'NPC' }
-        });
-    });
+    expect(result?.characters).toHaveLength(1);
+    expect(result?.activeContestant).toBeNull();
+  });
 });
