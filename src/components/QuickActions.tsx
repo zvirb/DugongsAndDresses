@@ -35,7 +35,7 @@ export default function QuickActions({ campaignId, characters }: QuickActionsPro
         setActive(prev => prev === type ? null : type);
     };
 
-    const actionBtnClass = "w-full h-12 border border-agent-blue/50 hover:bg-agent-blue/10 text-agent-blue hover:text-white touch-manipulation font-bold tracking-widest uppercase text-[10px] shadow-[0_0_10px_rgba(43,43,238,0.2)] hover:shadow-[0_0_20px_rgba(43,43,238,0.5)] transition-all";
+    const actionBtnClass = "w-full h-12 bg-agent-navy/40 border border-agent-blue/30 hover:bg-agent-blue/20 hover:border-agent-blue hover:shadow-[0_0_15px_rgba(43,43,238,0.3)] text-agent-blue hover:text-white transition-all duration-200 uppercase tracking-widest font-bold text-[10px]";
 
     return (
         <Card variant="agent">
@@ -100,7 +100,7 @@ function AttackForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
             <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-2">
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Attacker</label>
@@ -162,7 +162,7 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
             <div className="grid grid-cols-2 gap-2">
                 <div>
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Character</label>
@@ -217,7 +217,7 @@ function RestForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
              <div>
                 <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Character</label>
                 <select value={characterId} onChange={e => setCharacterId(e.target.value)} className={selectClass}>
@@ -258,7 +258,7 @@ function SpellForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
             <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-2">
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Caster</label>
@@ -316,7 +316,7 @@ function NoteForm({ campaignId, onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-black/80 rounded-lg p-3 border border-agent-blue/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(43,43,238,0.1),0_0_15px_rgba(43,43,238,0.1)] space-y-2 animate-in slide-in-from-top-2 duration-200">
+        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
             <div>
                 <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Note</label>
                 <Input value={note} onChange={e => setNote(e.target.value)} placeholder="What happened..." className={inputClass} />

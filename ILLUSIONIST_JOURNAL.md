@@ -17,3 +17,6 @@
 ## 2025-05-31 - [PublicPage] Dull: [Current turn text was plain] Glow: [Added animated brackets and reduced grid noise]
 ## 2025-05-31 - [TurnTracker] Dull: [Active row was hard to see] Glow: [Added blue border-l-4 and background tint]
 ## 2025-05-31 - [DiceRoller] Dull: [Instant result was anti-climactic] Glow: [Added rolling number shuffle animation]
+## 2025-06-03 - [TurnTracker] Dull: [Inactive list items were flat] Glow: [Added tactical borders and group hover effects]
+## 2025-06-03 - [QuickActions] Dull: [Buttons were ghost style] Glow: [Applied tactical button borders and holographic form panels]
+## 2025-06-03 - [CharacterManager] Dull: [Add buttons were secondary] Glow: [Styled as dashed-border tactical slots]

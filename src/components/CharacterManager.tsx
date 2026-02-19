@@ -93,10 +93,10 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                     <Card
                         key={char.id}
                         className={cn(
-                            "bg-black/20 border-l-4 transition-all duration-200 backdrop-blur-sm",
+                            "bg-agent-navy/20 border transition-all duration-200 backdrop-blur-sm",
                             isOpen
                                 ? "z-50 relative border-agent-blue bg-agent-navy/60 shadow-[0_0_20px_rgba(43,43,238,0.2)]"
-                                : "z-0 relative border-white/10 hover:border-white/30 hover:bg-agent-blue/5"
+                                : "z-0 relative border-white/5 hover:border-agent-blue/30 hover:bg-agent-blue/5"
                         )}
                     >
                         <CardContent className="p-3">
@@ -208,10 +208,10 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                 <AddCharacterForm campaignId={campaignId} onClose={() => setShowAddForm(false)} />
             ) : (
                 <div className="flex gap-2">
-                    <Button variant="secondary" size="sm" onClick={() => setShowAddForm(true)} className="flex-1 bg-agent-blue/20 text-agent-blue border border-agent-blue/50 hover:bg-agent-blue/40">
+                    <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)} className="flex-1 h-12 border-dashed border-2 border-agent-blue/30 hover:border-agent-blue hover:bg-agent-blue/10 text-agent-blue uppercase tracking-widest font-bold text-xs">
                         + Create New
                     </Button>
-                    <Button variant="outline" size="sm" onClick={openLibrary} className="flex-1 border-white/10 hover:bg-white/5 text-neutral-300">
+                    <Button variant="outline" size="sm" onClick={openLibrary} className="flex-1 h-12 border-dashed border-2 border-white/10 hover:border-white/30 hover:bg-white/5 text-neutral-400 uppercase tracking-widest font-bold text-xs">
                         Import Library
                     </Button>
                 </div>

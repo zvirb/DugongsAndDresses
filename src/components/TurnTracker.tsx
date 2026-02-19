@@ -171,8 +171,8 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
 
             {/* Load Modal Overlay */}
             {showLoadModal && (
-                <div className="absolute inset-0 z-50 bg-black/95 flex items-center justify-center p-2 rounded-lg backdrop-blur-sm">
-                    <div className="bg-agent-navy/95 border border-agent-blue shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-lg w-full h-full flex flex-col animate-in fade-in zoom-in duration-200 relative overflow-hidden">
+                <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-2 rounded-lg backdrop-blur-sm">
+                    <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue shadow-[0_0_50px_rgba(43,43,238,0.2)] rounded-lg w-full h-full flex flex-col animate-in fade-in zoom-in duration-200 relative overflow-hidden">
                         {/* Scanline Overlay */}
                         <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px] opacity-20" />
 
@@ -230,10 +230,10 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                     <div
                         key={p.id}
                         className={cn(
-                            "p-3 rounded-lg flex justify-between items-center border-l-4 transition-all duration-300 relative overflow-hidden",
+                            "p-3 rounded-lg flex justify-between items-center border-l-4 transition-all duration-300 relative overflow-hidden group",
                             p.activeTurn
-                                ? 'bg-agent-navy/50 border-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.4)] scale-[1.02] ring-1 ring-agent-blue/50 z-10'
-                                : 'bg-black/20 border-white/5 hover:bg-white/5 hover:border-white/30 border-l-transparent'
+                                ? 'bg-agent-navy/80 border-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.5)] scale-[1.02] ring-1 ring-agent-blue/50 z-10'
+                                : 'bg-agent-navy/20 border-t border-b border-r border-white/5 hover:bg-agent-blue/5 hover:border-agent-blue/30 border-l-transparent'
                         )}
                     >
                         {/* Active Indicator Scanline */}
