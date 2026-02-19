@@ -3,6 +3,7 @@
 // SCOUT'S JOURNAL - CRITICAL LEARNINGS ONLY
 // Format: ## YYYY-MM-DD - [Interaction] Fumble: [Button too small] Path: [Increased padding to p-4]
 // ## 2025-05-29 - [HPControls] Fat Fingers: [Buttons small] Path: [Increased padding to p-10/p-8]
+// ## 2025-06-01 - [HPControls] Fat Fingers: [Buttons small] Path: [Increased +1/-1 to h-40 p-12, +5/-5 to h-28 p-10, Custom to h-24]
 
 import { updateHP } from "@/app/actions";
 import { useTransition, useState, useEffect } from "react";
@@ -79,14 +80,14 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
             </div>
 
             {/* Controls */}
-            <div className="flex flex-col gap-4 w-full">
-                <div className="flex gap-4">
+            <div className="flex flex-col gap-6 w-full">
+                <div className="flex gap-6">
                     <Button
                         variant="destructive"
                         size="lg"
                         onClick={() => handleUpdate(-1)}
                         disabled={isPending}
-                        className="flex-1 h-32 p-10 text-6xl font-black rounded-xl border-b-8 border-red-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[0_10px_0_rgba(127,29,29,0.5)] active:shadow-none bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700"
+                        className="flex-1 h-40 p-12 text-6xl font-black rounded-xl border-b-8 border-red-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[0_10px_0_rgba(127,29,29,0.5)] active:shadow-none bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700"
                     >
                         -1
                     </Button>
@@ -95,18 +96,18 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(1)}
                         disabled={isPending}
-                        className="flex-1 h-32 p-10 text-6xl font-black rounded-xl border-b-8 border-emerald-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[0_10px_0_rgba(6,78,59,0.5)] active:shadow-none bg-gradient-to-br from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700"
+                        className="flex-1 h-40 p-12 text-6xl font-black rounded-xl border-b-8 border-emerald-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[0_10px_0_rgba(6,78,59,0.5)] active:shadow-none bg-gradient-to-br from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700"
                     >
                         +1
                     </Button>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-6">
                     <Button
                         variant="destructive"
                         size="lg"
                         onClick={() => handleUpdate(-5)}
                         disabled={isPending}
-                        className="flex-1 h-24 p-8 text-3xl font-bold rounded-xl border-b-4 border-red-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-red-900/50 hover:bg-red-800/80 text-red-100"
+                        className="flex-1 h-28 p-10 text-3xl font-bold rounded-xl border-b-4 border-red-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-red-900/50 hover:bg-red-800/80 text-red-100"
                     >
                         -5
                     </Button>
@@ -115,7 +116,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(5)}
                         disabled={isPending}
-                        className="flex-1 h-24 p-8 text-3xl font-bold rounded-xl border-b-4 border-emerald-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-emerald-900/50 hover:bg-emerald-800/80 text-emerald-100"
+                        className="flex-1 h-28 p-10 text-3xl font-bold rounded-xl border-b-4 border-emerald-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-emerald-900/50 hover:bg-emerald-800/80 text-emerald-100"
                     >
                         +5
                     </Button>
@@ -132,7 +133,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                             setCustomAmount("");
                         }}
                         disabled={isPending || !customAmount || parseInt(customAmount) <= 0}
-                        className="h-20 w-20 text-4xl font-black rounded-xl border-b-4 border-red-900 active:border-b-0 active:translate-y-1 transition-all bg-red-900/40 hover:bg-red-800/60 text-red-200"
+                        className="h-24 w-24 text-5xl font-black rounded-xl border-b-4 border-red-900 active:border-b-0 active:translate-y-1 transition-all bg-red-900/40 hover:bg-red-800/60 text-red-200"
                     >
                         -
                     </Button>
@@ -141,7 +142,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         placeholder="Custom"
                         value={customAmount}
                         onChange={(e) => setCustomAmount(e.target.value)}
-                        className="h-20 min-w-[4rem] text-center text-3xl font-mono bg-black/60 border-white/10 focus:border-agent-blue text-white rounded-xl flex-1 shadow-inner placeholder:text-neutral-700 placeholder:text-xl placeholder:font-bold placeholder:uppercase"
+                        className="h-24 min-w-[4rem] text-center text-4xl font-mono bg-black/60 border-white/10 focus:border-agent-blue text-white rounded-xl flex-1 shadow-inner placeholder:text-neutral-700 placeholder:text-xl placeholder:font-bold placeholder:uppercase"
                     />
                     <Button
                         variant="success"
@@ -152,7 +153,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                             setCustomAmount("");
                         }}
                         disabled={isPending || !customAmount || parseInt(customAmount) <= 0}
-                        className="h-20 w-20 text-4xl font-black rounded-xl border-b-4 border-emerald-900 active:border-b-0 active:translate-y-1 transition-all bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-200"
+                        className="h-24 w-24 text-5xl font-black rounded-xl border-b-4 border-emerald-900 active:border-b-0 active:translate-y-1 transition-all bg-emerald-900/40 hover:bg-emerald-800/60 text-emerald-200"
                     >
                         +
                     </Button>
