@@ -64,7 +64,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                 relative overflow-hidden rounded-3xl border-4 transition-all duration-500 backdrop-blur-xl group
                 ${character.hp <= 0 ? 'grayscale brightness-50' : ''}
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_120px_rgba(43,43,238,0.6),inset_0_0_60px_rgba(43,43,238,0.3)] bg-agent-navy/90 scale-105 z-30 ring-4 ring-agent-blue/50 ring-offset-4 ring-offset-agent-navy'
+                    ? 'border-agent-blue shadow-[0_0_150px_rgba(43,43,238,0.8),inset_0_0_60px_rgba(43,43,238,0.3)] bg-agent-navy/95 scale-105 z-30 ring-4 ring-agent-blue/50 ring-offset-4 ring-offset-agent-navy'
                     : character.hp > 0 && character.hp <= character.maxHp * 0.2
                         ? 'border-red-500/50 bg-red-900/10 shadow-[0_0_30px_rgba(220,38,38,0.5)] animate-pulse'
                         : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/20 hover:bg-black/40'}
@@ -109,7 +109,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
 
                 <div className="mb-auto">
                     <div className="flex justify-between items-start mb-6">
-                        <Badge variant={character.activeTurn ? 'agent' : 'player'} className={`font-black italic text-5xl px-6 py-3 uppercase tracking-widest shadow-lg ${character.activeTurn ? 'animate-pulse' : ''}`}>
+                        <Badge variant={character.activeTurn ? 'agent' : 'player'} className={`font-black italic text-5xl !text-5xl !px-6 !py-3 uppercase tracking-widest shadow-lg ${character.activeTurn ? 'animate-pulse' : ''}`}>
                             LVL {character.level}
                         </Badge>
                         <div className="text-right">
@@ -133,7 +133,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                             <span className={`text-8xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
                                 {displayHp}
                             </span>
-                            <span className="text-4xl text-neutral-600 font-bold">/ {character.maxHp}</span>
+                            <span className="text-4xl text-neutral-400 font-bold">/ {character.maxHp}</span>
                         </div>
                     </div>
 
@@ -160,7 +160,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     {conditions.length > 0 && (
                         <div className="mt-6 flex flex-wrap gap-2 justify-end">
                             {conditions.map((condition, idx) => (
-                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-4xl px-4 py-2 animate-pulse border border-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.5)] bg-red-950/80">
+                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-4xl !text-4xl !px-4 !py-2 animate-pulse border border-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.5)] bg-red-950/80">
                                     {condition}
                                 </Badge>
                             ))}
