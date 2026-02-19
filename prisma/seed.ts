@@ -7,6 +7,7 @@
 // ## 2025-05-25 - [Seed] Gap: No underground/dwarven themed campaign. Summon: Added 'The Iron Depths' with King Thorgar and Guide Brilda.
 // ## 2025-05-26 - [Seed] Gap: No high-magic feywild campaign. Summon: Added 'The Whispering Woods' with Elara and Thalin.
 // ## 2025-05-27 - [Seed] Gap: No undead/cleric themed campaign. Summon: Added 'Catacombs of the Faithful' with High Priestess Anara and Cult Leader Malos.
+// ## 2025-05-28 - [Seed] Gap: No desert/wasteland themed campaign. Summon: Added 'The Scorched Wastes' with Kaelen and Mirage Weaver.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -1306,6 +1307,89 @@ const catacombsCharacters: CharacterTemplate[] = [
   }
 ]
 
+const scorchedWastesCharacters: CharacterTemplate[] = [
+  {
+    name: 'Kaelen Sunstrider',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Paladin',
+    imageUrl: '/avatars/fighter_male_1770266261627.png',
+    hp: 32,
+    maxHp: 32,
+    armorClass: 18,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 16, dex: 12, con: 14, int: 10, wis: 14, cha: 12 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Elara Sandborn',
+    type: 'PLAYER',
+    race: 'Elf',
+    class: 'Ranger',
+    imageUrl: '/avatars/elf_archer_female_1770268263008.png',
+    hp: 28,
+    maxHp: 28,
+    armorClass: 15,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 10, dex: 18, con: 12, int: 12, wis: 14, cha: 8 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Desert Nomad',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Scout',
+    imageUrl: '/avatars/thief_male_1770267828895.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 14,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 12, dex: 16, con: 14, int: 10, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Scorpion King',
+    type: 'NPC',
+    race: 'Monstrosity',
+    class: 'Boss',
+    imageUrl: '/avatars/fantasy_barbarian_male_1770266807624.png',
+    hp: 65,
+    maxHp: 65,
+    armorClass: 16,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 40,
+    attributes: { str: 20, dex: 14, con: 18, int: 8, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 6,
+  },
+  {
+    name: 'Mirage Weaver',
+    type: 'NPC',
+    race: 'Genasi',
+    class: 'Sorcerer',
+    imageUrl: '/avatars/nymph_male_1770267906487.png',
+    hp: 35,
+    maxHp: 35,
+    armorClass: 13,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 14, con: 14, int: 12, wis: 10, cha: 18 },
+    activeTurn: false,
+    level: 5,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -1682,6 +1766,42 @@ async function main() {
   })
 
   console.log(`💀 Campaign "${catacombsCampaign.name}" created.`)
+
+  // Create The Scorched Wastes Campaign (Inactive)
+  const scorchedWastesCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Scorched Wastes',
+      active: false,
+      characters: {
+        create: scorchedWastesCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The relentless sun beats down on **The Scorched Wastes**.', type: 'Story' },
+          { content: '**Kaelen Sunstrider** shields his eyes from the glare.', type: 'Story' },
+          { content: 'A mirage shimmers in the distance... or is it the **Mirage Weaver**?', type: 'Story' },
+          { content: 'The ground trembles as the **Scorpion King** awakens.', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`🌵 Campaign "${scorchedWastesCampaign.name}" created.`)
 }
 
 main()
