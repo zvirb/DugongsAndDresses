@@ -55,9 +55,8 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** attacks **Goblin**');
         expect(content).toContain('**CRITICAL HIT**!');
-        expect(content).toContain('A devastating blow!');
+        expect(content).toContain('**Grom** lands a devastating blow on **Goblin**');
     });
 
     it('should log a critical miss with flavor', async () => {
@@ -72,9 +71,8 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** attacks **Goblin**');
         expect(content).toContain('**CRITICAL MISS**!');
-        expect(content).toContain('A clumsy fumble!');
+        expect(content).toContain('**Grom** stumbles and fumbles the attack against **Goblin**');
     });
 
     it('should log a normal miss with flavor', async () => {
@@ -90,8 +88,7 @@ describe('Bard Logging Enhancements', () => {
         const content = createCall.data.content;
 
         expect(content).toContain('**Grom** attacks **Goblin**');
-        expect(content).toContain('**MISSES**!');
-        expect(content).toContain('The attack goes wide.');
+        expect(content).toContain('but the blow goes wide');
     });
   });
 
@@ -107,7 +104,7 @@ describe('Bard Logging Enhancements', () => {
           const content = createCall.data.content;
 
           expect(content).toContain('**Grom** rallies!');
-          expect(content).toContain('Recovers **5** HP');
+          expect(content).toContain('Vitality returns (+**5** HP)');
       });
 
       it('should log unconsciousness dramatically', async () => {
@@ -120,8 +117,9 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** suffers **10** damage');
-        expect(content).toContain('falls **UNCONSCIOUS**!');
+        expect(content).toContain('**Grom** reels from the blow');
+        expect(content).toContain('taking **10** damage');
+        expect(content).toContain('collapses, falling **UNCONSCIOUS**!');
     });
   });
 
@@ -136,9 +134,9 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Lyra** checks **Stealth**');
+        expect(content).toContain('**Lyra** attempts to **Stealth**');
         expect(content).toContain(': **SUCCESS**!');
-        expect(content).toContain('The attempt succeeds.');
+        expect(content).toContain('They pull it off.');
         expect(content).toContain('Roll: **14**+**4** = **18**');
       });
 
@@ -153,7 +151,7 @@ describe('Bard Logging Enhancements', () => {
           const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
           const content = createCall.data.content;
 
-          expect(content).toContain('**Lyra** checks **Stealth**');
+          expect(content).toContain('**Lyra** attempts to **Stealth**');
           expect(content).toContain('**CRITICAL SUCCESS**!');
           expect(content).toContain('A stroke of brilliance!');
       });
@@ -169,7 +167,7 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Lyra** checks **Stealth**');
+        expect(content).toContain('**Lyra** attempts to **Stealth**');
         expect(content).toContain('**CRITICAL FAILURE**!');
         expect(content).toContain('A disastrous fumble');
     });
@@ -256,7 +254,7 @@ describe('Bard Logging Enhancements', () => {
   });
 
   describe('updateInitiative', () => {
-      it('should log initiative with "prepares for battle"', async () => {
+      it('should log initiative with "draws steel"', async () => {
         vi.mocked(prisma.character.update).mockResolvedValue({
             id: 'char-1', name: 'Grom', campaignId: 'camp-1'
         } as any);
@@ -266,13 +264,13 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** prepares for battle!');
+        expect(content).toContain('**Grom** draws steel!');
         expect(content).toContain('Initiative: **15**');
       });
   });
 
   describe('Inventory', () => {
-      it('should log adding item with "obtains"', async () => {
+      it('should log adding item with "finds"', async () => {
           vi.mocked(prisma.character.findUnique).mockResolvedValue({
               id: 'char-1', name: 'Grom', campaignId: 'camp-1', inventory: '[]'
           } as any);
@@ -285,10 +283,10 @@ describe('Bard Logging Enhancements', () => {
           const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
           const content = createCall.data.content;
 
-          expect(content).toContain('**Grom** obtains **Sword**');
+          expect(content).toContain('**Grom** finds **Sword**');
       });
 
-      it('should log removing item with "discards"', async () => {
+      it('should log removing item with "drops"', async () => {
         vi.mocked(prisma.character.findUnique).mockResolvedValue({
             id: 'char-1', name: 'Grom', campaignId: 'camp-1', inventory: '["Sword"]'
         } as any);
@@ -301,7 +299,7 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** discards **Sword**');
+        expect(content).toContain('**Grom** drops **Sword**');
     });
   });
 });

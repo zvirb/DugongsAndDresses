@@ -22,6 +22,10 @@ vi.mock('next/cache', () => ({
   unstable_cache: vi.fn((fn) => fn),
 }));
 
+vi.mock('react', () => ({
+  cache: vi.fn((fn) => fn),
+}));
+
 vi.mock('@/lib/ai', () => ({
   generateStory: vi.fn().mockResolvedValue(null)
 }));

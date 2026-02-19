@@ -24,6 +24,10 @@ vi.mock('next/cache', () => ({
   unstable_cache: vi.fn((fn) => fn),
 }));
 
+vi.mock('react', () => ({
+  cache: vi.fn((fn) => fn),
+}));
+
 describe('Quartermaster Attribute Checks', () => {
     beforeEach(() => {
         vi.clearAllMocks();
