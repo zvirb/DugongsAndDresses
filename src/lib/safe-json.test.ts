@@ -49,14 +49,14 @@ describe('safe-json', () => {
       expect(result.speed).toBe(30);
     });
 
-    it('strips non-numeric strings but keeps valid attributes', () => {
+    it('preserves non-numeric strings for non-core attributes', () => {
       const json = JSON.stringify({ str: 10, name: "Grom", speed: "fast" });
       const result = parseAttributes(json);
       expect(result.str).toBe(10);
-      // @ts-expect-error Testing stripped key
-      expect(result.name).toBeUndefined();
-      // @ts-expect-error Testing stripped key
-      expect(result.speed).toBeUndefined();
+      // @ts-expect-error Testing new behavior: strings are allowed
+      expect(result.name).toBe("Grom");
+      // @ts-expect-error Testing new behavior: strings are allowed
+      expect(result.speed).toBe("fast");
     });
   });
 
