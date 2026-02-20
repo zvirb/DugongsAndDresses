@@ -10,6 +10,8 @@
 // ## 2025-05-30 - [Context] Gap: [Verbose context, unstructured data] Fix: [Condensed stats/res into brackets, optimized instructions for density]
 // ## 2025-06-05 - [Context] Gap: [Missing string attributes] Fix: [Switched to raw JSON parsing to include textual traits]
 // ## 2025-06-05 - [Context] Gap: [Verbose Instructions] Fix: [Tightened instructions for better token efficiency]
+// ## 2025-06-06 - [Context] Gap: [String attributes like '1st Level' coerced to 1] Fix: [Modified AttributesSchema to use strict Number() check for non-core stats]
+// ## 2025-06-06 - [Context] Gap: [Inconsistent terminology and fluff] Fix: [Standardized ACTIVE marker, optimized instructions, cleaned up extra stats formatting]
 
 import { parseConditions, parseInventory, parseAttributes } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
@@ -54,8 +56,8 @@ export function generateAIContext(
             .filter(([k]) => !standardStats.includes(k.toLowerCase()))
             .filter(([_, v]) => typeof v === 'number' || (typeof v === 'string' && v.trim().length > 0))
             .map(([k, v]) => {
-                // Capitalize first letter of key (e.g. spellSlots -> SpellSlots)
-                const cleanKey = k.charAt(0).toUpperCase() + k.slice(1);
+                // Capitalize first letter of key and replace underscores (e.g. spellSlots -> SpellSlots, rage_charges -> Rage charges)
+                const cleanKey = (k.charAt(0).toUpperCase() + k.slice(1)).replace(/_/g, ' ');
                 return `${cleanKey}:${v}`;
             })
             .join(' ');
@@ -105,7 +107,7 @@ export function generateAIContext(
     }).join('\n');
 
     const turnSummary = turnOrder.map(t =>
-        `${t.current ? '▶ [CURRENT] ' : '  '}${t.name} (Init: ${t.init})`
+        `${t.current ? '▶ [ACTIVE] ' : '  '}${t.name} (Init: ${t.init})`
     ).join('\n');
 
     // Filter out hidden/private logs and take 5 most recent
@@ -128,15 +130,13 @@ ${charSummary}
 ${logSummary}
 
 == INSTRUCTIONS ==
-Role: Fantasy Combat Narrator.
-Objective: Narrate the latest action of the [ACTIVE] character using the RECENT LOGS.
+Role: Narrator. Task: Describe [ACTIVE]'s action based on Logs.
 Context:
-- [ACTIVE]: The character currently acting.
-- HP%: <50% is "bloodied", 0% is "down/dying".
-- Logs: The source of truth for actions/rolls.
-Guidelines:
-- Brevity: Max 2 sentences. Punchy.
-- Style: Visceral, sensory, present-tense.
-- Accuracy: Reflect the mechanics (Attack/Damage/Save) in the logs. Do not hallucinate extra attacks.
-- Status: Mention condition changes (e.g. falling unconscious) if they appear in logs.`;
+- [ACTIVE]: Current turn.
+- HP%: <50%="bloodied", 0%="down".
+- Logs: Truth.
+Rules:
+- Max 2 sentences. Present tense. Visceral.
+- Mention mechanics (Attack/Damage) naturally.
+- Note condition changes.`;
 }
