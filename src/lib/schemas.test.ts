@@ -115,6 +115,21 @@ describe('AttributesSchema', () => {
             expect(result.data.dex).toBe(12);
         }
     });
+
+    it('handles non-core string attributes', () => {
+        const input = {
+            str: 18,
+            "Class Feature": "Darkvision",
+            "Spell Slots": 2
+        };
+        const result = AttributesSchema.safeParse(input);
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data['Class Feature']).toBe("Darkvision");
+            expect(result.data['Spell Slots']).toBe(2);
+            expect(result.data.str).toBe(18);
+        }
+    });
 });
 
 describe('CharacterFormSchema', () => {

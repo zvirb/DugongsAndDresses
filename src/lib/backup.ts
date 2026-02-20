@@ -181,7 +181,13 @@ export async function restoreBackup(filename: string): Promise<boolean> {
     }
 
     // Use reviveDates to restore Date objects
-    const rawData = JSON.parse(fs.readFileSync(filepath, 'utf-8'), reviveDates);
+    let rawData;
+    try {
+        rawData = JSON.parse(fs.readFileSync(filepath, 'utf-8'), reviveDates);
+    } catch (e) {
+        console.error(`Failed to parse backup file ${filename}:`, e);
+        throw new Error(`Failed to parse backup file ${filename}: Invalid JSON format.`);
+    }
 
     // Validate structure
     const data = BackupDataSchema.parse(rawData) as BackupData;

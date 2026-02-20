@@ -18,22 +18,23 @@ export const BaseAttributesSchema = z.object({
   int: z.number().default(10),
   wis: z.number().default(10),
   cha: z.number().default(10),
-}).catchall(z.number());
+}).catchall(z.union([z.number(), z.string()]));
 
 export const AttributesSchema = z.preprocess((val) => {
   if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
     const newVal: Record<string, any> = {};
     const entries = Object.entries(val as Record<string, any>);
+    const coreStats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 
     for (const [key, value] of entries) {
        let currentKey = key;
        let currentValue = value;
        const lowerKey = key.toLowerCase();
 
-       // Migration
+       // Migration: Normalize core stats
        if (Object.prototype.hasOwnProperty.call(attributeMappings, lowerKey)) {
          currentKey = attributeMappings[lowerKey];
-       } else if (['str', 'dex', 'con', 'int', 'wis', 'cha'].includes(lowerKey)) {
+       } else if (coreStats.includes(lowerKey)) {
          currentKey = lowerKey;
        }
 
@@ -42,11 +43,19 @@ export const AttributesSchema = z.preprocess((val) => {
          const num = parseFloat(currentValue);
          if (!isNaN(num)) {
            currentValue = num;
-         } else {
-           continue; // Skip invalid strings
          }
-       } else if (typeof currentValue !== 'number') {
-           continue; // Skip non-number/non-string values
+       }
+
+       if (coreStats.includes(currentKey)) {
+           // Core stats MUST be numbers
+           if (typeof currentValue !== 'number') {
+               continue;
+           }
+       } else {
+           // Non-core stats can be strings or numbers
+           if (typeof currentValue !== 'string' && typeof currentValue !== 'number') {
+               continue;
+           }
        }
 
        newVal[currentKey] = currentValue;

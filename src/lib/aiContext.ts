@@ -11,7 +11,7 @@
 // ## 2025-06-05 - [Context] Gap: [Missing string attributes] Fix: [Switched to raw JSON parsing to include textual traits]
 // ## 2025-06-05 - [Context] Gap: [Verbose Instructions] Fix: [Tightened instructions for better token efficiency]
 
-import { parseConditions, parseInventory } from '@/lib/safe-json';
+import { parseConditions, parseInventory, parseAttributes } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
 
 export function generateAIContext(
@@ -30,13 +30,8 @@ export function generateAIContext(
         // Wrap conditions in brackets for density and parsing clarity
         const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'Healthy';
 
-        // Parse attributes manually to allow strings/complex types that schema might strip
-        let attributes: Record<string, any> = {};
-        try {
-            attributes = JSON.parse(c.attributes || '{}');
-        } catch (e) {
-            attributes = {};
-        }
+        // Use parseAttributes which now supports string values in catchall
+        const attributes = parseAttributes(c.attributes);
 
         const keyMap: Record<string, string> = {
             str: 'STR', dex: 'DEX', con: 'CON', int: 'INT', wis: 'WIS', cha: 'CHA'
@@ -47,8 +42,8 @@ export function generateAIContext(
         // Standard stats first (using default 10 if missing/invalid)
         const standardAttrText = standardStats
             .map(k => {
-                const val = attributes[k];
-                const numVal = typeof val === 'number' ? val : (parseInt(val) || 10);
+                const val = attributes[k as keyof typeof attributes];
+                const numVal = typeof val === 'number' ? val : (parseInt(String(val)) || 10);
                 return `${keyMap[k]}:${numVal}`;
             })
             .join(' ');

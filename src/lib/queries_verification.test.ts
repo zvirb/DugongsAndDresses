@@ -82,7 +82,7 @@ describe('Query Optimization', () => {
     (prisma.character.findUnique as any).mockResolvedValue({
       id: '1',
       campaignId: 'c1',
-      campaign: { logs: [] }
+      campaign: { logs: [], characters: [] }
     });
 
     await getPlayerDashboard('1');
