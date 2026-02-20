@@ -143,17 +143,73 @@ export async function performLongRest(characterId: string): Promise<ActionResult
 
         const updated = await prisma.character.update({
             where: { id: characterId },
-            data: { hp: character.maxHp }
+            data: {
+                hp: character.maxHp,
+                conditions: "[]"
+            }
         });
 
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** settles in for a long rest, tending to wounds and sharpening steel. They are fully restored.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** settles in for a long rest. Wounds are bound, spirits lifted, and all ailments are washed away. They are fully restored.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
         revalidatePath('/public');
         return updated;
+    });
+}
+
+export async function performDodge(characterId: string): Promise<ActionResult> {
+    return actionWrapper("performDodge", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const currentConditions = parseConditions(character.conditions);
+        if (!currentConditions.includes("Dodging")) {
+            currentConditions.push("Dodging");
+            await prisma.character.update({
+                where: { id: characterId },
+                data: { conditions: stringifyConditions(currentConditions) }
+            });
+            // We generally sync state changes
+            await syncToSource(character);
+        }
+
+        await logAction(character.campaignId, `**${character.name}** takes a defensive stance, ready to dodge incoming attacks.`, "PlayerAction");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        revalidatePath('/public');
+        return { success: true };
+    });
+}
+
+export async function performDash(characterId: string): Promise<ActionResult> {
+    return actionWrapper("performDash", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const currentConditions = parseConditions(character.conditions);
+        if (!currentConditions.includes("Dashing")) {
+            currentConditions.push("Dashing");
+            await prisma.character.update({
+                where: { id: characterId },
+                data: { conditions: stringifyConditions(currentConditions) }
+            });
+            await syncToSource(character);
+        }
+
+        await logAction(character.campaignId, `**${character.name}** dashes with a burst of speed!`, "PlayerAction");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        revalidatePath('/public');
+        return { success: true };
     });
 }
 

@@ -8,7 +8,7 @@
 // ## 2025-06-03 - [ActionForm] Feature: [Missing Damage/Target] Path: [Added Target Selector and Damage Input]
 // ## 2025-06-05 - [ActionForm] Interaction: [Critical actions buried] Path: [Split into PRIMARY (Attack/Cast) and SECONDARY (Dodge/Dash/Rest) groups for prominence]
 
-import { logAction, performAttack, castSpell, performLongRest } from "@/app/actions";
+import { logAction, performAttack, castSpell, performLongRest, performDodge, performDash } from "@/app/actions";
 import { useTransition, useState } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -69,11 +69,19 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
         } else if (action === "Dodge") {
             if (!confirm("Take the Dodge action? (Disadvantage on attacks against you)")) return;
             startTransition(async () => {
-                await logAction(campaignId, `**${characterName}** takes a defensive stance, ready to dodge incoming attacks.`, "PlayerAction");
+                try {
+                    await performDodge(characterId);
+                } catch (e) {
+                    console.error(e);
+                }
             });
         } else if (action === "Dash") {
              startTransition(async () => {
-                await logAction(campaignId, `**${characterName}** dashes with a burst of speed!`, "PlayerAction");
+                try {
+                    await performDash(characterId);
+                } catch (e) {
+                    console.error(e);
+                }
             });
         } else {
             setIntent(action);
