@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/Badge";
 import AutoRefresh from "@/components/AutoRefresh";
 import { getSpectatorCampaign } from "@/lib/queries";
 import { PublicCharacterCard } from "@/components/PublicCharacterCard";
+import { SystemClock } from "@/components/SystemClock";
 
 /**
  * CRIER'S JOURNAL - CRITICAL LEARNINGS ONLY
@@ -13,6 +14,7 @@ import { PublicCharacterCard } from "@/components/PublicCharacterCard";
  * ## 2025-05-28 - [View] Blur: [Max HP too small, Health Bar too thin] Shout: [Bumped Max HP to 4xl, Bar to h-16, Added Unconscious Overlay]
  * ## 2025-05-29 - [View] Blur: [Updates too slow, turn indicator could be bigger] Shout: [Bumped refresh to 2s, Active Name to 8xl]
  * ## 2025-06-01 - [View] Blur: [Max HP contrast low, Badges small] Shout: [Bumped Max HP to neutral-400, Forced Badge sizes, Enhanced Active Turn Shadow]
+ * ## 2025-06-05 - [View] Blur: [Active Turn needs more pop, Unconscious too static] Shout: [Added Shimmer/Heartbeat animations, Bumped Condition Badges to 5xl, Added System Clock]
  */
 
 export const dynamic = 'force-dynamic';
@@ -59,10 +61,13 @@ export default async function PublicPage() {
                             {campaign.name} {"//"} ACTIVE ENCOUNTER DATA
                         </p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex flex-col items-end gap-2">
                         <Badge variant="agent" className="text-5xl px-8 py-4 font-black uppercase tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.6)] border border-white/10 animate-pulse">
                             System Live
                         </Badge>
+                        <div className="text-agent-blue font-mono text-3xl tracking-widest uppercase opacity-80 font-bold drop-shadow-[0_0_5px_rgba(43,43,238,0.5)]">
+                            TS: <SystemClock />
+                        </div>
                     </div>
                 </header>
 

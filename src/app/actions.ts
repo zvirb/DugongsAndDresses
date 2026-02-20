@@ -452,7 +452,7 @@ export async function createCharacter(formData: FormData): Promise<ActionResult>
                 armorClass: charData.armorClass || 10,
                 speed: charData.speed || 30,
                 initiative: charData.initiative || 0,
-                attributes: stringifyAttributes({ ...createDefaultAttributes(), ...(charData.attributes || {}) }),
+                attributes: stringifyAttributes({ ...createDefaultAttributes(), ...(charData.attributes || {}) } as any),
                 initiativeRoll: 0,
                 sourceId: charData.sourceId || null
             }
@@ -481,7 +481,7 @@ export async function updateCharacter(characterId: string, formData: FormData): 
         let finalAttributes = undefined;
         if (charData.attributes) {
             const existingAttributes = parseAttributes(existing.attributes);
-            finalAttributes = stringifyAttributes({ ...existingAttributes, ...charData.attributes });
+            finalAttributes = stringifyAttributes({ ...existingAttributes, ...charData.attributes } as any);
         }
 
         const character = await prisma.character.update({

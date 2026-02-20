@@ -12,6 +12,7 @@ import ConditionManager from '@/components/ConditionManager';
 import { parseAttributes, parseConditions, parseInventory } from '@/lib/safe-json';
 import { cn } from '@/lib/utils';
 import { Character } from "@/types";
+import { Attributes } from "@/lib/schemas";
 
 interface CharacterManagerProps {
     characters: Character[];
@@ -346,7 +347,7 @@ function AddCharacterForm({ campaignId, onClose }: { campaignId: string; onClose
     );
 }
 
-function EditCharacterForm({ character, attrs, onClose }: { character: Character; attrs: Record<string, number>; onClose: () => void }) {
+function EditCharacterForm({ character, attrs, onClose }: { character: Character; attrs: Attributes; onClose: () => void }) {
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -414,7 +415,7 @@ function EditCharacterForm({ character, attrs, onClose }: { character: Character
                 {['str', 'dex', 'con', 'int', 'wis', 'cha'].map(attr => (
                     <div key={attr}>
                         <label className="block text-[10px] text-neutral-500 text-center uppercase tracking-wider">{attr}</label>
-                        <Input name={attr} type="number" defaultValue={attrs[attr] || 10} className={`${inputClass} text-center`} />
+                        <Input name={attr} type="number" defaultValue={attrs[attr] as number || 10} className={`${inputClass} text-center`} />
                     </div>
                 ))}
             </div>

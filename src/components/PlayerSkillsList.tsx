@@ -30,7 +30,7 @@ export default function PlayerSkillsList({ characterId, attributes }: PlayerSkil
         if (rolling || isPending) return;
         setRolling(key);
 
-        const score = attributes[key] ?? 10;
+        const score = (attributes[key] ?? 10) as number;
         const mod = calcModifier(score);
         const name = ABILITY_NAMES[key as string] || String(key).toUpperCase();
 
@@ -55,7 +55,7 @@ export default function PlayerSkillsList({ characterId, attributes }: PlayerSkil
     return (
         <div className="grid grid-cols-2 gap-4">
             {ATTRIBUTE_KEYS.map(key => {
-                const score = attributes[key] ?? 10;
+                const score = (attributes[key] ?? 10) as number;
                 const mod = calcModifier(score);
                 const formattedMod = formatModifier(mod);
                 const name = ABILITY_NAMES[key as string] || String(key).toUpperCase();
