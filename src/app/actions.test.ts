@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createCampaign, updateHP, updateInitiative, activateCampaign, updateCharacterImage, createCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, advanceTurn, performAttack, performSkillCheck, castSpell, listEncounters, loadEncounter, endEncounter, importCharacterFromLibrary } from '@/app/actions';
+import { createCampaign, updateHP, updateInitiative, activateCampaign, updateCharacterImage, createCharacter, deleteCharacter, addInventoryItem, removeInventoryItem, advanceTurn, performAttack, performSkillCheck, castSpell, listEncounters, loadEncounter, endEncounter, importCharacterFromLibrary, performDodge, performDash, performLongRest } from '@/app/actions';
 import { prisma } from '@/lib/prisma';
 
 // Mock dependencies
@@ -115,7 +115,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** rallies! Vitality returns (+**5** HP).'),
+        content: expect.stringContaining('**Grom** catches their breath, surging with **5** renewed vitality.'),
         type: 'Combat',
       },
     });
@@ -134,7 +134,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** reels from the blow, taking **5** damage'),
+        content: expect.stringContaining('**Grom** staggers under the assault, suffering **5** damage'),
         type: 'Combat',
       },
     });
@@ -152,7 +152,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** draws steel! Initiative: **15**.'),
+        content: expect.stringContaining('**Grom** prepares for battle! Initiative: **15**.'),
         type: 'Combat',
       },
     });
@@ -209,7 +209,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('A new challenger approaches: **NewChar**!'),
+        content: expect.stringContaining('A new soul, **NewChar**, enters the fray!'),
         type: 'Story',
       },
     });
@@ -227,7 +227,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** vanishes from existence.'),
+        content: expect.stringContaining('**Grom** has fallen from the annals of history. They are gone.'),
         type: 'Story',
       },
     });
@@ -252,7 +252,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** finds **Sword**.'),
+        content: expect.stringContaining('**Grom** acquires **Sword**, adding it to their inventory.'),
         type: 'Story',
       },
     });
@@ -277,7 +277,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Grom** drops **Sword**.'),
+        content: expect.stringContaining('**Grom** discards **Sword**, leaving it behind.'),
         type: 'Story',
       },
     });
@@ -326,7 +326,7 @@ describe('Server Actions Logging', () => {
         expect(prisma.logEntry.create).toHaveBeenCalledWith({
             data: {
                 campaignId,
-                content: expect.stringContaining("The flow of battle shifts. It is now **Char2**'s turn."),
+                content: expect.stringContaining("The spotlight turns to **Char2**. It is their moment to act."),
                 type: 'Combat',
             }
         });
@@ -357,7 +357,7 @@ describe('Server Actions Logging', () => {
         expect(prisma.logEntry.create).toHaveBeenCalledWith({
             data: {
                 campaignId,
-                content: expect.stringContaining("The flow of battle shifts. It is now **Char1**'s turn."),
+                content: expect.stringContaining("The spotlight turns to **Char1**. It is their moment to act."),
                 type: 'Combat',
             }
         });
@@ -447,7 +447,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Attacker** strikes **Target**! (Roll: **18**), dealing **5** damage'),
+        content: expect.stringContaining('**Attacker** strikes **Target**! (Roll: **18**), cutting deep for **5** damage'),
         type: 'Combat',
       },
     });
@@ -465,7 +465,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**CRITICAL HIT**! **Attacker** lands a devastating blow on **Target**! (Roll: **20**)'),
+        content: expect.stringContaining('**CRITICAL HIT**! **Attacker** finds a weak point and strikes **Target** with deadly precision! (Roll: **20**)'),
         type: 'Combat',
       },
     });
@@ -481,7 +481,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**CRITICAL MISS**! **Attacker** stumbles and fumbles the attack against **Target**! (Roll: **1**)'),
+        content: expect.stringContaining('**CRITICAL MISS**! **Attacker** loses their footing and fails to strike **Target**! (Roll: **1**)'),
         type: 'Combat',
       },
     });
@@ -524,7 +524,7 @@ describe('Server Actions Logging', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: expect.stringContaining('**Wizard** invokes **Fireball**, targeting **Goblin**. The air shimmers as **Burning** takes hold.'),
+        content: expect.stringContaining('**Wizard** weaves the arcane, casting **Fireball**, targeting **Goblin**. The air shimmers as **Burning** is imposed upon them.'),
         type: 'Combat',
       },
     });
@@ -563,7 +563,7 @@ describe('New Server Actions', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
       data: {
         campaignId: 'camp-1',
-        content: 'Combat ends! The dust settles.',
+        content: 'Silence falls as combat ends. The dust settles on the battlefield.',
         type: 'Story',
       },
     });
@@ -606,7 +606,7 @@ describe('New Server Actions', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
         data: {
             campaignId: 'camp-1',
-            content: expect.stringContaining('The air grows heavy... The encounter **Saved Battle** has begun!'),
+            content: expect.stringContaining('Tension fills the air. The encounter **Saved Battle** has begun!'),
             type: 'Combat',
         }
     });
@@ -647,9 +647,95 @@ describe('New Server Actions', () => {
     expect(prisma.logEntry.create).toHaveBeenCalledWith({
         data: {
             campaignId: 'camp-1',
-            content: expect.stringContaining('**Hero Template** emerges from the archives.'),
+            content: expect.stringContaining('**Hero Template** is summoned from the archives to join the adventure.'),
             type: 'Story',
         }
+    });
+  });
+
+  it('performDodge logs and applies condition', async () => {
+    vi.mocked(prisma.character.findUnique).mockResolvedValue({
+      id: 'char-1',
+      name: 'Rogue',
+      campaignId: 'camp-1',
+      conditions: '[]',
+    } as any);
+
+    vi.mocked(prisma.character.update).mockResolvedValue({} as any);
+
+    await performDodge('char-1');
+
+    expect(prisma.character.update).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: 'char-1' },
+      data: { conditions: expect.stringContaining('Dodging') }
+    }));
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**Rogue** takes a defensive stance, ready to dodge incoming attacks.'),
+        type: 'PlayerAction',
+      },
+    });
+  });
+
+  it('performDash logs and applies condition', async () => {
+    vi.mocked(prisma.character.findUnique).mockResolvedValue({
+      id: 'char-1',
+      name: 'Monk',
+      campaignId: 'camp-1',
+      conditions: '[]',
+    } as any);
+
+    vi.mocked(prisma.character.update).mockResolvedValue({} as any);
+
+    await performDash('char-1');
+
+    expect(prisma.character.update).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: 'char-1' },
+      data: { conditions: expect.stringContaining('Dashing') }
+    }));
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**Monk** dashes with a burst of speed!'),
+        type: 'PlayerAction',
+      },
+    });
+  });
+
+  it('performLongRest restores HP and clears conditions', async () => {
+    vi.mocked(prisma.character.findUnique).mockResolvedValue({
+      id: 'char-1',
+      name: 'TiredHero',
+      campaignId: 'camp-1',
+      maxHp: 20,
+    } as any);
+
+    vi.mocked(prisma.character.update).mockResolvedValue({
+        id: 'char-1',
+        name: 'TiredHero',
+        hp: 20,
+        conditions: "[]"
+    } as any);
+
+    await performLongRest('char-1');
+
+    expect(prisma.character.update).toHaveBeenCalledWith({
+      where: { id: 'char-1' },
+      data: {
+        hp: 20,
+        conditions: "[]"
+      }
+    });
+
+    expect(prisma.logEntry.create).toHaveBeenCalledWith({
+      data: {
+        campaignId: 'camp-1',
+        content: expect.stringContaining('**TiredHero** settles in for a long rest. Wounds are bound, spirits lifted, and all ailments are washed away. They are fully restored.'),
+        type: 'Story',
+      },
     });
   });
 });
