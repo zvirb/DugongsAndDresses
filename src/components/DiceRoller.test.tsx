@@ -92,7 +92,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(' [ADVANTAGE:'),
+        expect.stringContaining(' with Advantage (Rolls:'),
         'Roll'
       )
     })
@@ -107,7 +107,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(' [DISADVANTAGE:'),
+        expect.stringContaining(' with Disadvantage (Rolls:'),
         'Roll'
       )
     })
@@ -119,7 +119,7 @@ describe('DiceRoller', () => {
     fireEvent.click(d20Button)
 
     // Should show "CALCULATING..." immediately in header
-    expect(screen.getByText('ROLLING...')).toBeInTheDocument()
+    expect(screen.getByText('ROLLING d20...')).toBeInTheDocument()
 
     // All buttons should be disabled
     const d4Button = screen.getByText('d4')
@@ -139,7 +139,7 @@ describe('DiceRoller', () => {
     })
 
     // After roll, "CALCULATING..." should be gone and buttons enabled
-    expect(screen.queryByText('ROLLING...')).not.toBeInTheDocument()
+    expect(screen.queryByText('ROLLING d20...')).not.toBeInTheDocument()
     expect(screen.getByText('d20')).not.toBeDisabled()
     expect(screen.getByText('Normal')).not.toBeDisabled()
   })
@@ -154,12 +154,12 @@ describe('DiceRoller', () => {
     fireEvent.click(d20Button)
 
     // Should show "CALCULATING..." immediately
-    expect(screen.getByText('ROLLING...')).toBeInTheDocument()
+    expect(screen.getByText('ROLLING d20...')).toBeInTheDocument()
     expect(d20Button).toBeDisabled()
 
     // Wait for the async action to complete (and fail)
     await waitFor(() => {
-      expect(screen.queryByText('ROLLING...')).not.toBeInTheDocument()
+      expect(screen.queryByText('ROLLING d20...')).not.toBeInTheDocument()
     })
 
     // Buttons should be enabled again
@@ -175,7 +175,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/\[ADVANTAGE: \*\*\d+\*\*, \*\*\d+\*\*\]/),
+        expect.stringMatching(/ with Advantage \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
         'Roll'
       )
     })
@@ -190,7 +190,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/\[DISADVANTAGE: \*\*\d+\*\*, \*\*\d+\*\*\]/),
+        expect.stringMatching(/ with Disadvantage \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
         'Roll'
       )
     })
@@ -260,7 +260,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\* \[ADVANTAGE: \*\*20\*\*, \*\*15\*\*\]\./), // New format
+          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\* with Advantage \(Rolls: \*\*20\*\*, \*\*15\*\*\)\./), // New format
           'Roll'
         )
     })
