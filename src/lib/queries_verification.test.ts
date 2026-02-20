@@ -96,13 +96,12 @@ describe('Query Optimization', () => {
     expect(select.hp).toBe(true);
     expect(select.activeTurn).toBe(true);
     expect(select.campaignId).toBe(true);
+    expect(select.level).toBe(true);
 
     // Verify fields that SHOULD NOT be selected
     expect(select.attributes).toBeUndefined();
     expect(select.inventory).toBeUndefined();
-
-    // Verify fields that SHOULD be selected (added by optimization)
-    expect(select.conditions).toBe(true);
+    expect(select.conditions).toBeUndefined();
 
     // Verify logs query is nested in campaign
     expect(select.campaign).toBeDefined();

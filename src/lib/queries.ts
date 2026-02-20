@@ -16,6 +16,7 @@ import { prisma } from "./prisma";
  * ## 2025-05-31 - [getLibraryCharacters] Slow: [Fetched full library] Sight: [Optimized Select: Excluded attributes/inventory]
  * ## 2025-05-31 - [getEncounters] Slow: [Fetched participants JSON] Sight: [Optimized Select: Excluded participants]
  * ## 2025-06-02 - [getSpectatorCampaign] Slow: [Two DB calls for NPC turn] Sight: [Merged into single query with OR clause]
+ * ## 2025-06-06 - [getPlayerDashboard] Slow: [Fetched unused conditions] Sight: [Optimized Select: Removed conditions]
  */
 
 // Reusable select constants for consistency and optimization
@@ -88,7 +89,7 @@ const PLAYER_DASHBOARD_SELECT = {
   speed: true,
   initiative: true,
   initiativeRoll: true,
-  conditions: true
+  // conditions: true // Unused in Player View (JSON)
 } as const;
 
 const LIBRARY_CHAR_SELECT = {
