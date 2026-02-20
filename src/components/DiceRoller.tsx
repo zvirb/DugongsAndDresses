@@ -15,6 +15,7 @@
 // ## 2025-05-30 - [Dice] UI: [Rolling badge small] Fix: [Increased text size to text-xs]
 // ## 2025-05-31 - [Dice] Feedback: [Rolling state colors static] Fix: [Added mode-specific colors for rolling feedback]
 // ## 2025-06-01 - [Dice] Log: [Improved log format] Fix: [Refined "Advantage/Disadvantage" text and Rolling feedback]
+// ## 2025-06-08 - [Dice] Visual: [Updated colors to Agent Mesh] Fix: [Replaced generic yellow/green/red with agent-blue/emerald/rose and added glows]
 
 import { useState, useCallback, useEffect } from 'react';
 import { logAction } from '@/app/actions';
@@ -34,7 +35,7 @@ type RollResult = {
 };
 
 const Spinner = () => (
-    <svg data-testid="spinner" className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <svg data-testid="spinner" className="animate-spin h-6 w-6 text-agent-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
     </svg>
@@ -135,27 +136,27 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
         switch (mode) {
             case 'ADVANTAGE':
                 return {
-                    text: 'text-green-400',
-                    bg: 'bg-green-400',
-                    shadow: 'drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]',
-                    badgeShadow: 'shadow-[0_0_20px_rgba(74,222,128,0.6)]',
-                    border: 'border-green-200'
+                    text: 'text-emerald-400',
+                    bg: 'bg-emerald-400',
+                    shadow: 'drop-shadow-[0_0_15px_rgba(52,211,153,0.8)]',
+                    badgeShadow: 'shadow-[0_0_20px_rgba(52,211,153,0.6)]',
+                    border: 'border-emerald-200'
                 };
             case 'DISADVANTAGE':
                  return {
-                    text: 'text-red-500',
-                    bg: 'bg-red-500',
-                    shadow: 'drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]',
-                    badgeShadow: 'shadow-[0_0_20px_rgba(239,68,68,0.6)]',
-                    border: 'border-red-200'
+                    text: 'text-rose-500',
+                    bg: 'bg-rose-500',
+                    shadow: 'drop-shadow-[0_0_15px_rgba(244,63,94,0.8)]',
+                    badgeShadow: 'shadow-[0_0_20px_rgba(244,63,94,0.6)]',
+                    border: 'border-rose-200'
                 };
             default:
                 return {
-                    text: 'text-yellow-400',
-                    bg: 'bg-yellow-400',
-                    shadow: 'drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]',
-                    badgeShadow: 'shadow-[0_0_20px_rgba(250,204,21,0.6)]',
-                    border: 'border-yellow-200'
+                    text: 'text-agent-blue',
+                    bg: 'bg-agent-blue',
+                    shadow: 'drop-shadow-[0_0_15px_rgba(43,43,238,0.8)]',
+                    badgeShadow: 'shadow-[0_0_20px_rgba(43,43,238,0.6)]',
+                    border: 'border-agent-blue/50'
                 };
         }
     };
@@ -182,14 +183,14 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     ) : lastResult ? (
                         <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
                              <span className={`text-4xl font-black italic tracking-tighter ${
-                                lastResult.isCrit ? 'text-green-400 drop-shadow-[0_0_25px_rgba(74,222,128,1)] animate-bounce' :
-                                lastResult.isFumble ? 'text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,1)] animate-bounce' :
+                                lastResult.isCrit ? 'text-emerald-400 drop-shadow-[0_0_25px_rgba(52,211,153,1)] animate-bounce' :
+                                lastResult.isFumble ? 'text-rose-500 drop-shadow-[0_0_25px_rgba(244,63,94,1)] animate-bounce' :
                                 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]'
                             }`}>
                                 {lastResult.total}
                             </span>
                             {(lastResult.mode !== 'NORMAL' || lastResult.isCrit || lastResult.isFumble) && (
-                                <span className="text-xs text-agent-blue/60 font-mono opacity-80 bg-black/40 px-1 rounded border border-agent-blue/10">
+                                <span className="text-xs text-agent-blue/60 font-mono opacity-80 bg-agent-navy/40 px-1 rounded border border-agent-blue/10">
                                     {lastResult.isCrit && 'CRIT! '}
                                     {lastResult.isFumble && 'MISS! '}
                                     {lastResult.mode !== 'NORMAL' ? `[${lastResult.rolls.join(', ')}]` : `[${lastResult.total}]`}
@@ -200,7 +201,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 </div>
 
                 {/* Mode Toggles - Full width touch targets */}
-                <div className="grid grid-cols-3 gap-2 bg-black/40 p-2 rounded-xl border border-white/5">
+                <div className="grid grid-cols-3 gap-2 bg-agent-navy/40 p-2 rounded-xl border border-white/5">
                     <Button
                         variant={mode === 'NORMAL' ? 'agent' : 'ghost'}
                         onClick={() => setMode('NORMAL')}
@@ -213,7 +214,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         variant={mode === 'ADVANTAGE' ? 'success' : 'ghost'}
                         onClick={() => setMode('ADVANTAGE')}
                         disabled={rollingDie !== null}
-                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-green-500/50' : 'text-agent-blue/40 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'ADVANTAGE' ? 'shadow-[0_0_15px_rgba(16,185,129,0.4)] ring-1 ring-emerald-500/50' : 'text-agent-blue/40 hover:text-emerald-400 hover:bg-emerald-900/20'}`}
                     >
                         Adv
                     </Button>
@@ -221,13 +222,13 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         variant={mode === 'DISADVANTAGE' ? 'destructive' : 'ghost'}
                         onClick={() => setMode('DISADVANTAGE')}
                         disabled={rollingDie !== null}
-                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-red-500/50' : 'text-agent-blue/40 hover:text-red-400 hover:bg-red-900/20'}`}
+                        className={`h-16 p-2 text-sm uppercase font-bold tracking-wider touch-manipulation transition-all duration-300 active:scale-95 active:brightness-90 ${mode === 'DISADVANTAGE' ? 'shadow-[0_0_15px_rgba(220,38,38,0.4)] ring-1 ring-rose-500/50' : 'text-agent-blue/40 hover:text-rose-400 hover:bg-rose-900/20'}`}
                     >
                         Dis
                     </Button>
                 </div>
             </CardHeader>
-            <CardContent className="p-4 pt-4 bg-black/20">
+            <CardContent className="p-4 pt-4 bg-agent-navy/20">
                 <div className="grid grid-cols-3 gap-4">
                     {[4, 6, 8, 10, 12, 20].map(d => (
                         <Button

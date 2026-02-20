@@ -126,9 +126,9 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     return (
         <div className="flex flex-col h-full relative">
             {error && (
-                <div className="absolute top-0 left-0 right-0 z-50 bg-red-900/90 border border-red-500/50 p-2 text-xs text-red-100 flex justify-between items-center animate-in slide-in-from-top-2 rounded mb-2 shadow-lg backdrop-blur-sm">
+                <div className="absolute top-0 left-0 right-0 z-50 bg-red-900/20 border border-red-500/50 p-2 text-xs text-red-100 flex justify-between items-center animate-in slide-in-from-top-2 rounded mb-2 shadow-[0_0_20px_rgba(239,68,68,0.4)] backdrop-blur-sm">
                     <span className="font-bold flex items-center gap-2">
-                        <span className="text-red-500">⚠️</span>
+                        <span className="text-red-500 animate-pulse">⚠️</span>
                         {error}
                     </span>
                     <button onClick={() => setError(null)} className="text-red-300 hover:text-white font-bold px-2">✕</button>
@@ -184,7 +184,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
 
             {/* Load Modal Overlay */}
             {showLoadModal && (
-                <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-2 rounded-lg backdrop-blur-sm">
+                <div className="absolute inset-0 z-50 bg-agent-navy/80 flex items-center justify-center p-2 rounded-lg backdrop-blur-sm">
                     <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue shadow-[0_0_50px_rgba(43,43,238,0.2)] rounded-lg w-full h-full flex flex-col animate-in fade-in zoom-in duration-200 relative overflow-hidden">
                         {/* Scanline Overlay */}
                         <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px] opacity-20" />
@@ -277,8 +277,8 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 className={cn(
                                     "text-center font-mono h-8 border-transparent focus-visible:ring-agent-blue transition-all",
                                     p.activeTurn
-                                        ? "bg-black/60 text-white shadow-inner border-agent-blue/30"
-                                        : "bg-black/30 text-agent-blue/50 hover:text-white hover:bg-black/50"
+                                        ? "bg-agent-navy/60 text-white shadow-inner border-agent-blue/30"
+                                        : "bg-agent-navy/30 text-agent-blue/50 hover:text-white hover:bg-agent-navy/50"
                                 )}
                                 defaultValue={p.initiativeRoll}
                                 onBlur={(e) => updateInit(p.id, e.target.value)}
