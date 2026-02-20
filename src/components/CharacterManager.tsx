@@ -19,8 +19,8 @@ interface CharacterManagerProps {
     campaignId: string;
 }
 
-const inputClass = "bg-black/50 border-white/10 text-white focus-visible:ring-agent-blue focus:border-agent-blue h-7 text-xs font-mono";
-const selectClass = "flex h-7 w-full rounded-md border border-white/10 bg-black/50 px-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-agent-blue font-mono";
+const inputClass = "bg-agent-navy/50 border-agent-blue/20 text-agent-blue focus-visible:ring-agent-blue focus:border-agent-blue h-7 text-xs font-mono placeholder:text-agent-blue/40";
+const selectClass = "flex h-7 w-full rounded-md border border-agent-blue/20 bg-agent-navy/50 px-2 text-xs text-agent-blue focus:outline-none focus:ring-1 focus:ring-agent-blue font-mono";
 
 export default function CharacterManager({ characters, campaignId }: CharacterManagerProps) {
     const [showAddForm, setShowAddForm] = useState(false);
@@ -113,28 +113,28 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                                         <span className="font-bold text-white uppercase tracking-wider text-sm">{char.name}</span>
                                         <div className="flex items-center gap-1">
                                             <Badge variant={isNpc ? 'npc' : 'player'} className="text-[10px] px-1 py-0.5">{char.type}</Badge>
-                                            <button onClick={() => handleDuplicate(char.id)} className="text-xs text-neutral-500 hover:text-white transition-colors ml-1" title="Duplicate">
+                                            <button onClick={() => handleDuplicate(char.id)} className="text-xs text-agent-blue/50 hover:text-white transition-colors ml-1" title="Duplicate">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="13" height="13" x="9" y="9" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                                             </button>
-                                            <button onClick={() => setEditingId(char.id)} className="text-xs text-neutral-500 hover:text-agent-blue transition-colors ml-1" title="Edit">
+                                            <button onClick={() => setEditingId(char.id)} className="text-xs text-agent-blue/50 hover:text-agent-blue transition-colors ml-1" title="Edit">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
                                             </button>
                                             {confirmDeleteId === char.id ? (
                                                 <div className="flex items-center gap-1 ml-1">
                                                     <button onClick={() => handleDelete(char.id)} className="text-[10px] text-red-400 hover:text-red-300">Confirm</button>
-                                                    <button onClick={() => setConfirmDeleteId(null)} className="text-[10px] text-neutral-500 hover:text-neutral-300">Cancel</button>
+                                                    <button onClick={() => setConfirmDeleteId(null)} className="text-[10px] text-agent-blue/50 hover:text-agent-blue/80">Cancel</button>
                                                 </div>
                                             ) : (
-                                                <button onClick={() => setConfirmDeleteId(char.id)} className="text-xs text-neutral-500 hover:text-red-400 transition-colors ml-1" title="Delete">
+                                                <button onClick={() => setConfirmDeleteId(char.id)} className="text-xs text-agent-blue/50 hover:text-red-400 transition-colors ml-1" title="Delete">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
                                                 </button>
                                             )}
                                         </div>
                                     </div>
                                     {char.race && (
-                                        <p className="text-xs text-neutral-400 mb-2">{char.race} {char.class} Lv{char.level}</p>
+                                        <p className="text-xs text-agent-blue/60 mb-2">{char.race} {char.class} Lv{char.level}</p>
                                     )}
-                                    <div className="grid grid-cols-2 gap-2 text-sm text-neutral-300">
+                                    <div className="grid grid-cols-2 gap-2 text-sm text-agent-blue/80">
                                         <div>
                                             <div className="flex justify-between items-center">
                                                 <span>HP</span>
@@ -159,8 +159,8 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                                     {Object.keys(attrs).length > 0 && (
                                         <div className="flex gap-2 mt-2 flex-wrap">
                                             {Object.entries(attrs).map(([key, val]) => (
-                                                <span key={key} className="text-[10px] text-neutral-400 uppercase">
-                                                    <span className="font-bold text-neutral-300">{key}</span> {val}
+                                                <span key={key} className="text-[10px] text-agent-blue/50 uppercase">
+                                                    <span className="font-bold text-agent-blue/80">{key}</span> {val}
                                                 </span>
                                             ))}
                                         </div>
@@ -172,7 +172,7 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                                     </div>
 
                                     {/* Inventory */}
-                                    <div className="mt-2 border-t border-white/10 pt-2">
+                                    <div className="mt-2 border-t border-agent-blue/20 pt-2">
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-[10px] text-agent-blue/70 uppercase font-bold tracking-widest">Inventory</span>
                                         </div>
@@ -195,7 +195,7 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                                                 className={inputClass}
                                                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddItem(char.id); } }}
                                             />
-                                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs border border-white/10 hover:bg-agent-blue/20 hover:text-white hover:border-agent-blue" onClick={() => handleAddItem(char.id)}>+</Button>
+                                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs border border-agent-blue/20 hover:bg-agent-blue/20 hover:text-white hover:border-agent-blue text-agent-blue" onClick={() => handleAddItem(char.id)}>+</Button>
                                         </div>
                                     </div>
                                 </>
@@ -212,7 +212,7 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                     <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)} className="flex-1 h-12 border-dashed border-2 border-agent-blue/30 hover:border-agent-blue hover:bg-agent-blue/10 text-agent-blue uppercase tracking-widest font-bold text-xs">
                         + Create New
                     </Button>
-                    <Button variant="outline" size="sm" onClick={openLibrary} className="flex-1 h-12 border-dashed border-2 border-white/10 hover:border-white/30 hover:bg-white/5 text-neutral-400 uppercase tracking-widest font-bold text-xs">
+                    <Button variant="outline" size="sm" onClick={openLibrary} className="flex-1 h-12 border-dashed border-2 border-agent-blue/10 hover:border-agent-blue/30 hover:bg-agent-blue/5 text-agent-blue/50 uppercase tracking-widest font-bold text-xs">
                         Import Library
                     </Button>
                 </div>
@@ -220,34 +220,37 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
 
             {/* Library Modal */}
             {showLibraryModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-                    <Card variant="agent" className="max-w-2xl w-full max-h-[80vh] flex flex-col shadow-2xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-agent-navy/90 backdrop-blur-sm p-4">
+                    <Card variant="agent" className="max-w-2xl w-full max-h-[80vh] flex flex-col shadow-[0_0_50px_rgba(43,43,238,0.2)] border-agent-blue/50">
                         <CardContent className="p-4 flex flex-col h-full">
-                            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
-                                <h3 className="text-lg font-bold text-agent-blue uppercase tracking-widest">Character Library</h3>
-                                <button onClick={() => setShowLibraryModal(false)} className="text-neutral-400 hover:text-white">✕</button>
+                            <div className="flex justify-between items-center mb-4 border-b border-agent-blue/20 pb-2">
+                                <h3 className="text-lg font-bold text-agent-blue uppercase tracking-widest flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-agent-blue rounded-full animate-pulse shadow-[0_0_10px_#2b2bee]" />
+                                    Character Library
+                                </h3>
+                                <button onClick={() => setShowLibraryModal(false)} className="text-agent-blue/50 hover:text-white transition-colors">✕</button>
                             </div>
 
                             <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3 pr-1">
                                 {loadingLibrary && libraryList.length === 0 ? (
-                                    <div className="col-span-2 text-center text-neutral-500 py-8">Accessing Archives...</div>
+                                    <div className="col-span-2 text-center text-agent-blue/50 py-8 animate-pulse">Accessing Archives...</div>
                                 ) : libraryList.length === 0 ? (
-                                    <div className="col-span-2 text-center text-neutral-500 py-8">No characters in library.</div>
+                                    <div className="col-span-2 text-center text-agent-blue/30 py-8">No characters in library.</div>
                                 ) : (
                                     libraryList.map((char) => (
                                         <div
                                             key={char.id}
                                             onClick={() => handleImport(char.id)}
-                                            className="p-3 bg-neutral-900/50 border border-white/5 rounded-lg hover:border-agent-blue hover:bg-agent-blue/10 cursor-pointer transition-all group"
+                                            className="p-3 bg-agent-navy/50 border border-agent-blue/10 rounded-lg hover:border-agent-blue hover:bg-agent-blue/10 cursor-pointer transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(43,43,238,0.1)]"
                                         >
                                             <div className="flex justify-between items-start">
-                                                <span className="font-bold text-white group-hover:text-agent-blue">{char.name}</span>
+                                                <span className="font-bold text-white group-hover:text-agent-blue transition-colors">{char.name}</span>
                                                 <Badge variant={char.type === 'NPC' ? 'npc' : 'player'} className="text-[10px]">{char.type}</Badge>
                                             </div>
-                                            <div className="text-xs text-neutral-400 mt-1">
+                                            <div className="text-xs text-agent-blue/60 mt-1">
                                                 {char.race} {char.class} (Lv{char.level})
                                             </div>
-                                            <div className="text-xs text-neutral-500 mt-1 font-mono">
+                                            <div className="text-xs text-agent-blue/40 mt-1 font-mono">
                                                 HP: {char.hp}/{char.maxHp} | AC: {char.armorClass}
                                             </div>
                                         </div>
@@ -332,13 +335,13 @@ function AddCharacterForm({ campaignId, onClose }: { campaignId: string; onClose
                     <div className="grid grid-cols-6 gap-1">
                         {['str', 'dex', 'con', 'int', 'wis', 'cha'].map(attr => (
                             <div key={attr}>
-                                <label className="block text-[10px] text-neutral-500 text-center uppercase tracking-wider">{attr}</label>
+                                <label className="block text-[10px] text-agent-blue/50 text-center uppercase tracking-wider">{attr}</label>
                                 <Input name={attr} type="number" defaultValue={10} className={`${inputClass} text-center`} />
                             </div>
                         ))}
                     </div>
                     <div className="flex gap-2 pt-2">
-                        <Button type="button" variant="ghost" size="sm" onClick={onClose} className="flex-1 hover:bg-white/5 hover:text-white uppercase tracking-wider text-[10px] font-bold">Cancel</Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={onClose} className="flex-1 hover:bg-white/5 hover:text-white uppercase tracking-wider text-[10px] font-bold text-agent-blue/50">Cancel</Button>
                         <Button type="submit" size="sm" disabled={submitting} className="flex-1 bg-agent-blue text-white hover:bg-blue-600 uppercase tracking-wider text-[10px] font-bold shadow-[0_0_15px_rgba(43,43,238,0.4)]">{submitting ? 'Adding...' : 'Add'}</Button>
                     </div>
                 </form>
@@ -414,13 +417,13 @@ function EditCharacterForm({ character, attrs, onClose }: { character: Character
             <div className="grid grid-cols-6 gap-1">
                 {['str', 'dex', 'con', 'int', 'wis', 'cha'].map(attr => (
                     <div key={attr}>
-                        <label className="block text-[10px] text-neutral-500 text-center uppercase tracking-wider">{attr}</label>
+                        <label className="block text-[10px] text-agent-blue/50 text-center uppercase tracking-wider">{attr}</label>
                         <Input name={attr} type="number" defaultValue={attrs[attr] as number || 10} className={`${inputClass} text-center`} />
                     </div>
                 ))}
             </div>
             <div className="flex gap-2 pt-2">
-                <Button type="button" variant="ghost" size="sm" onClick={onClose} className="flex-1 hover:bg-white/5 hover:text-white uppercase tracking-wider text-[10px] font-bold">Cancel</Button>
+                <Button type="button" variant="ghost" size="sm" onClick={onClose} className="flex-1 hover:bg-white/5 hover:text-white uppercase tracking-wider text-[10px] font-bold text-agent-blue/50">Cancel</Button>
                 <Button type="submit" size="sm" disabled={submitting} className="flex-1 bg-agent-blue text-white hover:bg-blue-600 uppercase tracking-wider text-[10px] font-bold shadow-[0_0_15px_rgba(43,43,238,0.4)]">{submitting ? 'Saving...' : 'Save'}</Button>
             </div>
         </form>

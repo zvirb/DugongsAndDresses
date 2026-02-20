@@ -25,8 +25,8 @@ const COMMON_CONDITIONS = [
     'Invisible', 'Paralyzed', 'Poisoned', 'Prone', 'Stunned', 'Unconscious'
 ];
 
-const inputClass = "bg-black/50 border-agent-blue/20 text-agent-blue focus-visible:ring-agent-blue focus:border-agent-blue placeholder:text-neutral-600 font-mono transition-all";
-const selectClass = "flex h-9 w-full rounded-md border border-agent-blue/20 bg-black/50 px-3 py-1 text-sm text-agent-blue focus:outline-none focus:ring-1 focus:ring-agent-blue placeholder:text-neutral-600 font-mono transition-all";
+const inputClass = "bg-agent-navy/50 border-agent-blue/30 text-agent-blue focus-visible:ring-agent-blue focus:border-agent-blue placeholder:text-agent-blue/40 font-mono transition-all";
+const selectClass = "flex h-9 w-full rounded-md border border-agent-blue/30 bg-agent-navy/50 px-3 py-1 text-sm text-agent-blue focus:outline-none focus:ring-1 focus:ring-agent-blue placeholder:text-agent-blue/40 font-mono transition-all";
 
 export default function QuickActions({ campaignId, characters }: QuickActionsProps) {
     const [active, setActive] = useState<ActionType>(null);
@@ -126,7 +126,7 @@ function AttackForm({ characters = [], onComplete, onCancel }: FormProps) {
                 </div>
             </div>
             <div className="flex gap-2 pt-1">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-white/10 hover:bg-white/5 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-neutral-400">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-agent-blue/20 hover:bg-agent-blue/10 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-agent-blue/50">Cancel</Button>
                 <Button
                     variant="destructive" size="sm" className="flex-1 touch-manipulation shadow-[0_0_15px_rgba(220,38,38,0.4)] uppercase tracking-widest font-bold border border-red-500/50 hover:bg-red-900/80"
                     disabled={!attackerId || !targetId || submitting}
@@ -188,7 +188,7 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
                 </div>
             </div>
             <div className="flex gap-2 pt-1">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-white/10 hover:bg-white/5 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-neutral-400">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-agent-blue/20 hover:bg-agent-blue/10 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-agent-blue/50">Cancel</Button>
                 <Button
                     variant="outline" size="sm" className="flex-1 text-agent-blue border-agent-blue/50 hover:bg-agent-blue/10 hover:text-white touch-manipulation shadow-[0_0_15px_rgba(43,43,238,0.3)] uppercase tracking-widest font-bold"
                     disabled={!characterId || !skill || submitting}
@@ -226,7 +226,7 @@ function RestForm({ characters = [], onComplete, onCancel }: FormProps) {
                 </select>
             </div>
             <div className="flex gap-2 pt-1">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-white/10 hover:bg-white/5 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-neutral-400">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-agent-blue/20 hover:bg-agent-blue/10 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-agent-blue/50">Cancel</Button>
                 <Button
                     variant="outline" size="sm" className="flex-1 border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/20 hover:text-white touch-manipulation shadow-[0_0_15px_rgba(16,185,129,0.3)] uppercase tracking-widest font-bold"
                     disabled={!characterId || submitting}
@@ -287,7 +287,7 @@ function SpellForm({ characters = [], onComplete, onCancel }: FormProps) {
                 </div>
             </div>
             <div className="flex gap-2 pt-1">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-white/10 hover:bg-white/5 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-neutral-400">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-agent-blue/20 hover:bg-agent-blue/10 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-agent-blue/50">Cancel</Button>
                 <Button
                     variant="outline" size="sm" className="flex-1 text-purple-200 border-purple-800 hover:bg-purple-900/50 hover:text-white touch-manipulation shadow-[0_0_15px_rgba(147,51,234,0.3)] uppercase tracking-widest font-bold"
                     disabled={!casterId || !spell || submitting}
@@ -322,7 +322,7 @@ function NoteForm({ campaignId, onComplete, onCancel }: FormProps) {
                 <Input value={note} onChange={e => setNote(e.target.value)} placeholder="What happened..." className={inputClass} />
             </div>
             <div className="flex gap-2 pt-1">
-                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-white/10 hover:bg-white/5 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-neutral-400">Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-agent-blue/20 hover:bg-agent-blue/10 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-agent-blue/50">Cancel</Button>
                 <Button
                     variant="outline" size="sm" className="flex-1 border-white/20 text-neutral-300 hover:bg-white/5 hover:text-white touch-manipulation uppercase tracking-widest font-bold"
                     disabled={!note.trim() || submitting}
