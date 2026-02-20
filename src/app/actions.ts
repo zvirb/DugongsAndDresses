@@ -231,104 +231,117 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
-        // Validation
-        if (!campaignId || typeof campaignId !== 'string' || campaignId.trim().length === 0) {
-            throw new Error("Invalid campaign ID");
-        }
-
-        const characters = await prisma.character.findMany({
-            where: { campaignId },
-            orderBy: [
-                { initiativeRoll: 'desc' },
-                { id: 'asc' }
-            ],
-            select: {
-                id: true,
-                activeTurn: true
-            }
-        });
-
-        if (characters.length === 0) {
-            console.error(`[SENTRY] AdvanceTurn failed: No characters found in campaign ${campaignId}`);
-            throw new Error("No characters in campaign");
-        }
-
-        // SENTRY: Audit for multiple active turns (Data Integrity)
-        const activeCount = characters.filter(c => c.activeTurn).length;
-        if (activeCount > 1) {
-            console.warn(`[SENTRY] Data Integrity Warning: Multiple active characters (${activeCount}) found in campaign ${campaignId}. Auto-correcting...`);
-        }
-
-        const currentIndex = characters.findIndex(c => c.activeTurn);
-
-        // --- SENTRY'S GUARD: RACE CONDITION CHECK (Idempotency) ---
-        // Ensure that we are advancing from the state the client *thinks* it is in.
-        // If the client expects 'Alice' to be active, but the DB says 'Bob' is active,
-        // it means another DM (or process) already advanced the turn.
-        // ACTION: Return the ACTUAL active character (Bob) to sync the client, do NOT advance again.
-        if (currentIndex !== -1) {
-            const currentActive = characters[currentIndex];
-            // If expectedActiveId is undefined (Client thinks start of combat) but someone is active,
-            // OR if expectedActiveId mismatches the DB active character, return the actual active one.
-            if (!expectedActiveId || currentActive.id !== expectedActiveId) {
-                console.warn(`[SENTRY] Race Condition Detected in Campaign ${campaignId}. Client expected active: ${expectedActiveId || 'None'}, DB has: ${currentActive.id}. Syncing client to DB state.`);
-                const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
-                return actualActive;
-            }
-        } else if (expectedActiveId) {
-            // SENTRY: Client thinks someone is active, but DB says NO ONE is active.
-            // This implies a manual reset or deletion occurred. We must restart at 0.
-            console.warn(`[SENTRY] Race Condition: Client expects active character ${expectedActiveId}, but DB has none. Resetting to start.`);
-        }
-
-        // --- SENTRY'S LOOP SAFETY ---
-        // Uses modulo arithmetic to ensure the turn cycles back to the first character (index 0)
-        // when the last character finishes their turn.
-        let nextIndex = 0;
-        if (currentIndex !== -1) {
-            nextIndex = (currentIndex + 1) % characters.length;
-        }
-
-        // SENTRY: Log loop event
-        if (currentIndex !== -1 && nextIndex === 0 && characters.length > 1) {
-            console.info(`[SENTRY] Turn Cycle Complete. Looping to start for Campaign ${campaignId}.`);
-        }
-
-        const nextCharId = characters[nextIndex]?.id;
-
-        if (!nextCharId) {
-            throw new Error(`[SENTRY] Critical Failure: Unable to determine next character ID (Index: ${nextIndex}, Total: ${characters.length})`);
-        }
-
-        let newActiveChar;
-        try {
-            const result = await prisma.$transaction([
-                prisma.character.updateMany({
-                    where: { campaignId, activeTurn: true },
-                    data: { activeTurn: false }
-                }),
-                prisma.character.update({
-                    where: { id: nextCharId },
-                    data: { activeTurn: true }
-                })
-            ]);
-            newActiveChar = result[1];
-        } catch (error: any) {
-            if (error.code === 'P2025' || error.message?.includes('Record to update not found')) {
-                console.error(`[SENTRY] Race Condition: Next character ${nextCharId} not found (likely deleted). Retrying...`);
-                 throw new Error("Combatant vanished! The next character cannot be found. Please try advancing again.");
-            }
-            throw error;
-        }
-
-        await logAction(campaignId, `The flow of battle shifts. It is now **${newActiveChar.name}**'s turn.`, "Combat");
-
-        revalidatePath('/dm');
-        revalidatePath('/public');
-        revalidatePath('/player');
-
-        return newActiveChar;
+        return internalAdvanceTurn(campaignId, expectedActiveId, 0);
     });
+}
+
+// Internal recursive function without actionWrapper to prevent nested results
+async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string, retryCount: number = 0): Promise<any> {
+    // Validation
+    if (!campaignId || typeof campaignId !== 'string' || campaignId.trim().length === 0) {
+        throw new Error("Invalid campaign ID");
+    }
+
+    const characters = await prisma.character.findMany({
+        where: { campaignId },
+        orderBy: [
+            { initiativeRoll: 'desc' },
+            { id: 'asc' }
+        ],
+        select: {
+            id: true,
+            activeTurn: true
+        }
+    });
+
+    if (characters.length === 0) {
+        console.error(`[SENTRY] AdvanceTurn failed: No characters found in campaign ${campaignId}`);
+        throw new Error("No characters in campaign");
+    }
+
+    // SENTRY: Audit for multiple active turns (Data Integrity)
+    const activeCount = characters.filter(c => c.activeTurn).length;
+    if (activeCount > 1) {
+        console.warn(`[SENTRY] Data Integrity Warning: Multiple active characters (${activeCount}) found in campaign ${campaignId}. Auto-correcting...`);
+    }
+
+    const currentIndex = characters.findIndex(c => c.activeTurn);
+
+    // --- SENTRY'S GUARD: RACE CONDITION CHECK (Idempotency) ---
+    // Ensure that we are advancing from the state the client *thinks* it is in.
+    // If the client expects 'Alice' to be active, but the DB says 'Bob' is active,
+    // it means another DM (or process) already advanced the turn.
+    // ACTION: Return the ACTUAL active character (Bob) to sync the client, do NOT advance again.
+    if (currentIndex !== -1) {
+        const currentActive = characters[currentIndex];
+        // If expectedActiveId is undefined (Client thinks start of combat) but someone is active,
+        // OR if expectedActiveId mismatches the DB active character, return the actual active one.
+        if (!expectedActiveId || currentActive.id !== expectedActiveId) {
+            console.warn(`[SENTRY] Race Condition Detected in Campaign ${campaignId}. Client expected active: ${expectedActiveId || 'None'}, DB has: ${currentActive.id}. Syncing client to DB state.`);
+            const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
+            return actualActive;
+        }
+    } else if (expectedActiveId) {
+        // SENTRY: Client thinks someone is active, but DB says NO ONE is active.
+        // This implies a manual reset or deletion occurred. We must restart at 0.
+        console.warn(`[SENTRY] Race Condition: Client expects active character ${expectedActiveId}, but DB has none. Resetting to start.`);
+    }
+
+    // --- SENTRY'S LOOP SAFETY ---
+    // Uses modulo arithmetic to ensure the turn cycles back to the first character (index 0)
+    // when the last character finishes their turn.
+    let nextIndex = 0;
+    if (currentIndex !== -1) {
+        nextIndex = (currentIndex + 1) % characters.length;
+    }
+
+    // SENTRY: Log loop event
+    if (currentIndex !== -1 && nextIndex === 0 && characters.length > 1) {
+        console.info(`[SENTRY] Turn Cycle Complete. Looping to start for Campaign ${campaignId}.`);
+    }
+
+    const nextCharId = characters[nextIndex]?.id;
+
+    if (!nextCharId) {
+        throw new Error(`[SENTRY] Critical Failure: Unable to determine next character ID (Index: ${nextIndex}, Total: ${characters.length})`);
+    }
+
+    let newActiveChar;
+    try {
+        const result = await prisma.$transaction([
+            prisma.character.updateMany({
+                where: { campaignId, activeTurn: true },
+                data: { activeTurn: false }
+            }),
+            prisma.character.update({
+                where: { id: nextCharId },
+                data: { activeTurn: true }
+            })
+        ]);
+        newActiveChar = result[1];
+    } catch (error: any) {
+        if (error.code === 'P2025' || error.message?.includes('Record to update not found')) {
+            if (retryCount < 3) {
+                console.warn(`[SENTRY] Race Condition: Next character ${nextCharId} not found (likely deleted). Retrying attempt ${retryCount + 1}...`);
+                // Recursively try again - this will re-fetch the list (minus the deleted char) and find the NEW next char
+                // We pass expectedActiveId to maintain the original intent, but if the active char was deleted,
+                // the recursive call will handle the "No active char" state gracefully.
+                return internalAdvanceTurn(campaignId, expectedActiveId, retryCount + 1);
+            } else {
+                console.error(`[SENTRY] Critical Failure: Max retries reached for campaign ${campaignId}.`);
+                throw new Error("Combatant vanished! The next character cannot be found even after retrying.");
+            }
+        }
+        throw error;
+    }
+
+    await logAction(campaignId, `The flow of battle shifts. It is now **${newActiveChar.name}**'s turn.`, "Combat");
+
+    revalidatePath('/dm');
+    revalidatePath('/public');
+    revalidatePath('/player');
+
+    return newActiveChar;
 }
 
 export async function activateCampaign(campaignId: string): Promise<ActionResult> {
