@@ -6,6 +6,7 @@
 // ## 2025-05-30 - [ActionForm] Workflow: [Added specific sub-forms] Path: [Implemented Action Mode state machine]
 // ## 2025-06-01 - [ActionForm] Thumb Zone: [Inputs and buttons small] Path: [Increased inputs to h-20, Submit to h-24, text-2xl]
 // ## 2025-06-03 - [ActionForm] Feature: [Missing Damage/Target] Path: [Added Target Selector and Damage Input]
+// ## 2025-06-05 - [ActionForm] Interaction: [Critical actions buried] Path: [Split into PRIMARY (Attack/Cast) and SECONDARY (Dodge/Dash/Rest) groups for prominence]
 
 import { logAction, performAttack, castSpell, performLongRest } from "@/app/actions";
 import { useTransition, useState } from "react";
@@ -13,7 +14,8 @@ import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { secureRoll } from "@/lib/dice";
 
-const QUICK_ACTIONS = ["Attack", "Cast", "Dodge", "Dash", "Rest"];
+const PRIMARY_ACTIONS = ["Attack", "Cast"];
+const SECONDARY_ACTIONS = ["Dodge", "Dash", "Rest"];
 
 type ActionMode = 'INTENT' | 'ATTACK' | 'CAST';
 
@@ -143,7 +145,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         <span className="w-1.5 h-1.5 bg-agent-blue rounded-full animate-pulse" />
                         Combat Engagement
                     </h3>
-                    <Button type="button" variant="ghost" onClick={() => setMode('INTENT')} className="h-14 px-6 text-xs uppercase tracking-wider text-neutral-500 hover:text-white border border-white/5 bg-white/5">Cancel</Button>
+                    <Button type="button" variant="ghost" onClick={() => setMode('INTENT')} className="h-16 px-6 text-xs uppercase tracking-wider text-neutral-500 hover:text-white border border-white/5 bg-white/5 active:bg-white/10 active:scale-95 transition-all">Cancel</Button>
                 </div>
 
                 <div className="space-y-4">
@@ -182,7 +184,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             />
                         </div>
                         <div className="flex items-end">
-                            <Button type="button" onClick={() => handleRoll(setAttackRoll)} className="h-20 w-24 bg-white/5 border border-white/10 hover:bg-agent-blue/20 hover:border-agent-blue text-agent-blue font-black uppercase tracking-wider">
+                            <Button type="button" onClick={() => handleRoll(setAttackRoll)} className="h-20 w-24 bg-white/5 border border-white/10 hover:bg-agent-blue/20 hover:border-agent-blue text-agent-blue font-black uppercase tracking-wider active:scale-95 transition-transform">
                                 Roll
                             </Button>
                         </div>
@@ -203,7 +205,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         type="submit"
                         variant="agent"
                         disabled={!weapon || isPending}
-                        className="w-full h-24 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)]"
+                        className="w-full h-24 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)] active:scale-95 active:brightness-90 transition-all touch-manipulation"
                     >
                         {isPending ? 'Engaging...' : 'ATTACK'}
                     </Button>
@@ -220,7 +222,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
                         Spellcasting
                     </h3>
-                    <Button type="button" variant="ghost" onClick={() => setMode('INTENT')} className="h-14 px-6 text-xs uppercase tracking-wider text-neutral-500 hover:text-white border border-white/5 bg-white/5">Cancel</Button>
+                    <Button type="button" variant="ghost" onClick={() => setMode('INTENT')} className="h-16 px-6 text-xs uppercase tracking-wider text-neutral-500 hover:text-white border border-white/5 bg-white/5 active:bg-white/10 active:scale-95 transition-all">Cancel</Button>
                 </div>
 
                 <div className="space-y-4">
@@ -252,7 +254,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         type="submit"
                         variant="agent"
                         disabled={!spell || isPending}
-                        className="w-full h-24 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.3)] border-purple-500/50 text-purple-200 hover:bg-purple-900/50"
+                        className="w-full h-24 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.3)] border-purple-500/50 text-purple-200 hover:bg-purple-900/50 active:scale-95 active:brightness-90 transition-all touch-manipulation"
                     >
                         {isPending ? 'Channeling...' : 'CAST'}
                     </Button>
@@ -269,16 +271,32 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                     Declare Intent
                 </label>
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                    {QUICK_ACTIONS.map((action) => (
+                {/* Primary Actions (Attack / Cast) */}
+                <div className="grid grid-cols-2 gap-4 mb-2">
+                    {PRIMARY_ACTIONS.map((action) => (
+                        <Button
+                            key={action}
+                            type="button"
+                            variant="agent" // Use agent variant for primary actions
+                            disabled={isPending}
+                            onClick={() => handleActionClick(action)}
+                            className="h-28 p-4 text-2xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.2)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20"
+                        >
+                            {action}
+                        </Button>
+                    ))}
+                </div>
+
+                {/* Secondary Actions */}
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                    {SECONDARY_ACTIONS.map((action) => (
                         <Button
                             key={action}
                             type="button"
                             variant="ghost"
                             disabled={isPending}
                             onClick={() => handleActionClick(action)}
-                            className="h-24 p-4 text-lg font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
+                            className="h-20 p-2 text-sm font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
                         >
                             {action}
                         </Button>
