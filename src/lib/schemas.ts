@@ -39,10 +39,19 @@ export const AttributesSchema = z.preprocess((val) => {
        }
 
        // Coercion & Cleanup
-       if (typeof currentValue === 'string') {
-         const num = parseFloat(currentValue);
-         if (!isNaN(num)) {
-           currentValue = num;
+       if (typeof currentValue === 'string' && currentValue.trim() !== '') {
+         if (coreStats.includes(currentKey)) {
+             // Core stats: aggressive coercion (e.g. "18 (+4)" -> 18)
+             const num = parseFloat(currentValue);
+             if (!isNaN(num)) {
+               currentValue = num;
+             }
+         } else {
+             // Non-core stats: strict numeric check (e.g. "1st Level" stays string, "5" becomes 5)
+             const num = Number(currentValue);
+             if (!isNaN(num)) {
+               currentValue = num;
+             }
          }
        }
 
