@@ -113,11 +113,11 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             const amount = Math.abs(delta);
             let content = "";
             if (delta > 0) {
-                content = `**${character.name}** rallies! Vitality returns (+**${amount}** HP).`;
+                content = `**${character.name}** catches their breath, surging with **${amount}** renewed vitality.`;
             } else {
-                content = `**${character.name}** reels from the blow, taking **${amount}** damage`;
+                content = `**${character.name}** staggers under the assault, suffering **${amount}** damage`;
                 if (character.hp <= 0) {
-                    content += ` and collapses, falling **UNCONSCIOUS**!`;
+                    content += ` and collapses, their vision fading to black. They are **UNCONSCIOUS**!`;
                 } else {
                     content += `.`;
                 }
@@ -148,7 +148,7 @@ export async function performLongRest(characterId: string): Promise<ActionResult
 
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** takes a long rest. Vitality is restored.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** settles in for a long rest, tending to wounds and sharpening steel. They are fully restored.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -209,7 +209,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
         // but maybe the user wants to keep the last roll?
         // Let's NOT sync initiative roll to source as it's ephemeral.
 
-        const content = `**${character.name}** draws steel! Initiative: **${roll}**.`;
+        const content = `**${character.name}** prepares for battle! Initiative: **${roll}**.`;
         await logAction(character.campaignId, content, "Combat");
 
         revalidatePath('/dm');
@@ -335,7 +335,7 @@ async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string
         throw error;
     }
 
-    await logAction(campaignId, `The flow of battle shifts. It is now **${newActiveChar.name}**'s turn.`, "Combat");
+    await logAction(campaignId, `The spotlight turns to **${newActiveChar.name}**. It is their moment to act.`, "Combat");
 
     revalidatePath('/dm');
     revalidatePath('/public');
@@ -458,7 +458,7 @@ export async function createCharacter(formData: FormData): Promise<ActionResult>
             }
         });
 
-        await logAction(campaignId, `A new challenger approaches: **${character.name}**!`, "Story");
+        await logAction(campaignId, `A new soul, **${character.name}**, enters the fray!`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -531,7 +531,7 @@ export async function deleteCharacter(characterId: string): Promise<ActionResult
             where: { id: characterId }
         });
 
-        await logAction(character.campaignId, `**${character.name}** vanishes from existence.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** has fallen from the annals of history. They are gone.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/public');
@@ -582,7 +582,7 @@ export async function addInventoryItem(characterId: string, item: string): Promi
         // Sync to Library
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** finds **${item.trim()}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** acquires **${item.trim()}**, adding it to their inventory.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -632,7 +632,7 @@ export async function removeInventoryItem(characterId: string, item: string): Pr
         // Sync Source
         await syncToSource(updated);
 
-        await logAction(character.campaignId, `**${character.name}** drops **${item}**.`, "Story");
+        await logAction(character.campaignId, `**${character.name}** discards **${item}**, leaving it behind.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -771,13 +771,13 @@ export async function performAttack(attackerId: string, targetId: string | undef
 
         if (target) {
              if (isCrit) {
-                content = `**CRITICAL HIT**! **${attacker.name}** lands a devastating blow on **${target.name}**!`;
+                content = `**CRITICAL HIT**! **${attacker.name}** finds a weak point and strikes **${target.name}** with deadly precision!`;
              } else if (isFumble) {
-                content = `**CRITICAL MISS**! **${attacker.name}** stumbles and fumbles the attack against **${target.name}**!`;
+                content = `**CRITICAL MISS**! **${attacker.name}** loses their footing and fails to strike **${target.name}**!`;
              } else if (isHit) {
                 content = `**${attacker.name}** strikes **${target.name}**!`;
              } else {
-                content = `**${attacker.name}** attacks **${target.name}**, but the blow goes wide.`;
+                content = `**${attacker.name}** attacks **${target.name}**, but the blow is deflected.`;
              }
         } else {
              if (isCrit) {
@@ -803,7 +803,7 @@ export async function performAttack(attackerId: string, targetId: string | undef
             });
             await syncToSource(updatedTarget);
 
-            content += `, dealing **${dmg}** damage`;
+            content += `, cutting deep for **${dmg}** damage`;
             if (updatedTarget.hp <= 0) {
                 content += `, knocking them **UNCONSCIOUS**!`;
             } else {
@@ -833,9 +833,9 @@ export async function performSkillCheck(characterId: string, skillName: string, 
 
         if (roll !== undefined) {
             if (dieRoll === 20) {
-                content += `: **CRITICAL SUCCESS**! A stroke of brilliance!`;
+                content += `: **CRITICAL SUCCESS**! **${character.name}** performs the feat with legendary skill!`;
             } else if (dieRoll === 1) {
-                content += `: **CRITICAL FAILURE**! A disastrous fumble.`;
+                content += `: **CRITICAL FAILURE**! **${character.name}** attempts the impossible and fails spectacularly.`;
             } else if (dc) {
                 if (roll >= dc) {
                     content += `: **SUCCESS**! They pull it off.`;
@@ -884,13 +884,13 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
             if (target) targetName = target.name;
         }
 
-        let content = `**${caster.name}** invokes **${validated.spellName}**`;
+        let content = `**${caster.name}** weaves the arcane, casting **${validated.spellName}**`;
         if (targetName) {
             content += `, targeting **${targetName}**`;
         }
 
         if (validated.condition && target) {
-            content += `. The air shimmers as **${validated.condition}** takes hold`;
+            content += `. The air shimmers as **${validated.condition}** is imposed upon them`;
 
             const currentConditions = parseConditions(target.conditions);
             if (!currentConditions.includes(validated.condition)) {
@@ -968,7 +968,7 @@ export async function loadEncounter(encounterId: string): Promise<ActionResult> 
         );
         await prisma.$transaction(updates);
 
-        await logAction(encounter.campaignId, `The air grows heavy... The encounter **${encounter.name}** has begun!`, "Combat");
+        await logAction(encounter.campaignId, `Tension fills the air. The encounter **${encounter.name}** has begun!`, "Combat");
 
         revalidatePath('/dm');
         return { success: true };
@@ -987,7 +987,7 @@ export async function endEncounter(campaignId: string): Promise<ActionResult> {
             }
         });
 
-        await logAction(campaignId, `Combat ends! The dust settles.`, "Story");
+        await logAction(campaignId, `Silence falls as combat ends. The dust settles on the battlefield.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -1023,7 +1023,7 @@ export async function importCharacterFromLibrary(campaignId: string, libraryChar
             }
         });
 
-        await logAction(campaignId, `**${newChar.name}** emerges from the archives.`, "Story");
+        await logAction(campaignId, `**${newChar.name}** is summoned from the archives to join the adventure.`, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
