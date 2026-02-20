@@ -9,6 +9,8 @@
 // ## 2025-05-26 - [Logic] Fortify: [Client Recovery] Fix: [Verified sync behavior when backend detects race condition]
 // ## 2025-05-27 - [Logic] Fortify: [Race Condition Safety] Fix: [Added try/catch for "Combatant Vanished" edge case and improved loop logging]
 // ## 2025-05-31 - [UI] Fortify: [Active Turn Audit] Fix: [Verified exclusive highlighting relies on single activeTurn flag from DB]
+// ## 2025-06-05 - [Logic] Fortify: [Combatant Vanished Retry] Fix: [Implemented recursive retry in advanceTurn to auto-recover when next char is deleted]
+// ## 2025-06-05 - [UI] Fortify: [Error Handling] Fix: [Replaced alert() with inline error banner for better UX]
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
@@ -23,6 +25,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     const [showLoadModal, setShowLoadModal] = useState(false);
     const [encounters, setEncounters] = useState<{ id: string, name: string, createdAt: Date }[]>([]);
     const [loadingEncounters, setLoadingEncounters] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     // Sort by initiative desc, then ID asc (stable sort matching server)
     const sortedParticipants = useMemo(() => {
@@ -36,6 +39,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
 
     const handleNextTurn = () => {
         if (sortedParticipants.length === 0) return;
+        setError(null);
 
         // Find current active participant ID for optimistic concurrency check
         const currentActive = sortedParticipants.find(p => p.activeTurn);
@@ -44,7 +48,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
             const result = await advanceTurn(campaignId, currentActive?.id);
             if (!result.success) {
                 console.error("[SENTRY] Turn advancement failed:", result.error);
-                alert(`Failed to advance turn: ${result.error}`);
+                setError(result.error || "Failed to advance turn");
             }
         });
     };
@@ -121,6 +125,15 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
 
     return (
         <div className="flex flex-col h-full relative">
+            {error && (
+                <div className="absolute top-0 left-0 right-0 z-50 bg-red-900/90 border border-red-500/50 p-2 text-xs text-red-100 flex justify-between items-center animate-in slide-in-from-top-2 rounded mb-2 shadow-lg backdrop-blur-sm">
+                    <span className="font-bold flex items-center gap-2">
+                        <span className="text-red-500">⚠️</span>
+                        {error}
+                    </span>
+                    <button onClick={() => setError(null)} className="text-red-300 hover:text-white font-bold px-2">✕</button>
+                </div>
+            )}
             <div className="flex justify-between items-center mb-4 border-b border-agent-blue/20 pb-2">
                 <h2 className="text-sm font-bold text-agent-blue uppercase tracking-widest flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-agent-blue rounded-full animate-pulse shadow-[0_0_5px_#2b2bee]" />

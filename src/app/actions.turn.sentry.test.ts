@@ -200,9 +200,9 @@ describe('Sentry Logic Fortification', () => {
 
         expect(result).toEqual({
             success: false,
-            error: expect.stringContaining('Combatant vanished!')
+            error: expect.stringContaining('Combatant vanished! The next character cannot be found even after retrying.')
         });
-        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[SENTRY] Race Condition: Next character 2 not found'));
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[SENTRY] Critical Failure: Max retries reached'));
 
         consoleSpy.mockRestore();
     });
