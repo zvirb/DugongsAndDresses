@@ -8,6 +8,8 @@
 // ## 2025-05-26 - [Seed] Gap: No high-magic feywild campaign. Summon: Added 'The Whispering Woods' with Elara and Thalin.
 // ## 2025-05-27 - [Seed] Gap: No undead/cleric themed campaign. Summon: Added 'Catacombs of the Faithful' with High Priestess Anara and Cult Leader Malos.
 // ## 2025-05-28 - [Seed] Gap: No desert/wasteland themed campaign. Summon: Added 'The Scorched Wastes' with Kaelen and Mirage Weaver.
+// ## 2025-05-29 - [Seed] Gap: No jungle/beast themed campaign. Summon: Added 'The Verdant Jungle' with Kaelith and Spirit of the Wilds.
+// ## 2025-05-29 - [Seed] Gap: No steampunk/clockwork themed campaign. Summon: Added 'The Clockwork City' with Cogsworth and Ironclad.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -608,6 +610,55 @@ const libraryCharacters: CharacterTemplate[] = [
     initiativeRoll: 0,
     speed: 40,
     attributes: { str: 12, dex: 16, con: 12, int: 10, wis: 16, cha: 10, Ki: 2 },
+    activeTurn: false,
+    level: 2,
+  },
+  // --- Generic NPCs ---
+  {
+    name: 'Orc Raider',
+    type: 'NPC',
+    race: 'Orc',
+    class: 'Barbarian',
+    imageUrl: '/avatars/fantasy_barbarian_male_1770266807624.png',
+    hp: 15,
+    maxHp: 15,
+    armorClass: 13,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 16, dex: 12, con: 14, int: 8, wis: 10, cha: 8 },
+    activeTurn: false,
+    level: 1,
+  },
+  {
+    name: 'Elven Scout',
+    type: 'NPC',
+    race: 'Elf',
+    class: 'Ranger',
+    imageUrl: '/avatars/elf_archer_male_1770268242137.png',
+    hp: 12,
+    maxHp: 12,
+    armorClass: 14,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 10, dex: 16, con: 12, int: 12, wis: 14, cha: 10 },
+    activeTurn: false,
+    level: 1,
+  },
+  {
+    name: 'Dwarven Defender',
+    type: 'NPC',
+    race: 'Dwarf',
+    class: 'Fighter',
+    imageUrl: '/avatars/dwarf_fighter_male_1770268439402.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 16,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 14, dex: 10, con: 16, int: 10, wis: 12, cha: 10 },
     activeTurn: false,
     level: 2,
   },
@@ -1390,6 +1441,156 @@ const scorchedWastesCharacters: CharacterTemplate[] = [
   }
 ]
 
+const verdantJungleCharacters: CharacterTemplate[] = [
+  {
+    name: 'Kaelith the Wild',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Ranger',
+    imageUrl: '/avatars/barbarian_archer_female_1770268298470.png',
+    hp: 25,
+    maxHp: 25,
+    armorClass: 15,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 14, dex: 16, con: 14, int: 10, wis: 14, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Thorgar Ironhide',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Barbarian',
+    imageUrl: '/avatars/barbarian_archer_male_1770268280543.png',
+    hp: 32,
+    maxHp: 32,
+    armorClass: 14,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 18, dex: 12, con: 16, int: 8, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Spirit of the Wilds',
+    type: 'NPC',
+    race: 'Nymph',
+    class: 'Sorcerer',
+    imageUrl: '/avatars/nymph_female_1770267925456.png',
+    hp: 20,
+    maxHp: 20,
+    armorClass: 12,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 14, con: 12, int: 12, wis: 16, cha: 18 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Goblin Trapper',
+    type: 'NPC',
+    race: 'Goblin',
+    class: 'Ranger',
+    imageUrl: '/avatars/rogue_male_1770266194878.png',
+    hp: 12,
+    maxHp: 12,
+    armorClass: 13,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 16, con: 10, int: 12, wis: 10, cha: 8 },
+    activeTurn: false,
+    level: 2,
+  },
+  {
+    name: 'Snake Cultist',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Warlock',
+    imageUrl: '/avatars/wizard_male_1770266164795.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 11,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 12, con: 10, int: 14, wis: 10, cha: 16 },
+    activeTurn: false,
+    level: 3,
+  }
+]
+
+const clockworkCityCharacters: CharacterTemplate[] = [
+  {
+    name: 'Cogsworth',
+    type: 'PLAYER',
+    race: 'Gnome',
+    class: 'Artificer',
+    imageUrl: '/avatars/hobbit_male_1770267994027.png',
+    hp: 22,
+    maxHp: 22,
+    armorClass: 14,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 8, dex: 14, con: 14, int: 18, wis: 10, cha: 12 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Ironclad',
+    type: 'NPC',
+    race: 'Warforged',
+    class: 'Fighter',
+    imageUrl: '/avatars/dwarf_fighter_male_1770268439402.png',
+    hp: 35,
+    maxHp: 35,
+    armorClass: 18,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 18, dex: 10, con: 18, int: 10, wis: 10, cha: 8 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Gear-Mistress Vyla',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Rogue',
+    imageUrl: '/avatars/thief_female_1770267766244.png',
+    hp: 24,
+    maxHp: 24,
+    armorClass: 15,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 18, con: 12, int: 16, wis: 12, cha: 14 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Mad Tinkerer',
+    type: 'NPC',
+    race: 'Dwarf',
+    class: 'Wizard',
+    imageUrl: '/avatars/dwarf_mage_male_1770268698293.png',
+    hp: 30,
+    maxHp: 30,
+    armorClass: 12,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 10, dex: 12, con: 14, int: 18, wis: 14, cha: 8 },
+    activeTurn: false,
+    level: 5,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -1802,6 +2003,78 @@ async function main() {
   })
 
   console.log(`🌵 Campaign "${scorchedWastesCampaign.name}" created.`)
+
+  // Create The Verdant Jungle Campaign (Inactive)
+  const verdantJungleCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Verdant Jungle',
+      active: false,
+      characters: {
+        create: verdantJungleCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The canopy of **The Verdant Jungle** teems with life and danger.', type: 'Story' },
+          { content: '**Kaelith the Wild** tracks a beast through the undergrowth.', type: 'Story' },
+          { content: '**Thorgar Ironhide** roars a challenge to the wilderness.', type: 'Story' },
+          { content: 'A pair of glowing eyes watches from the shadows...', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`🌿 Campaign "${verdantJungleCampaign.name}" created.`)
+
+  // Create The Clockwork City Campaign (Inactive)
+  const clockworkCityCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Clockwork City',
+      active: false,
+      characters: {
+        create: clockworkCityCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The gears of **The Clockwork City** never stop turning.', type: 'Story' },
+          { content: '**Cogsworth** makes a final adjustment to his gadget.', type: 'Story' },
+          { content: '**Ironclad** stands guard at the factory gates.', type: 'Story' },
+          { content: 'The **Mad Tinkerer** laughs maniacally from his lab.', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`⚙️ Campaign "${clockworkCityCampaign.name}" created.`)
 }
 
 main()
