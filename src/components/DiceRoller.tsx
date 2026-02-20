@@ -14,6 +14,7 @@
 // ## 2025-05-30 - [Dice] Safety: [Guard clause missing] Fix: [Added explicit return for sides < 1]
 // ## 2025-05-30 - [Dice] UI: [Rolling badge small] Fix: [Increased text size to text-xs]
 // ## 2025-05-31 - [Dice] Feedback: [Rolling state colors static] Fix: [Added mode-specific colors for rolling feedback]
+// ## 2025-06-01 - [Dice] Log: [Improved log format] Fix: [Refined "Advantage/Disadvantage" text and Rolling feedback]
 
 import { useState, useCallback, useEffect } from 'react';
 import { logAction } from '@/app/actions';
@@ -84,10 +85,10 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 rolls.push(roll2);
                 if (mode === 'ADVANTAGE') {
                     result = Math.max(roll1, roll2);
-                    details = ` [ADVANTAGE: **${roll1}**, **${roll2}**]`;
+                    details = ` with Advantage (Rolls: **${roll1}**, **${roll2}**)`;
                 } else {
                     result = Math.min(roll1, roll2);
-                    details = ` [DISADVANTAGE: **${roll1}**, **${roll2}**]`;
+                    details = ` with Disadvantage (Rolls: **${roll1}**, **${roll2}**)`;
                 }
             }
 
@@ -175,7 +176,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                                 {displayValue}
                             </span>
                             <span className={`text-xs text-black ${modeColors.bg} animate-pulse font-black tracking-widest ${modeColors.badgeShadow} uppercase px-2 py-0.5 rounded-full border ${modeColors.border}`}>
-                                ROLLING...
+                                ROLLING d{rollingDie}...
                             </span>
                         </div>
                     ) : lastResult ? (
