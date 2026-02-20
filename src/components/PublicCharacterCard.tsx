@@ -74,7 +74,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
             {character.hp <= 0 && (
                 <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none overflow-hidden">
                     <div className="absolute inset-0 bg-red-900/20 animate-pulse" />
-                    <h2 className="text-9xl font-black text-red-600 uppercase tracking-widest -rotate-12 border-8 border-red-600 p-8 bg-black/90 backdrop-blur-md shadow-[0_0_80px_rgba(220,38,38,0.8)] animate-pulse mix-blend-hard-light">
+                    <h2 className="text-9xl font-black text-red-600 uppercase tracking-widest -rotate-12 border-8 border-red-600 p-8 bg-black/90 backdrop-blur-md shadow-[0_0_80px_rgba(220,38,38,0.8)] animate-heartbeat mix-blend-hard-light">
                         Unconscious
                     </h2>
                 </div>
@@ -85,9 +85,10 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
 
             {/* Active Turn Scanner Effect - Enhanced */}
             {character.activeTurn && (
-                <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+                <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+                    <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(43,43,238,0.1),transparent)] bg-[length:200%_100%] animate-shimmer" />
                     <div className="absolute top-0 left-0 w-full h-2 bg-agent-blue shadow-[0_0_50px_#2b2bee] animate-[scan_2s_linear_infinite]" />
-                    <div className="absolute inset-0 border-2 border-agent-blue/30 rounded-2xl opacity-50" />
+                    <div className="absolute inset-0 border-2 border-agent-blue/30 rounded-3xl opacity-50" />
                     {/* Corner Reticles */}
                     <div className="absolute top-4 left-4 w-8 h-8 border-t-4 border-l-4 border-agent-blue animate-pulse" />
                     <div className="absolute top-4 right-4 w-8 h-8 border-t-4 border-r-4 border-agent-blue animate-pulse" />
@@ -118,7 +119,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                         </div>
                     </div>
 
-                    <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words drop-shadow-xl ${character.activeTurn ? 'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]' : 'text-neutral-300'}`}>
+                    <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words text-balance drop-shadow-xl ${character.activeTurn ? 'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]' : 'text-neutral-300'}`}>
                         {character.name}
                     </h2>
                     <p className="text-agent-blue text-4xl font-mono font-bold uppercase tracking-widest mb-10 opacity-90 truncate drop-shadow-md">
@@ -160,7 +161,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     {conditions.length > 0 && (
                         <div className="mt-6 flex flex-wrap gap-2 justify-end">
                             {conditions.map((condition, idx) => (
-                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-4xl !text-4xl !px-4 !py-2 animate-pulse border border-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.5)] bg-red-950/80">
+                                <Badge key={idx} variant="destructive" className="font-black uppercase tracking-widest text-5xl !text-5xl !px-6 !py-3 animate-pulse border border-red-500/50 shadow-[0_0_20px_rgba(220,38,38,0.5)] bg-red-950/80">
                                     {condition}
                                 </Badge>
                             ))}
