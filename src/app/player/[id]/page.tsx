@@ -7,6 +7,7 @@
 // ## 2025-05-27 - [Layout] Optimization: [Mobile touch targets and feedback] Path: [Increased padding, gaps, and active states]
 // ## 2025-05-29 - [Layout] Viewport: [Bottom content clipped] Path: [Increased padding to pb-40]
 // ## 2025-05-30 - [Interaction] Clarity: [Active turn feedback generic] Path: [Changed to ">> YOUR TURN <<"]
+// ## 2025-06-05 - [Layout] Hierarchy: [Action form buried below Dice] Path: [Reordered to Status(HP) -> Action -> Dice for combat speed]
 
 import { getPlayerDashboard } from "@/lib/queries";
 import { notFound } from "next/navigation";
@@ -124,8 +125,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     </div>
                 )}
 
-                <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
-
                 <Card variant="agent" className="bg-agent-navy/60 border-white/10 backdrop-blur-md shadow-lg">
                     <CardContent className="p-4">
                         <PlayerHPControls characterId={character.id} currentHp={character.hp} maxHp={character.maxHp} />
@@ -140,6 +139,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                         targets={character.targets}
                     />
                 </div>
+
+                <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
             </div>
         </main>
     );
