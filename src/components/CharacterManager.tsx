@@ -19,6 +19,10 @@ interface CharacterManagerProps {
     campaignId: string;
 }
 
+// ILLUSIONIST'S JOURNAL - CRITICAL LEARNINGS ONLY
+// Format: ## YYYY-MM-DD - [Component] Dull: [Active card looked static] Glow: [Added agent-blue box-shadow]
+// ## 2025-06-09 - [CharacterManager] Dull: [List looked flat] Glow: [Added hover shadow to closed cards]
+
 const inputClass = "bg-agent-navy/50 border-agent-blue/20 text-agent-blue focus-visible:ring-agent-blue focus:border-agent-blue h-7 text-xs font-mono placeholder:text-agent-blue/40";
 const selectClass = "flex h-7 w-full rounded-md border border-agent-blue/20 bg-agent-navy/50 px-2 text-xs text-agent-blue focus:outline-none focus:ring-1 focus:ring-agent-blue font-mono";
 
@@ -97,7 +101,7 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                             "bg-agent-navy/20 border transition-all duration-200 backdrop-blur-sm",
                             isOpen
                                 ? "z-50 relative border-agent-blue bg-agent-navy/60 shadow-[0_0_20px_rgba(43,43,238,0.2)]"
-                                : "z-0 relative border-white/5 hover:border-agent-blue/30 hover:bg-agent-blue/5"
+                                : "z-0 relative border-white/5 hover:border-agent-blue/30 hover:bg-agent-blue/5 hover:shadow-[0_0_15px_rgba(43,43,238,0.15)]"
                         )}
                     >
                         <CardContent className="p-3">
