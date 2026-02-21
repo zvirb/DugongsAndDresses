@@ -16,6 +16,7 @@
 // ## 2025-05-31 - [Dice] Feedback: [Rolling state colors static] Fix: [Added mode-specific colors for rolling feedback]
 // ## 2025-06-01 - [Dice] Log: [Improved log format] Fix: [Refined "Advantage/Disadvantage" text and Rolling feedback]
 // ## 2025-06-08 - [Dice] Visual: [Updated colors to Agent Mesh] Fix: [Replaced generic yellow/green/red with agent-blue/emerald/rose and added glows]
+// ## 2025-06-09 - [Dice] Feedback: [Single number animation for Adv/Dis] Fix: [Animating both dice values during roll]
 
 import { useState, useCallback, useEffect } from 'react';
 import { logAction } from '@/app/actions';
@@ -43,28 +44,41 @@ const Spinner = () => (
 
 export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaignId: string, rollerName?: string }) {
     const [rollingDie, setRollingDie] = useState<number | null>(null);
-    const [displayValue, setDisplayValue] = useState<number | null>(null);
+    const [displayValues, setDisplayValues] = useState<number[] | null>(null);
     const [mode, setMode] = useState<RollMode>('NORMAL');
     const [lastResult, setLastResult] = useState<RollResult | null>(null);
 
     useEffect(() => {
         if (!rollingDie) {
-            setDisplayValue(null);
+            setDisplayValues(null);
             return;
         }
 
         const interval = setInterval(() => {
-            setDisplayValue(Math.floor(Math.random() * rollingDie) + 1);
+            if (mode === 'NORMAL') {
+                setDisplayValues([Math.floor(Math.random() * rollingDie) + 1]);
+            } else {
+                 setDisplayValues([
+                    Math.floor(Math.random() * rollingDie) + 1,
+                    Math.floor(Math.random() * rollingDie) + 1
+                 ]);
+            }
         }, 50);
 
         return () => clearInterval(interval);
-    }, [rollingDie]);
+    }, [rollingDie, mode]);
 
     const rollDice = useCallback(async (sides: number) => {
         // Safety check: A die must have at least 1 side.
         if (sides < 1) return;
 
         setRollingDie(sides);
+        // Initialize displayValues based on mode to ensure immediate visual feedback
+        if (mode === 'NORMAL') {
+            setDisplayValues([1]);
+        } else {
+            setDisplayValues([1, 1]);
+        }
         setLastResult(null); // Clear previous result while rolling
 
         try {
@@ -171,10 +185,10 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                         <span className="w-1.5 h-1.5 bg-agent-blue rounded-full animate-pulse shadow-[0_0_5px_#2b2bee]" />
                         Dice Tray
                     </CardTitle>
-                    {rollingDie !== null ? (
+                    {rollingDie !== null && displayValues ? (
                         <div className="flex items-center gap-3">
-                             <span className={`text-4xl font-black italic tracking-tighter ${modeColors.text} ${modeColors.shadow} animate-pulse font-mono`}>
-                                {displayValue}
+                             <span className={`text-3xl font-black italic tracking-tighter whitespace-nowrap ${modeColors.text} ${modeColors.shadow} animate-pulse font-mono`}>
+                                {displayValues.join(' | ')}
                             </span>
                             <span className={`text-xs text-black ${modeColors.bg} animate-pulse font-black tracking-widest ${modeColors.badgeShadow} uppercase px-2 py-0.5 rounded-full border ${modeColors.border}`}>
                                 ROLLING d{rollingDie}...
