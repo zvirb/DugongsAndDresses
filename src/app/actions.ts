@@ -23,6 +23,12 @@ import { Character, Settings } from "@prisma/client";
 // ## 2025-05-26 - [Log] Boring: [Generic "Attacks", "Hits"] Song: [Enhanced with "Strikes", "Devastating blow", "The blow goes wide"]
 // ## 2025-06-07 - [Log] Boring: [Generic "Attacks", "Casts", "Checks", "Creates", "Deletes", "Inventory"] Song: [Enhanced with "Fatal opening", "Stumbles disastrously", "Reality bends", "New legend begins", "Pages fade", "Secures", "Casts aside"]
 
+// ARTIFICER'S JOURNAL - CRITICAL LEARNINGS ONLY:
+// Format: ## YYYY-MM-DD - [Stub] Hollow: [Rest Button did nothing] Forge: [Added resetHP action & log]
+// ## 2025-06-08 - [Stub] Hollow: [Campaign Delete Button] Forge: [Added deleteCampaign action & confirmation UI]
+// ## 2025-06-08 - [Stub] Hollow: [Short Rest Button] Forge: [Added performShortRest action with healing logic]
+// ## 2025-06-08 - [Stub] Hollow: [Condition Toggle] Forge: [Added toggleCondition action & atomic update]
+
 export async function createCampaign(formData: FormData): Promise<ActionResult> {
     return actionWrapper("createCampaign", async () => {
         const name = formData.get("name") as string;
@@ -64,6 +70,23 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
         revalidatePath('/dm');
         revalidatePath('/public');
         return campaign;
+    });
+}
+
+export async function deleteCampaign(campaignId: string): Promise<ActionResult> {
+    return actionWrapper("deleteCampaign", async () => {
+        if (!campaignId) throw new Error("Campaign ID is required");
+
+        const campaign = await prisma.campaign.delete({
+            where: { id: campaignId }
+        });
+
+        // Revalidate potential paths
+        revalidatePath('/');
+        revalidatePath('/dm');
+        revalidatePath('/public');
+
+        return { success: true };
     });
 }
 
@@ -153,6 +176,34 @@ export async function performLongRest(characterId: string): Promise<ActionResult
         await syncToSource(updated);
 
         await logAction(character.campaignId, `**${character.name}** settles in for a long rest. Wounds are bound, spirits lifted, and all ailments are washed away. They are fully restored.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        revalidatePath('/public');
+        return updated;
+    });
+}
+
+export async function performShortRest(characterId: string, healing: number): Promise<ActionResult> {
+    return actionWrapper("performShortRest", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        let content = `**${character.name}** catches their breath, taking a moment to recover.`;
+
+        let updated = character;
+        if (healing > 0) {
+            updated = await prisma.character.update({
+                where: { id: characterId },
+                data: { hp: { increment: healing } }
+            });
+            content += ` They regain **${healing}** hit points.`;
+            await syncToSource(updated);
+        }
+
+        await logAction(character.campaignId, content, "Story");
 
         revalidatePath('/dm');
         revalidatePath('/player');
@@ -616,6 +667,38 @@ export async function updateConditions(characterId: string, conditions: string[]
         revalidatePath('/public');
         revalidatePath('/player');
         return character;
+    });
+}
+
+export async function toggleCondition(characterId: string, condition: string): Promise<ActionResult> {
+    return actionWrapper("toggleCondition", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+        if (!condition) throw new Error("Condition is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const currentConditions = parseConditions(character.conditions);
+        const exists = currentConditions.includes(condition);
+        let newConditions: string[] = [];
+
+        if (exists) {
+            newConditions = currentConditions.filter(c => c !== condition);
+        } else {
+            newConditions = [...currentConditions, condition];
+        }
+
+        const updated = await prisma.character.update({
+            where: { id: characterId },
+            data: { conditions: stringifyConditions(newConditions) }
+        });
+
+        await syncToSource(updated);
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        revalidatePath('/player');
+        return updated;
     });
 }
 
