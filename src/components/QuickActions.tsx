@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { logAction, performAttack, performSkillCheck, castSpell, performLongRest } from '@/app/actions';
+import { logAction, performAttack, performSkillCheck, castSpell, performLongRest, performShortRest } from '@/app/actions';
 import { secureRoll } from '@/lib/dice';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -203,12 +203,18 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
 
 function RestForm({ characters = [], onComplete, onCancel }: FormProps) {
     const [characterId, setCharacterId] = useState(characters[0]?.id || '');
+    const [type, setType] = useState<'SHORT' | 'LONG'>('LONG');
+    const [healing, setHealing] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async () => {
         setSubmitting(true);
         try {
-            await performLongRest(characterId);
+            if (type === 'LONG') {
+                await performLongRest(characterId);
+            } else {
+                await performShortRest(characterId, parseInt(healing) || 0);
+            }
             onComplete();
         } catch (e) {
             console.error(e);
@@ -218,6 +224,25 @@ function RestForm({ characters = [], onComplete, onCancel }: FormProps) {
 
     return (
         <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
+             <div className="flex gap-2 mb-2">
+                <Button
+                    size="sm"
+                    variant={type === 'LONG' ? 'agent' : 'ghost'}
+                    onClick={() => setType('LONG')}
+                    className="flex-1 text-[10px] uppercase font-bold"
+                >
+                    Long Rest
+                </Button>
+                <Button
+                    size="sm"
+                    variant={type === 'SHORT' ? 'agent' : 'ghost'}
+                    onClick={() => setType('SHORT')}
+                    className="flex-1 text-[10px] uppercase font-bold"
+                >
+                    Short Rest
+                </Button>
+             </div>
+
              <div>
                 <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Character</label>
                 <select value={characterId} onChange={e => setCharacterId(e.target.value)} className={selectClass}>
@@ -225,6 +250,20 @@ function RestForm({ characters = [], onComplete, onCancel }: FormProps) {
                     {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
             </div>
+
+            {type === 'SHORT' && (
+                <div className="animate-in slide-in-from-top-1">
+                    <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Healing (Optional)</label>
+                    <Input
+                        type="number"
+                        value={healing}
+                        onChange={e => setHealing(e.target.value)}
+                        placeholder="Hit Dice Amount..."
+                        className={inputClass}
+                    />
+                </div>
+            )}
+
             <div className="flex gap-2 pt-1">
                 <Button variant="ghost" size="sm" onClick={onCancel} className="flex-1 border border-agent-blue/20 hover:bg-agent-blue/10 hover:text-white touch-manipulation uppercase tracking-wider text-[10px] font-bold text-agent-blue/50">Cancel</Button>
                 <Button
@@ -232,7 +271,7 @@ function RestForm({ characters = [], onComplete, onCancel }: FormProps) {
                     disabled={!characterId || submitting}
                     onClick={handleSubmit}
                 >
-                    {submitting ? '...' : 'LONG REST'}
+                    {submitting ? '...' : (type === 'LONG' ? 'FULL REST' : 'SHORT REST')}
                 </Button>
             </div>
         </div>

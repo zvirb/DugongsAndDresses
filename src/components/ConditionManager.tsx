@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { updateConditions } from '@/app/actions';
+import { useState, useEffect, useRef, useTransition } from 'react';
+import { toggleCondition } from '@/app/actions';
 import { Badge } from '@/components/ui/Badge';
 
 const DND_CONDITIONS = [
@@ -17,6 +17,7 @@ interface ConditionManagerProps {
 
 export default function ConditionManager({ characterId, conditions }: ConditionManagerProps) {
     const [showDropdown, setShowDropdown] = useState(false);
+    const [isPending, startTransition] = useTransition();
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -32,13 +33,17 @@ export default function ConditionManager({ characterId, conditions }: ConditionM
 
     const available = DND_CONDITIONS.filter(c => !conditions.includes(c));
 
-    const addCondition = async (condition: string) => {
-        await updateConditions(characterId, [...conditions, condition]);
-        setShowDropdown(false);
+    const addCondition = (condition: string) => {
+        startTransition(async () => {
+            await toggleCondition(characterId, condition);
+            setShowDropdown(false);
+        });
     };
 
-    const removeCondition = async (condition: string) => {
-        await updateConditions(characterId, conditions.filter(c => c !== condition));
+    const removeCondition = (condition: string) => {
+        startTransition(async () => {
+            await toggleCondition(characterId, condition);
+        });
     };
 
     return (
@@ -51,8 +56,9 @@ export default function ConditionManager({ characterId, conditions }: ConditionM
                     <button
                         key={c}
                         onClick={() => removeCondition(c)}
+                        disabled={isPending}
                         title={`Remove ${c}`}
-                        className="cursor-pointer"
+                        className="cursor-pointer disabled:opacity-50"
                     >
                         <Badge variant="destructive" className="text-[10px] hover:opacity-70 transition-opacity">
                             {c} &times;
@@ -63,7 +69,8 @@ export default function ConditionManager({ characterId, conditions }: ConditionM
             <div className="relative" ref={dropdownRef}>
                 <button
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="text-[10px] text-agent-blue hover:text-blue-300 transition-colors"
+                    disabled={isPending}
+                    className="text-[10px] text-agent-blue hover:text-blue-300 transition-colors disabled:opacity-50"
                 >
                     + condition
                 </button>
@@ -73,7 +80,8 @@ export default function ConditionManager({ characterId, conditions }: ConditionM
                             <button
                                 key={c}
                                 onClick={() => addCondition(c)}
-                                className="block w-full text-left px-3 py-1.5 text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                                disabled={isPending}
+                                className="block w-full text-left px-3 py-1.5 text-xs text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors disabled:opacity-50"
                             >
                                 {c}
                             </button>

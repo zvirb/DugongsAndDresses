@@ -1,6 +1,6 @@
 'use client';
 
-import { activateCampaign, createCampaign } from "@/app/actions";
+import { activateCampaign, createCampaign, deleteCampaign } from "@/app/actions";
 import { useTransition, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/Button";
@@ -82,6 +82,22 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
                 title="New Campaign"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </Button>
+            <Button
+                variant="destructive"
+                size="icon"
+                className="h-8 w-8 text-red-400 border-red-500/30 hover:bg-red-900/20 hover:text-white hover:border-red-500 transition-all"
+                onClick={async () => {
+                    if (confirm("Are you sure you want to delete this campaign? This cannot be undone.")) {
+                         startTransition(async () => {
+                            await deleteCampaign(activeId);
+                        });
+                    }
+                }}
+                disabled={isPending || !activeId}
+                title="Delete Campaign"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
             </Button>
         </div>
     );
