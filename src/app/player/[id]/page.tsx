@@ -8,6 +8,7 @@
 // ## 2025-05-29 - [Layout] Viewport: [Bottom content clipped] Path: [Increased padding to pb-40]
 // ## 2025-05-30 - [Interaction] Clarity: [Active turn feedback generic] Path: [Changed to ">> YOUR TURN <<"]
 // ## 2025-06-05 - [Layout] Hierarchy: [Action form buried below Dice] Path: [Reordered to Status(HP) -> Action -> Dice for combat speed]
+// ## 2025-06-09 - [Layout] Thumb Zone: [Critical Actions (Attack/Cast) hard to reach] Path: [Reordered Dice -> ActionForm to fix Critical Actions at viewport bottom]
 
 import { getPlayerDashboard } from "@/lib/queries";
 import { notFound } from "next/navigation";
@@ -131,6 +132,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     </CardContent>
                 </Card>
 
+                <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
+
                 <div className="space-y-4">
                     <PlayerActionForm
                         characterName={character.name}
@@ -139,8 +142,6 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                         targets={character.targets}
                     />
                 </div>
-
-                <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
             </div>
         </main>
     );

@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PlayerActionForm from '@/components/PlayerActionForm';
-import { logAction, performAttack, castSpell, updateConditions } from '@/app/actions';
+import { logAction, performAttack, castSpell, updateConditions, performDodge, performDash } from '@/app/actions';
 
 // Mock the actions
 vi.mock('@/app/actions', () => ({
@@ -9,6 +9,9 @@ vi.mock('@/app/actions', () => ({
     performAttack: vi.fn(),
     castSpell: vi.fn(),
     updateConditions: vi.fn(),
+    performDodge: vi.fn(),
+    performDash: vi.fn(),
+    performLongRest: vi.fn(),
 }));
 
 describe('PlayerActionForm', () => {
@@ -18,6 +21,8 @@ describe('PlayerActionForm', () => {
         vi.mocked(performAttack).mockResolvedValue({ success: true, data: {} });
         vi.mocked(castSpell).mockResolvedValue({ success: true, data: {} });
         vi.mocked(updateConditions).mockResolvedValue({ success: true, data: {} });
+        vi.mocked(performDodge).mockResolvedValue({ success: true, data: {} });
+        vi.mocked(performDash).mockResolvedValue({ success: true, data: {} });
     });
 
     it('renders the form and quick intent buttons', () => {
@@ -87,11 +92,7 @@ describe('PlayerActionForm', () => {
         fireEvent.click(screen.getByText('Dodge'));
 
         await waitFor(() => {
-            expect(logAction).toHaveBeenCalledWith(
-                "campaign1",
-                expect.stringContaining("takes a defensive stance"),
-                "PlayerAction"
-            );
+            expect(performDodge).toHaveBeenCalledWith("char1");
         });
     });
 
@@ -101,11 +102,7 @@ describe('PlayerActionForm', () => {
         fireEvent.click(screen.getByText('Dash'));
 
         await waitFor(() => {
-            expect(logAction).toHaveBeenCalledWith(
-                "campaign1",
-                expect.stringContaining("dashes"),
-                "PlayerAction"
-            );
+            expect(performDash).toHaveBeenCalledWith("char1");
         });
     });
 

@@ -7,6 +7,7 @@
 // ## 2025-06-01 - [ActionForm] Thumb Zone: [Inputs and buttons small] Path: [Increased inputs to h-20, Submit to h-24, text-2xl]
 // ## 2025-06-03 - [ActionForm] Feature: [Missing Damage/Target] Path: [Added Target Selector and Damage Input]
 // ## 2025-06-05 - [ActionForm] Interaction: [Critical actions buried] Path: [Split into PRIMARY (Attack/Cast) and SECONDARY (Dodge/Dash/Rest) groups for prominence]
+// ## 2025-06-09 - [Interaction] Thumb Zone: [Inputs/Buttons < 44px] Path: [Increased all inputs/secondary buttons to h-24, primary to h-32]
 
 import { logAction, performAttack, castSpell, performLongRest, performDodge, performDash } from "@/app/actions";
 import { useTransition, useState } from "react";
@@ -143,7 +144,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
         });
     };
 
-    const selectClass = "bg-black/40 border-white/10 text-white focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl font-mono w-full rounded-md px-3 appearance-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]";
+    const selectClass = "bg-black/40 border-white/10 text-white focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono w-full rounded-md px-3 appearance-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]";
 
     if (mode === 'ATTACK') {
         return (
@@ -177,7 +178,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             placeholder="e.g. Greataxe"
                             value={weapon}
                             onChange={e => setWeapon(e.target.value)}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-2xl font-mono"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono"
                         />
                     </div>
                      <div className="flex gap-2">
@@ -188,11 +189,11 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                                 placeholder="d20"
                                 value={attackRoll}
                                 onChange={e => setAttackRoll(e.target.value)}
-                                className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-2xl font-mono text-center"
+                                className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono text-center"
                             />
                         </div>
                         <div className="flex items-end">
-                            <Button type="button" onClick={() => handleRoll(setAttackRoll)} className="h-20 w-24 bg-white/5 border border-white/10 hover:bg-agent-blue/20 hover:border-agent-blue text-agent-blue font-black uppercase tracking-wider active:scale-95 transition-transform">
+                            <Button type="button" onClick={() => handleRoll(setAttackRoll)} className="h-24 w-24 bg-white/5 border border-white/10 hover:bg-agent-blue/20 hover:border-agent-blue text-agent-blue font-black uppercase tracking-wider active:scale-95 transition-transform">
                                 Roll
                             </Button>
                         </div>
@@ -205,7 +206,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             placeholder="e.g. 8"
                             value={damage}
                             onChange={e => setDamage(e.target.value)}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-2xl font-mono"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono"
                         />
                     </div>
 
@@ -213,7 +214,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         type="submit"
                         variant="agent"
                         disabled={!weapon || isPending}
-                        className="w-full h-24 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)] active:scale-95 active:brightness-90 transition-all touch-manipulation"
+                        className="w-full h-28 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)] active:scale-95 active:brightness-90 transition-all touch-manipulation"
                     >
                         {isPending ? 'Engaging...' : 'ATTACK'}
                     </Button>
@@ -254,7 +255,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             placeholder="e.g. Fireball"
                             value={spell}
                             onChange={e => setSpell(e.target.value)}
-                            className="bg-black/40 border-white/10 focus:border-purple-500/50 focus:ring-purple-500/20 h-20 text-2xl font-mono"
+                            className="bg-black/40 border-white/10 focus:border-purple-500/50 focus:ring-purple-500/20 h-24 text-2xl font-mono"
                         />
                     </div>
 
@@ -262,7 +263,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                         type="submit"
                         variant="agent"
                         disabled={!spell || isPending}
-                        className="w-full h-24 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.3)] border-purple-500/50 text-purple-200 hover:bg-purple-900/50 active:scale-95 active:brightness-90 transition-all touch-manipulation"
+                        className="w-full h-28 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.3)] border-purple-500/50 text-purple-200 hover:bg-purple-900/50 active:scale-95 active:brightness-90 transition-all touch-manipulation"
                     >
                         {isPending ? 'Channeling...' : 'CAST'}
                     </Button>
@@ -288,7 +289,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             variant="agent" // Use agent variant for primary actions
                             disabled={isPending}
                             onClick={() => handleActionClick(action)}
-                            className="h-28 p-4 text-2xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.2)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20"
+                            className="h-32 p-4 text-3xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.2)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20"
                         >
                             {action}
                         </Button>
@@ -304,7 +305,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             variant="ghost"
                             disabled={isPending}
                             onClick={() => handleActionClick(action)}
-                            className="h-20 p-2 text-sm font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
+                            className="h-24 p-2 text-base font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
                         >
                             {action}
                         </Button>
@@ -316,7 +317,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                     value={intent}
                     onChange={(e) => setIntent(e.target.value)}
                     disabled={isPending}
-                    className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation placeholder:text-neutral-600 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
+                    className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl rounded-xl touch-manipulation placeholder:text-neutral-600 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
                 />
             </div>
             {/* ... Result Section ... */}
@@ -330,13 +331,13 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             value={roll}
                             onChange={(e) => setRoll(e.target.value)}
                             disabled={isPending}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
                         />
                         <Button
                             type="button"
                             onClick={() => handleRoll(setRoll)}
                             disabled={isPending}
-                            className="h-20 w-24 bg-agent-blue/10 border border-agent-blue/30 text-agent-blue text-lg font-black rounded-xl uppercase tracking-widest hover:bg-agent-blue/30 hover:border-agent-blue/60 active:scale-95 active:brightness-90 transition-all shadow-[0_0_15px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.3)]"
+                            className="h-24 w-24 bg-agent-blue/10 border border-agent-blue/30 text-agent-blue text-lg font-black rounded-xl uppercase tracking-widest hover:bg-agent-blue/30 hover:border-agent-blue/60 active:scale-95 active:brightness-90 transition-all shadow-[0_0_15px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.3)]"
                         >
                             Roll
                         </Button>
@@ -346,7 +347,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                     type="submit"
                     variant="agent"
                     disabled={isPending || !intent}
-                    className="h-24 p-4 w-full rounded-xl uppercase text-3xl font-black tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.4)] active:scale-95 active:brightness-90 transition-transform touch-manipulation border-t-4 border-agent-blue/50"
+                    className="h-28 p-4 w-full rounded-xl uppercase text-3xl font-black tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.4)] active:scale-95 active:brightness-90 transition-transform touch-manipulation border-t-4 border-agent-blue/50"
                 >
                     {isPending ? "TRANSMITTING..." : "EXECUTE"}
                 </Button>
