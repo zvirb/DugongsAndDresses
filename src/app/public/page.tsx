@@ -15,6 +15,7 @@ import { SystemClock } from "@/components/SystemClock";
  * ## 2025-05-29 - [View] Blur: [Updates too slow, turn indicator could be bigger] Shout: [Bumped refresh to 2s, Active Name to 8xl]
  * ## 2025-06-01 - [View] Blur: [Max HP contrast low, Badges small] Shout: [Bumped Max HP to neutral-400, Forced Badge sizes, Enhanced Active Turn Shadow]
  * ## 2025-06-05 - [View] Blur: [Active Turn needs more pop, Unconscious too static] Shout: [Added Shimmer/Heartbeat animations, Bumped Condition Badges to 5xl, Added System Clock]
+ * ## 2025-06-08 - [View] Blur: [Clock/Status text too small] Shout: [Bumped to 4xl/neutral-300, Dynamic Turn Glow]
  */
 
 export const dynamic = 'force-dynamic';
@@ -65,7 +66,7 @@ export default async function PublicPage() {
                         <Badge variant="agent" className="text-5xl px-8 py-4 font-black uppercase tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.6)] border border-white/10 animate-pulse">
                             System Live
                         </Badge>
-                        <div className="text-agent-blue font-mono text-3xl tracking-widest uppercase opacity-80 font-bold drop-shadow-[0_0_5px_rgba(43,43,238,0.5)]">
+                        <div className="text-agent-blue font-mono text-4xl tracking-widest uppercase opacity-80 font-bold drop-shadow-[0_0_5px_rgba(43,43,238,0.5)]">
                             TS: <SystemClock />
                         </div>
                     </div>
@@ -91,20 +92,20 @@ export default async function PublicPage() {
                         <div className="flex items-center justify-center gap-12 overflow-hidden">
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                             <div className="relative group cursor-default">
-                                <div className="absolute inset-0 bg-agent-blue/20 blur-xl animate-pulse rounded-full opacity-50" />
-                                <h3 className="text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white drop-shadow-[0_0_30px_rgba(43,43,238,0.8)] relative z-10 flex items-center gap-6">
-                                    <span className="text-6xl text-agent-blue font-mono tracking-widest self-center opacity-100 drop-shadow-[0_0_10px_rgba(43,43,238,0.5)] whitespace-nowrap">CURRENT TURN</span>
-                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 shadow-[0_0_30px_rgba(43,43,238,0.4)] backdrop-blur-md animate-pulse text-7xl lg:text-9xl ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50' : 'text-red-500 border-red-500/50'} flex items-center gap-4`}>
-                                        <span className="text-agent-blue/50 animate-pulse">[</span>
+                                <div className={`absolute inset-0 ${activeContestant.type === 'PLAYER' ? 'bg-agent-blue/20' : 'bg-red-500/20'} blur-xl animate-pulse rounded-full opacity-50`} />
+                                <h3 className={`text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white ${activeContestant.type === 'PLAYER' ? 'drop-shadow-[0_0_30px_rgba(43,43,238,0.8)]' : 'drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]'} relative z-10 flex items-center gap-6`}>
+                                    <span className={`text-6xl font-mono tracking-widest self-center opacity-100 whitespace-nowrap ${activeContestant.type === 'PLAYER' ? 'text-agent-blue drop-shadow-[0_0_10px_rgba(43,43,238,0.5)]' : 'text-red-500 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]'}`}>CURRENT TURN</span>
+                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 backdrop-blur-md animate-pulse text-7xl lg:text-9xl ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50 shadow-[0_0_30px_rgba(43,43,238,0.4)]' : 'text-red-500 border-red-500/50 shadow-[0_0_30px_rgba(220,38,38,0.4)]'} flex items-center gap-4`}>
+                                        <span className={`${activeContestant.type === 'PLAYER' ? 'text-agent-blue/50' : 'text-red-500/50'} animate-pulse`}>[</span>
                                         {activeContestant.type === 'PLAYER' ? activeContestant.name : 'OPPONENT TURN'}
-                                        <span className="text-agent-blue/50 animate-pulse">]</span>
+                                        <span className={`${activeContestant.type === 'PLAYER' ? 'text-agent-blue/50' : 'text-red-500/50'} animate-pulse`}>]</span>
                                     </span>
                                 </h3>
                             </div>
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                         </div>
                     ) : (
-                        <h3 className="text-7xl text-neutral-400 font-bold uppercase tracking-[0.5em] animate-pulse italic drop-shadow-md">
+                        <h3 className="text-7xl text-neutral-300 font-bold uppercase tracking-[0.5em] animate-pulse italic drop-shadow-md">
                             AWAITING INITIATIVE
                         </h3>
                     );
