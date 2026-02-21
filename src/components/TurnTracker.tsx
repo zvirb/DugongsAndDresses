@@ -11,6 +11,8 @@
 // ## 2025-05-31 - [UI] Fortify: [Active Turn Audit] Fix: [Verified exclusive highlighting relies on single activeTurn flag from DB]
 // ## 2025-06-05 - [Logic] Fortify: [Combatant Vanished Retry] Fix: [Implemented recursive retry in advanceTurn to auto-recover when next char is deleted]
 // ## 2025-06-05 - [UI] Fortify: [Error Handling] Fix: [Replaced alert() with inline error banner for better UX]
+// ## 2025-06-06 - [Logic] Fortify: [Error Handling] Fix: [Added try/catch blocks to async handlers]
+// ## 2025-06-06 - [UI] Fortify: [Visual Alert] Fix: [Added prominent 'YOUR TURN' badge for active character]
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
@@ -56,7 +58,12 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     const updateInit = (id: string, val: string) => {
         const num = parseInt(val) || 0;
         startTransition(async () => {
-            await updateInitiative(id, num);
+            try {
+                await updateInitiative(id, num);
+            } catch (e: any) {
+                console.error("[SENTRY] Init update failed:", e);
+                setError(e.message || "Failed to update initiative");
+            }
         });
     };
 
@@ -78,7 +85,12 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     const handleEndEncounter = async () => {
         if (!confirm("Are you sure you want to end the encounter? This will clear initiative rolls.")) return;
         startTransition(async () => {
-            await endEncounter(campaignId);
+            try {
+                await endEncounter(campaignId);
+            } catch (e: any) {
+                console.error("[SENTRY] End encounter failed:", e);
+                setError(e.message || "Failed to end encounter");
+            }
         });
     };
 
@@ -100,8 +112,13 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     const handleLoadEncounter = async (id: string) => {
         if (!confirm("Load this encounter? Current initiative rolls will be overwritten.")) return;
         startTransition(async () => {
-            await loadEncounter(id);
-            setShowLoadModal(false);
+            try {
+                await loadEncounter(id);
+                setShowLoadModal(false);
+            } catch (e: any) {
+                console.error("[SENTRY] Load encounter failed:", e);
+                setError(e.message || "Failed to load encounter");
+            }
         });
     };
 
@@ -245,14 +262,15 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         className={cn(
                             "p-3 rounded-lg flex justify-between items-center border-l-4 transition-all duration-300 relative overflow-hidden group",
                             p.activeTurn
-                                ? 'bg-agent-navy/80 border-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.5)] scale-[1.02] ring-1 ring-agent-blue/50 z-10'
+                                ? 'bg-agent-navy/80 border-agent-blue shadow-[0_0_30px_rgba(43,43,238,0.5)] scale-[1.05] ring-2 ring-agent-blue z-20 my-2'
                                 : 'bg-agent-navy/20 border-t border-b border-r border-white/5 hover:bg-agent-blue/5 hover:border-agent-blue/30 border-l-transparent'
                         )}
                     >
                         {/* Active Indicator Scanline */}
                         {p.activeTurn && (
                             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-lg">
-                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-agent-blue/10 to-transparent animate-[pulse_2s_infinite]" />
+                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-agent-blue/20 to-transparent animate-[pulse_2s_infinite]" />
+                                <div className="absolute inset-0 bg-agent-blue/5 animate-pulse" />
                             </div>
                         )}
 
@@ -262,11 +280,16 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 <span className={cn(
                                     "block font-bold uppercase tracking-wide text-sm",
                                     p.type === 'NPC' ? 'text-red-400 drop-shadow-sm' : 'text-white drop-shadow-sm',
-                                    p.activeTurn && "text-agent-blue drop-shadow-[0_0_5px_#2b2bee]"
+                                    p.activeTurn && "text-agent-blue drop-shadow-[0_0_5px_#2b2bee] text-lg"
                                 )}>
                                     {p.name}
                                 </span>
-                                {p.activeTurn && <span className="text-xs text-agent-blue font-black animate-pulse uppercase tracking-[0.2em] block mt-1 drop-shadow-[0_0_5px_#2b2bee]">&gt;&gt; ACTIVE TURN &lt;&lt;</span>}
+                                {p.activeTurn && (
+                                    <div className="flex flex-col gap-0.5 mt-1">
+                                        <span className="text-xs text-agent-blue font-black animate-pulse uppercase tracking-[0.2em] block drop-shadow-[0_0_5px_#2b2bee]">&gt;&gt; ACTIVE TURN &lt;&lt;</span>
+                                        <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block bg-emerald-900/30 px-1 py-0.5 rounded border border-emerald-500/30 w-fit shadow-[0_0_10px_rgba(52,211,153,0.3)] animate-pulse">YOUR TURN</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
