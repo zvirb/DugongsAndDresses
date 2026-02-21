@@ -1,9 +1,15 @@
 import { z } from "zod";
+
+// QUARTERMASTER'S JOURNAL - CRITICAL LEARNINGS ONLY:
+// Format: ## YYYY-MM-DD - [Schema] Mess: [Found string in HP field] Tidy: [Enforced number parsing]
+// ## 2025-06-08 - [Schema] Mess: [Manual validation of participants] Tidy: [Enforced ParticipantSchema validation for robust filtering]
+// ## 2025-06-08 - [Schema] Mess: [Inconsistent Attributes types] Tidy: [Verified and solidified AttributesSchema coercion and backward compatibility]
+
 import {
   Attributes, AttributesSchema, BaseAttributesSchema,
   Conditions, ConditionsSchema,
   Inventory, InventorySchema,
-  Participants, ParticipantsSchema,
+  Participants, ParticipantsSchema, ParticipantSchema,
   CharacterInput, CharacterInputSchema,
   CharacterForm, CharacterFormSchema,
   SettingsSchema, SettingsType
@@ -79,16 +85,9 @@ export function parseParticipants(json: string | null | undefined): Participants
     if (result.success) {
       return result.data;
     } else {
-      // Recovery: if it's an array, filter only valid participants
+      // Recovery: if it's an array, filter only valid participants using the schema
       if (Array.isArray(parsed)) {
-         // Valid participants must have characterId (string) and initiative (number)
-         // We can use the ParticipantSchema for individual validation if we exported it,
-         // but manual check is simple enough for recovery.
-         const validItems = parsed.filter(item => {
-             return typeof item === 'object' && item !== null &&
-                    typeof item.characterId === 'string' &&
-                    typeof item.initiative === 'number';
-         });
+         const validItems = parsed.filter(item => ParticipantSchema.safeParse(item).success);
          return validItems as Participants;
       }
       console.error("Participants schema validation failed:", result.error);

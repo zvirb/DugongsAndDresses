@@ -69,20 +69,20 @@ describe('AICopyButton', () => {
     expect(copiedText).toContain('== INSTRUCTIONS ==')
 
     // Instructions Content
-    expect(copiedText).toContain("Role: Dungeon Master's Narrator")
-    expect(copiedText).toContain('Truth: Strict adherence to logs. Do NOT invent rolls, outcomes, or dialogue not in logs.')
+    expect(copiedText).toContain("Role: Narrator")
+    expect(copiedText).toContain('Logs: Truth.')
 
     // Initiative
-    expect(copiedText).toContain('▶ [CURRENT] Grom (Init: 15)')
+    expect(copiedText).toContain('▶ [ACTIVE] Grom (Init: 15)')
     expect(copiedText).toContain('  Goblin (Init: 8)')
     
     // Characters
-    // Check Grom: ▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 AC:14 Spd:30 Init:15 PP:10 | Cond:Healthy | STR:18 DEX:12 ...
+    // Check Grom: ▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 (80%) AC:14 Spd:30 Init:15 PP:10 | Cond:Healthy | Stats:[STR:18 DEX:12 ...
     // Note: Default attributes are added by parseAttributes
-    expect(copiedText).toContain('▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 AC:14 Spd:30 Init:15 PP:10 | Cond:Healthy | STR:18 DEX:12 CON:10 INT:10 WIS:10 CHA:10 | Inv:[Greataxe, Potion]')
+    expect(copiedText).toContain('▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 (80%) AC:14 Spd:30 Init:15 PP:10 | Cond:Healthy | Stats:[STR:18 DEX:12 CON:10 INT:10 WIS:10 CHA:10] | Inv:[Greataxe, Potion]')
     
-    // Check Goblin: Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 AC:12 Init:8 PP:10 | Cond:Healthy
-    expect(copiedText).toContain('Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 AC:12 Init:8 PP:10 | Cond:Healthy | STR:10 DEX:10 CON:10 INT:10 WIS:10 CHA:10')
+    // Check Goblin: Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 (50%) AC:12 Init:8 PP:10 | Cond:Healthy
+    expect(copiedText).toContain('Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 (50%) AC:12 Init:8 PP:10 | Cond:Healthy | Stats:[STR:10 DEX:10 CON:10 INT:10 WIS:10 CHA:10]')
 
     // Logs
     // Should NOT contain 'Secret Note'

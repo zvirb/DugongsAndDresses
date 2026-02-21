@@ -108,6 +108,36 @@ describe('safe-json', () => {
     });
   });
 
+  describe('parseParticipants', () => {
+    it('parses valid participants', () => {
+        const json = JSON.stringify([{ characterId: "123", initiative: 15, currentHp: 10 }]);
+        const result = parseParticipants(json);
+        expect(result).toHaveLength(1);
+        expect(result[0].characterId).toBe("123");
+        expect(result[0].initiative).toBe(15);
+        expect(result[0].currentHp).toBe(10);
+    });
+
+    it('filters invalid participants', () => {
+        const json = JSON.stringify([
+            { characterId: "123", initiative: 15 }, // Valid
+            { characterId: "456" }, // Missing initiative
+            { initiative: 10 }, // Missing characterId
+            "invalid", // Not an object
+            null
+        ]);
+        const result = parseParticipants(json);
+        expect(result).toHaveLength(1);
+        expect(result[0].characterId).toBe("123");
+    });
+
+    it('returns empty array for invalid JSON', () => {
+        const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        expect(parseParticipants("invalid")).toEqual([]);
+        spy.mockRestore();
+    });
+  });
+
   describe('parseInventory', () => {
     it('parses valid inventory', () => {
       const json = JSON.stringify(["Sword", "Shield"]);

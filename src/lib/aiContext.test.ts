@@ -69,7 +69,6 @@ describe('generateAIContext', () => {
 
         const context = generateAIContext(logs, characters, turnOrder);
         expect(context).toContain('▶ [ACTIVE] Hero');
-        expect(context).toContain('▶ [CURRENT] Hero');
     });
 
     it('formats HP with percentage and separates resources', () => {

@@ -105,6 +105,16 @@ describe('AttributesSchema', () => {
         }
     });
 
+    it('aggressively coerces formatted strings', () => {
+        const input = { str: "18 (+4)", dex: "14" };
+        const result = AttributesSchema.safeParse(input);
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data.str).toBe(18);
+            expect(result.data.dex).toBe(14);
+        }
+    });
+
     it('removes invalid string numbers', () => {
         const input = { str: "invalid", dex: 12 };
         const result = AttributesSchema.safeParse(input);
