@@ -10,6 +10,7 @@
 // ## 2025-05-28 - [Seed] Gap: No desert/wasteland themed campaign. Summon: Added 'The Scorched Wastes' with Kaelen and Mirage Weaver.
 // ## 2025-05-29 - [Seed] Gap: No jungle/beast themed campaign. Summon: Added 'The Verdant Jungle' with Kaelith and Spirit of the Wilds.
 // ## 2025-05-29 - [Seed] Gap: No steampunk/clockwork themed campaign. Summon: Added 'The Clockwork City' with Cogsworth and Ironclad.
+// ## 2025-05-30 - [Seed] Gap: No sky/air themed campaign. Summon: Added 'The Floating Isles' with Captain Zephyr and Aeris.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -1591,6 +1592,89 @@ const clockworkCityCharacters: CharacterTemplate[] = [
   }
 ]
 
+const floatingIslesCharacters: CharacterTemplate[] = [
+  {
+    name: 'Captain Zephyr',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Sky Captain',
+    imageUrl: '/avatars/human_archer_male_1770268315511.png',
+    hp: 25,
+    maxHp: 25,
+    armorClass: 16,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 12, dex: 16, con: 12, int: 12, wis: 14, cha: 16 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Aeris',
+    type: 'PLAYER',
+    race: 'Elf',
+    class: 'Wind Mage',
+    imageUrl: '/avatars/elf_female_1770267651052.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 12,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 14, con: 12, int: 18, wis: 14, cha: 12 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Sky Pirate Vane',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Rogue',
+    imageUrl: '/avatars/thief_male_1770267752047.png',
+    hp: 20,
+    maxHp: 20,
+    armorClass: 14,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 16, con: 12, int: 12, wis: 10, cha: 14 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Nimbus',
+    type: 'NPC',
+    race: 'Storm Giant',
+    class: 'Barbarian',
+    imageUrl: '/avatars/fantasy_barbarian_male_1770266807624.png',
+    hp: 60,
+    maxHp: 60,
+    armorClass: 16,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 40,
+    attributes: { str: 22, dex: 10, con: 20, int: 10, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 6,
+  },
+  {
+    name: 'Wind Elemental',
+    type: 'NPC',
+    race: 'Elemental',
+    class: 'Spirit',
+    imageUrl: '/avatars/nymph_female_1770267925456.png',
+    hp: 30,
+    maxHp: 30,
+    armorClass: 14,
+    initiative: 5,
+    initiativeRoll: 0,
+    speed: 50,
+    attributes: { str: 10, dex: 20, con: 14, int: 8, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 4,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -2075,6 +2159,42 @@ async function main() {
   })
 
   console.log(`⚙️ Campaign "${clockworkCityCampaign.name}" created.`)
+
+  // Create The Floating Isles Campaign (Inactive)
+  const floatingIslesCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Floating Isles',
+      active: false,
+      characters: {
+        create: floatingIslesCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The winds howl through the rigging of the **Sky Skimmer**.', type: 'Story' },
+          { content: '**Captain Zephyr** steadies the helm.', type: 'Story' },
+          { content: '**Aeris** summons a gust to propel the ship forward.', type: 'Story' },
+          { content: 'A massive shadow passes overhead... **Nimbus** approaches.', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`☁️ Campaign "${floatingIslesCampaign.name}" created.`)
 }
 
 main()
