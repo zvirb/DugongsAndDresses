@@ -18,6 +18,10 @@ interface QuickActionsProps {
     characters: CharacterOption[];
 }
 
+// ILLUSIONIST'S JOURNAL - CRITICAL LEARNINGS ONLY
+// Format: ## YYYY-MM-DD - [Component] Dull: [Active card looked static] Glow: [Added agent-blue box-shadow]
+// ## 2025-06-09 - [QuickActions] Dull: [Active tab looked disabled] Glow: [Added active state with agent-blue glow]
+
 type ActionType = 'attack' | 'skill' | 'spell' | 'note' | 'rest' | null;
 
 const COMMON_CONDITIONS = [
@@ -35,7 +39,12 @@ export default function QuickActions({ campaignId, characters }: QuickActionsPro
         setActive(prev => prev === type ? null : type);
     };
 
-    const actionBtnClass = "w-full h-12 bg-agent-navy/40 border border-agent-blue/30 hover:bg-agent-blue/20 hover:border-agent-blue hover:shadow-[0_0_15px_rgba(43,43,238,0.3)] text-agent-blue hover:text-white transition-all duration-200 uppercase tracking-widest font-bold text-[10px]";
+    const getActionBtnClass = (isActive: boolean) =>
+        `w-full h-12 border transition-all duration-200 uppercase tracking-widest font-bold text-[10px] ${
+            isActive
+                ? "bg-agent-blue text-white border-agent-blue shadow-[0_0_15px_rgba(43,43,238,0.5)]"
+                : "bg-agent-navy/40 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/20 hover:border-agent-blue hover:text-white hover:shadow-[0_0_15px_rgba(43,43,238,0.3)]"
+        }`;
 
     return (
         <Card variant="agent">
@@ -47,11 +56,11 @@ export default function QuickActions({ campaignId, characters }: QuickActionsPro
             </CardHeader>
             <CardContent className="p-4 pt-0 space-y-3 mt-3">
                 <div className="grid grid-cols-5 gap-2">
-                    <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('attack')}>Attack</Button>
-                    <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('skill')}>Check</Button>
-                    <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('spell')}>Spell</Button>
-                    <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('note')}>Log</Button>
-                    <Button variant="ghost" size="sm" className={actionBtnClass} onClick={() => toggle('rest')}>Rest</Button>
+                    <Button variant={active === 'attack' ? 'agent' : 'ghost'} size="sm" className={getActionBtnClass(active === 'attack')} onClick={() => toggle('attack')}>Attack</Button>
+                    <Button variant={active === 'skill' ? 'agent' : 'ghost'} size="sm" className={getActionBtnClass(active === 'skill')} onClick={() => toggle('skill')}>Check</Button>
+                    <Button variant={active === 'spell' ? 'agent' : 'ghost'} size="sm" className={getActionBtnClass(active === 'spell')} onClick={() => toggle('spell')}>Spell</Button>
+                    <Button variant={active === 'note' ? 'agent' : 'ghost'} size="sm" className={getActionBtnClass(active === 'note')} onClick={() => toggle('note')}>Log</Button>
+                    <Button variant={active === 'rest' ? 'agent' : 'ghost'} size="sm" className={getActionBtnClass(active === 'rest')} onClick={() => toggle('rest')}>Rest</Button>
                 </div>
 
                 {active === 'attack' && (

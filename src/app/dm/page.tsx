@@ -13,6 +13,10 @@ import BackupManager from "@/components/BackupManager";
 
 export const dynamic = 'force-dynamic';
 
+// ILLUSIONIST'S JOURNAL - CRITICAL LEARNINGS ONLY
+// Format: ## YYYY-MM-DD - [Component] Dull: [Active card looked static] Glow: [Added agent-blue box-shadow]
+// ## 2025-06-09 - [DMPage] Dull: [Logs looked flat] Glow: [Added group-hover and last-child active border/glow]
+
 export default async function DMPage() {
     const campaignList = await getCampaigns();
 
@@ -102,8 +106,8 @@ export default async function DMPage() {
                             <CardContent className="flex-1 p-0 overflow-hidden relative z-10 bg-black/95 font-mono text-xs text-agent-blue font-bold border-l-4 border-agent-blue/20">
                                 <div className="absolute inset-0 p-4 overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
                                     {campaign.logs.map((log) => (
-                                        <div key={log.id} className="border-b border-white/5 pb-1 last:border-0 hover:bg-white/5 transition-colors px-2 -mx-2 rounded flex gap-2">
-                                            <span className="text-agent-blue/40 whitespace-nowrap text-[10px] mt-0.5">
+                                        <div key={log.id} className="group border-b border-white/5 pb-1 last:border-0 hover:bg-white/5 transition-colors px-2 -mx-2 rounded flex gap-2 last:border-l-2 last:border-agent-blue last:bg-agent-blue/5 last:shadow-[0_0_10px_rgba(43,43,238,0.2)] relative overflow-hidden">
+                                            <span className="text-agent-blue/40 whitespace-nowrap text-[10px] mt-0.5 group-hover:text-agent-blue transition-colors font-mono">
                                                 [{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}]
                                             </span>
                                             <span className="text-agent-blue/90 drop-shadow-sm leading-relaxed">{log.content}</span>
