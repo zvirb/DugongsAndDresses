@@ -284,6 +284,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // ## 2025-05-25 - [Logic] Fortify: [Race Condition Safety] Fix: [Verified Idempotency logic and Sync-on-Stale behavior in unit tests]
 // ## 2025-05-26 - [Logic] Fortify: [Turn Loop & Recovery] Fix: [Verified loop safety (last->first) and state recovery in new test suite]
 // ## 2025-05-31 - [Logic] Fortify: [Multiple Active Turns] Fix: [Added detection and auto-recovery logging]
+// ## 2025-06-06 - [Logic] Fortify: [Type Safety] Fix: [Enforced strict Character return type for internalAdvanceTurn]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
@@ -292,7 +293,7 @@ export async function advanceTurn(campaignId: string, expectedActiveId?: string)
 }
 
 // Internal recursive function without actionWrapper to prevent nested results
-async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string, retryCount: number = 0): Promise<any> {
+async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string, retryCount: number = 0): Promise<Character> {
     // Validation
     if (!campaignId || typeof campaignId !== 'string' || campaignId.trim().length === 0) {
         throw new Error("Invalid campaign ID");
@@ -335,6 +336,7 @@ async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string
         if (!expectedActiveId || currentActive.id !== expectedActiveId) {
             console.warn(`[SENTRY] Race Condition Detected in Campaign ${campaignId}. Client expected active: ${expectedActiveId || 'None'}, DB has: ${currentActive.id}. Syncing client to DB state.`);
             const actualActive = await prisma.character.findUnique({ where: { id: currentActive.id } });
+            if (!actualActive) throw new Error("Active character not found in DB during sync.");
             return actualActive;
         }
     } else if (expectedActiveId) {
