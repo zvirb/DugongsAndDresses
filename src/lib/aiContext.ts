@@ -12,6 +12,9 @@
 // ## 2025-06-05 - [Context] Gap: [Verbose Instructions] Fix: [Tightened instructions for better token efficiency]
 // ## 2025-06-06 - [Context] Gap: [String attributes like '1st Level' coerced to 1] Fix: [Modified AttributesSchema to use strict Number() check for non-core stats]
 // ## 2025-06-06 - [Context] Gap: [Inconsistent terminology and fluff] Fix: [Standardized ACTIVE marker, optimized instructions, cleaned up extra stats formatting]
+// ## 2026-02-05 - [Context] Gap: [Buried active turn] Fix: [Added top-level == ACTIVE TURN == section]
+// ## 2026-02-05 - [Context] Gap: [Duplicate initiative data] Fix: [Streamlined INITIATIVE list, enriched CHARACTERS list]
+// ## 2026-02-05 - [Context] Gap: [Potential null/undefined values] Fix: [Added safe fallbacks for race, class, type, speed]
 
 import { parseConditions, parseInventory, parseAttributes } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
@@ -21,112 +24,101 @@ export function generateAIContext(
     characters: Character[],
     turnOrder: { name: string; init: number; current: boolean }[]
 ) {
-    const charSummary = characters.map(c => {
-        const conditions = parseConditions(c.conditions);
+    // 1. Identify Active Character
+    const activeChar = characters.find(c => c.activeTurn);
+    let activeTurnSection = "None";
 
+    if (activeChar) {
+        const conditions = parseConditions(activeChar.conditions);
         // Auto-detect downed state if HP <= 0
+        if (activeChar.hp <= 0 && !conditions.some(cond => ['unconscious', 'down', 'dead', 'dying'].includes(cond.toLowerCase()))) {
+            conditions.push('DOWN');
+        }
+        const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'Healthy';
+        const hpPercent = activeChar.maxHp > 0 ? Math.floor((activeChar.hp / activeChar.maxHp) * 100) : 0;
+
+        const type = activeChar.type || '?';
+        const race = activeChar.race || '?';
+        const cls = activeChar.class || '?';
+        const speed = activeChar.speed !== null && activeChar.speed !== undefined ? activeChar.speed : '?';
+
+        activeTurnSection = `▶ ${activeChar.name} (${activeChar.level} ${race} ${cls})
+HP: ${activeChar.hp}/${activeChar.maxHp} (${hpPercent}%) | AC: ${activeChar.armorClass} | Spd: ${speed}
+Conditions: ${conditionText}`;
+    }
+
+    // 2. Initiative List (Concise)
+    const initiativeList = turnOrder.map(t =>
+        `${t.init.toString().padStart(2, '0')}: ${t.name}${t.current ? ' ◀ ACTIVE' : ''}`
+    ).join('\n');
+
+    // 3. Character Details (Dense)
+    const charDetails = characters.map(c => {
+        const conditions = parseConditions(c.conditions);
         if (c.hp <= 0 && !conditions.some(cond => ['unconscious', 'down', 'dead', 'dying'].includes(cond.toLowerCase()))) {
             conditions.push('DOWN');
         }
-
-        // Wrap conditions in brackets for density and parsing clarity
         const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'Healthy';
-
-        // Use parseAttributes which now supports string values in catchall
         const attributes = parseAttributes(c.attributes);
 
-        const keyMap: Record<string, string> = {
-            str: 'STR', dex: 'DEX', con: 'CON', int: 'INT', wis: 'WIS', cha: 'CHA'
-        };
-
-        const standardStats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-
-        // Standard stats first (using default 10 if missing/invalid)
-        const standardAttrText = standardStats
+        // Core Stats
+        const coreStats = ['str', 'dex', 'con', 'int', 'wis', 'cha']
             .map(k => {
                 const val = attributes[k as keyof typeof attributes];
                 const numVal = typeof val === 'number' ? val : (parseInt(String(val)) || 10);
-                return `${keyMap[k]}:${numVal}`;
+                return `${k.toUpperCase()}:${numVal}`;
             })
             .join(' ');
 
-        // Extra stats (Spell Slots, Ki, Class Features, etc)
-        // Now includes strings as well as numbers
+        // Extra Resources
         const extraStats = Object.entries(attributes)
-            .filter(([k]) => !standardStats.includes(k.toLowerCase()))
+            .filter(([k]) => !['str', 'dex', 'con', 'int', 'wis', 'cha'].includes(k.toLowerCase()))
             .filter(([_, v]) => typeof v === 'number' || (typeof v === 'string' && v.trim().length > 0))
             .map(([k, v]) => {
-                // Capitalize first letter of key and replace underscores (e.g. spellSlots -> SpellSlots, rage_charges -> Rage charges)
                 const cleanKey = (k.charAt(0).toUpperCase() + k.slice(1)).replace(/_/g, ' ');
                 return `${cleanKey}:${v}`;
             })
             .join(' ');
 
-        // Calculate Passive Perception
+        // Passive Perception
         let wis = 10;
         if (typeof attributes['wis'] === 'number') wis = attributes['wis'];
         else if (typeof attributes['wis'] === 'string') wis = parseInt(attributes['wis']) || 10;
-
-        // Check for uppercase keys if default is returned (to handle case-sensitive JSON parsing edge cases)
         if (wis === 10) {
              if (typeof attributes['WIS'] === 'number') wis = attributes['WIS'];
              else if (typeof attributes['Wisdom'] === 'number') wis = attributes['Wisdom'];
         }
         const pp = 10 + Math.floor((wis - 10) / 2);
 
-        // Parse inventory
+        // Inventory (First 5)
         const inventory = parseInventory(c.inventory);
-        const inventoryText = inventory.length > 0
-            ? `[${inventory.slice(0, 5).join(', ')}${inventory.length > 5 ? '...' : ''}]`
-            : null;
+        const invText = inventory.length > 0
+            ? `Inv:[${inventory.slice(0, 5).join(', ')}${inventory.length > 5 ? '...' : ''}]`
+            : '';
 
-        // HP Percentage
         const hpPercent = c.maxHp > 0 ? Math.floor((c.hp / c.maxHp) * 100) : 0;
+        const type = c.type || '?';
 
-        // Combat stats group: HP:X/Y (Z%) AC:Z Spd:S Init:N PP:P
-        const combatStats = [
-            `HP:${c.hp}/${c.maxHp} (${hpPercent}%)`,
-            `AC:${c.armorClass}`,
-            c.speed !== undefined ? `Spd:${c.speed}` : null,
-            c.initiativeRoll !== undefined ? `Init:${c.initiativeRoll}` : null,
-            `PP:${pp}`
-        ].filter(Boolean).join(' ');
-
-        // Construct line parts
-        // Format: ▶ [ACTIVE] Name [Type] (Race Class Lvl X) | HP:X/Y (Z%) AC:Z Spd:S Init:N PP:P | Cond:[...] | Stats:[STR:X ...] | Res:[SpellSlots:N ...] | Inv:[...]
-        const parts = [
-            `${c.activeTurn ? '▶ [ACTIVE] ' : ''}${c.name} [${c.type || '?'}] (${c.race || '?'} ${c.class || '?'} Lvl ${c.level})`,
-            combatStats,
-            `Cond:${conditionText}`,
-            `Stats:[${standardAttrText}]`,
-            extraStats ? `Res:[${extraStats}]` : null,
-            inventoryText ? `Inv:${inventoryText}` : null
-        ].filter(item => item !== null && item !== undefined && item !== '');
-
-        return parts.join(' | ');
+        // Single Line Format
+        return `• ${c.name} [${type}] | HP:${c.hp}/${c.maxHp} (${hpPercent}%) AC:${c.armorClass} PP:${pp} | ${conditionText} | Stats:[${coreStats}]${extraStats ? ` Res:[${extraStats}]` : ''} ${invText}`;
     }).join('\n');
 
-    const turnSummary = turnOrder.map(t =>
-        `${t.current ? '▶ [ACTIVE] ' : '  '}${t.name} (Init: ${t.init})`
-    ).join('\n');
-
-    // Filter out hidden/private logs and take 5 most recent
+    // 4. Logs (Chronological)
     const filteredLogs = logs.filter(l => l.type !== 'DM_NOTE' && l.type !== 'HIDDEN');
-
-    // Take 5 most recent logs, then reverse to show chronological order (Old -> New)
     const logSummary = filteredLogs.slice(0, 5).reverse().map(l =>
         `[${new Date(l.timestamp).toLocaleTimeString('en-US', { hour12: false })}] ${l.content}`
     ).join('\n');
 
-    return `== CURRENT GAME STATE ==
+    return `== ACTIVE TURN ==
+${activeTurnSection}
 
 == INITIATIVE ==
-${turnSummary}
+${initiativeList}
 
 == CHARACTERS ==
-${charSummary}
+${charDetails}
 
-== RECENT LOGS (Chronological) ==
+== RECENT LOGS ==
 ${logSummary}
 
 == INSTRUCTIONS ==

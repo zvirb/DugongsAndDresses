@@ -62,27 +62,30 @@ describe('AICopyButton', () => {
     const copiedText = vi.mocked(navigator.clipboard.writeText).mock.calls[0][0]
     
     // Headers
-    expect(copiedText).toContain('== CURRENT GAME STATE ==')
+    expect(copiedText).toContain('== ACTIVE TURN ==')
     expect(copiedText).toContain('== INITIATIVE ==')
     expect(copiedText).toContain('== CHARACTERS ==')
-    expect(copiedText).toContain('== RECENT LOGS (Chronological) ==')
+    expect(copiedText).toContain('== RECENT LOGS ==')
     expect(copiedText).toContain('== INSTRUCTIONS ==')
 
     // Instructions Content
     expect(copiedText).toContain("Role: Narrator")
     expect(copiedText).toContain('Logs: Truth.')
 
+    // Active Turn Section
+    expect(copiedText).toContain('▶ Grom (3 Orc Barbarian)')
+    expect(copiedText).toContain('HP: 20/25 (80%) | AC: 14 | Spd: 30')
+
     // Initiative
-    expect(copiedText).toContain('▶ [ACTIVE] Grom (Init: 15)')
-    expect(copiedText).toContain('  Goblin (Init: 8)')
+    expect(copiedText).toContain('15: Grom ◀ ACTIVE')
+    expect(copiedText).toContain('08: Goblin')
     
     // Characters
-    // Check Grom: ▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 (80%) AC:14 Spd:30 Init:15 PP:10 | Cond:Healthy | Stats:[STR:18 DEX:12 ...
-    // Note: Default attributes are added by parseAttributes
-    expect(copiedText).toContain('▶ [ACTIVE] Grom [PLAYER] (Orc Barbarian Lvl 3) | HP:20/25 (80%) AC:14 Spd:30 Init:15 PP:10 | Cond:Healthy | Stats:[STR:18 DEX:12 CON:10 INT:10 WIS:10 CHA:10] | Inv:[Greataxe, Potion]')
+    // Check Grom: • Grom [PLAYER] | HP:20/25 (80%) AC:14 PP:10 | Healthy | Stats:[STR:18 DEX:12 CON:10 INT:10 WIS:10 CHA:10] Inv:[Greataxe, Potion]
+    expect(copiedText).toContain('• Grom [PLAYER] | HP:20/25 (80%) AC:14 PP:10 | Healthy | Stats:[STR:18 DEX:12 CON:10 INT:10 WIS:10 CHA:10] Inv:[Greataxe, Potion]')
     
-    // Check Goblin: Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 (50%) AC:12 Init:8 PP:10 | Cond:Healthy
-    expect(copiedText).toContain('Goblin [NPC] (Goblin Rogue Lvl 1) | HP:5/10 (50%) AC:12 Init:8 PP:10 | Cond:Healthy | Stats:[STR:10 DEX:10 CON:10 INT:10 WIS:10 CHA:10]')
+    // Check Goblin: • Goblin [NPC] | HP:5/10 (50%) AC:12 PP:10 | Healthy | Stats:[STR:10 DEX:10 CON:10 INT:10 WIS:10 CHA:10]
+    expect(copiedText).toContain('• Goblin [NPC] | HP:5/10 (50%) AC:12 PP:10 | Healthy | Stats:[STR:10 DEX:10 CON:10 INT:10 WIS:10 CHA:10]')
 
     // Logs
     // Should NOT contain 'Secret Note'
