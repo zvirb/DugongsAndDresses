@@ -17,6 +17,7 @@ import { prisma } from "./prisma";
  * ## 2025-05-31 - [getEncounters] Slow: [Fetched participants JSON] Sight: [Optimized Select: Excluded participants]
  * ## 2025-06-02 - [getSpectatorCampaign] Slow: [Two DB calls for NPC turn] Sight: [Merged into single query with OR clause]
  * ## 2025-06-06 - [getPlayerDashboard] Slow: [Fetched unused conditions] Sight: [Optimized Select: Removed conditions]
+ * ## 2025-06-12 - [getPlayerDashboard] Slow: [Fetched all char types for targets] Sight: [Optimized Select: Removed type, Filtered self in DB]
  */
 
 // Reusable select constants for consistency and optimization
@@ -297,7 +298,8 @@ export const getPlayerDashboard = unstable_cache(
               }
             },
             characters: {
-              select: { id: true, name: true, type: true },
+              where: { id: { not: id } },
+              select: { id: true, name: true },
               orderBy: { name: 'asc' }
             }
           }
@@ -310,7 +312,7 @@ export const getPlayerDashboard = unstable_cache(
     const { campaign, ...charData } = character;
     // Although campaign is required by schema, we safely access logs just in case
     const logs = campaign?.logs || [];
-    const targets = campaign?.characters.filter(c => c.id !== id) || [];
+    const targets = campaign?.characters || [];
     return { ...charData, logs, targets };
   },
   ['player-dashboard'],
