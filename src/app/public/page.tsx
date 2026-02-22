@@ -16,6 +16,7 @@ import { SystemClock } from "@/components/SystemClock";
  * ## 2025-06-01 - [View] Blur: [Max HP contrast low, Badges small] Shout: [Bumped Max HP to neutral-400, Forced Badge sizes, Enhanced Active Turn Shadow]
  * ## 2025-06-05 - [View] Blur: [Active Turn needs more pop, Unconscious too static] Shout: [Added Shimmer/Heartbeat animations, Bumped Condition Badges to 5xl, Added System Clock]
  * ## 2025-06-08 - [View] Blur: [Clock/Status text too small] Shout: [Bumped to 4xl/neutral-300, Dynamic Turn Glow]
+ * ## 2025-06-15 - [View] Blur: [Active Turn needs a face] Shout: [Added Active Portrait to bottom bar]
  */
 
 export const dynamic = 'force-dynamic';
@@ -93,14 +94,24 @@ export default async function PublicPage() {
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                             <div className="relative group cursor-default">
                                 <div className={`absolute inset-0 ${activeContestant.type === 'PLAYER' ? 'bg-agent-blue/20' : 'bg-red-500/20'} blur-xl animate-pulse rounded-full opacity-50`} />
-                                <h3 className={`text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white ${activeContestant.type === 'PLAYER' ? 'drop-shadow-[0_0_30px_rgba(43,43,238,0.8)]' : 'drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]'} relative z-10 flex items-center gap-6`}>
+                                <div className={`text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white ${activeContestant.type === 'PLAYER' ? 'drop-shadow-[0_0_30px_rgba(43,43,238,0.8)]' : 'drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]'} relative z-10 flex items-center gap-6`}>
                                     <span className={`text-6xl font-mono tracking-widest self-center opacity-100 whitespace-nowrap ${activeContestant.type === 'PLAYER' ? 'text-agent-blue drop-shadow-[0_0_10px_rgba(43,43,238,0.5)]' : 'text-red-500 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]'}`}>CURRENT TURN</span>
+
+                                    {/* Active Portrait */}
+                                    {activeContestant.imageUrl && (
+                                        <div className={`relative w-28 h-28 lg:w-36 lg:h-36 rounded-full border-4 overflow-hidden shrink-0 shadow-[0_0_30px_rgba(43,43,238,0.6)] ${activeContestant.type === 'PLAYER' ? 'border-agent-blue' : 'border-red-500'}`}>
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src={activeContestant.imageUrl} alt="" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                        </div>
+                                    )}
+
                                     <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 backdrop-blur-md animate-pulse text-7xl lg:text-9xl ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50 shadow-[0_0_30px_rgba(43,43,238,0.4)]' : 'text-red-500 border-red-500/50 shadow-[0_0_30px_rgba(220,38,38,0.4)]'} flex items-center gap-4`}>
                                         <span className={`${activeContestant.type === 'PLAYER' ? 'text-agent-blue/50' : 'text-red-500/50'} animate-pulse`}>[</span>
                                         {activeContestant.type === 'PLAYER' ? activeContestant.name : 'OPPONENT TURN'}
                                         <span className={`${activeContestant.type === 'PLAYER' ? 'text-agent-blue/50' : 'text-red-500/50'} animate-pulse`}>]</span>
                                     </span>
-                                </h3>
+                                </div>
                             </div>
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                         </div>

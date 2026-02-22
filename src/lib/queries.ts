@@ -229,7 +229,7 @@ export const getSpectatorCampaign = unstable_cache(
     // 2. Determine Active Contestant from the fetched list
     const activeCharacter = campaign.characters.find(c => c.activeTurn);
     const activeContestant = activeCharacter
-      ? { name: activeCharacter.name, type: activeCharacter.type }
+      ? { name: activeCharacter.name, type: activeCharacter.type, imageUrl: activeCharacter.imageUrl }
       : null;
 
     // 3. Filter characters for display (Players only)
