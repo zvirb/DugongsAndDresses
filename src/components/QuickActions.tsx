@@ -42,7 +42,7 @@ export default function QuickActions({ campaignId, characters }: QuickActionsPro
     const getActionBtnClass = (isActive: boolean) =>
         `w-full h-12 border transition-all duration-200 uppercase tracking-widest font-bold text-[10px] ${
             isActive
-                ? "bg-agent-blue text-white border-agent-blue shadow-[0_0_15px_rgba(43,43,238,0.5)]"
+                ? "bg-agent-blue text-white border-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.6)]"
                 : "bg-agent-navy/40 border-agent-blue/30 text-agent-blue hover:bg-agent-blue/20 hover:border-agent-blue hover:text-white hover:shadow-[0_0_15px_rgba(43,43,238,0.3)]"
         }`;
 
@@ -109,7 +109,7 @@ function AttackForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
+        <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue/40 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
             <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-2">
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Attacker</label>
@@ -171,7 +171,7 @@ function SkillCheckForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
+        <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue/40 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
             <div className="grid grid-cols-2 gap-2">
                 <div>
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Character</label>
@@ -232,7 +232,7 @@ function RestForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
+        <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue/40 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
              <div className="flex gap-2 mb-2">
                 <Button
                     size="sm"
@@ -306,7 +306,7 @@ function SpellForm({ characters = [], onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
+        <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue/40 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
             <div className="grid grid-cols-4 gap-2">
                 <div className="col-span-2">
                     <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Caster</label>
@@ -364,7 +364,7 @@ function NoteForm({ campaignId, onComplete, onCancel }: FormProps) {
     };
 
     return (
-        <div className="bg-agent-navy/90 backdrop-blur-xl border border-agent-blue/50 shadow-[0_0_20px_rgba(43,43,238,0.2)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
+        <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue/40 shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded-lg p-4 animate-in slide-in-from-top-2 duration-200 space-y-2">
             <div>
                 <label className="block text-[10px] text-agent-blue/70 mb-1 uppercase tracking-widest font-bold">Note</label>
                 <Input value={note} onChange={e => setNote(e.target.value)} placeholder="What happened..." className={inputClass} />
