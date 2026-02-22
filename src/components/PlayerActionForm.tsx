@@ -11,7 +11,7 @@
 // ## 2025-06-10 - [Layout] Density: [Primary/Secondary buttons too tall] Path: [Reduced primary to h-24, secondary to h-20]
 
 import { logAction, performAttack, castSpell, performLongRest, performDodge, performDash } from "@/app/actions";
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { secureRoll } from "@/lib/dice";
@@ -40,6 +40,19 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
     const [mode, setMode] = useState<ActionMode>('INTENT');
     const [intent, setIntent] = useState("");
     const [roll, setRoll] = useState("");
+
+    const [lastRoll, setLastRoll] = useState<number | null>(null);
+
+    // ARTIFICER: Listen for dice rolls
+    useEffect(() => {
+        const handleRoll = (e: any) => {
+            if (e.detail && typeof e.detail.total === 'number') {
+                setLastRoll(e.detail.total);
+            }
+        };
+        (window as any).addEventListener('dice-roll-complete', handleRoll);
+        return () => (window as any).removeEventListener('dice-roll-complete', handleRoll);
+    }, []);
 
     // Attack State
     const [weapon, setWeapon] = useState("");
@@ -193,10 +206,21 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                                 className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono text-center"
                             />
                         </div>
-                        <div className="flex items-end">
-                            <Button type="button" onClick={() => handleRoll(setAttackRoll)} className="h-24 w-24 bg-white/5 border border-white/10 hover:bg-agent-blue/20 hover:border-agent-blue text-agent-blue font-black uppercase tracking-wider active:scale-95 transition-transform">
+                        <div className="flex flex-col gap-1 w-24 justify-end">
+                            <Button type="button" onClick={() => handleRoll(setAttackRoll)} className="h-12 w-full bg-white/5 border border-white/10 hover:bg-agent-blue/20 hover:border-agent-blue text-agent-blue font-black uppercase tracking-wider active:scale-95 transition-transform text-sm rounded-t-xl">
                                 Roll
                             </Button>
+                             {lastRoll !== null ? (
+                                <Button
+                                    type="button"
+                                    onClick={() => setAttackRoll(lastRoll.toString())}
+                                    className="h-11 w-full bg-emerald-900/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold rounded-b-xl uppercase tracking-wider hover:bg-emerald-900/40 active:scale-95 transition-all flex flex-col items-center justify-center leading-none"
+                                >
+                                    <span>Use {lastRoll}</span>
+                                </Button>
+                            ) : (
+                                <div className="h-11 w-full bg-black/20 rounded-b-xl border border-white/5" />
+                            )}
                         </div>
                     </div>
 
@@ -334,14 +358,27 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             disabled={isPending}
                             className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
                         />
-                        <Button
-                            type="button"
-                            onClick={() => handleRoll(setRoll)}
-                            disabled={isPending}
-                            className="h-24 w-24 bg-agent-blue/10 border border-agent-blue/30 text-agent-blue text-lg font-black rounded-xl uppercase tracking-widest hover:bg-agent-blue/30 hover:border-agent-blue/60 active:scale-95 active:brightness-90 transition-all shadow-[0_0_15px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.3)]"
-                        >
-                            Roll
-                        </Button>
+                        <div className="flex flex-col gap-1 w-24">
+                            <Button
+                                type="button"
+                                onClick={() => handleRoll(setRoll)}
+                                disabled={isPending}
+                                className="h-12 w-full bg-agent-blue/10 border border-agent-blue/30 text-agent-blue text-sm font-black rounded-t-xl uppercase tracking-widest hover:bg-agent-blue/30 hover:border-agent-blue/60 active:scale-95 active:brightness-90 transition-all shadow-[0_0_15px_rgba(43,43,238,0.1)] hover:shadow-[0_0_20px_rgba(43,43,238,0.3)]"
+                            >
+                                Roll
+                            </Button>
+                            {lastRoll !== null ? (
+                                <Button
+                                    type="button"
+                                    onClick={() => setRoll(lastRoll.toString())}
+                                    className="h-11 w-full bg-emerald-900/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold rounded-b-xl uppercase tracking-wider hover:bg-emerald-900/40 active:scale-95 transition-all flex flex-col items-center justify-center leading-none"
+                                >
+                                    <span>Use {lastRoll}</span>
+                                </Button>
+                            ) : (
+                                <div className="h-11 w-full bg-black/20 rounded-b-xl border border-white/5" />
+                            )}
+                        </div>
                     </div>
                 </div>
                 <Button

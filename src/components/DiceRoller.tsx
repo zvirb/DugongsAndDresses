@@ -112,14 +112,21 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             const isCrit = sides === 20 && result === 20;
             const isFumble = sides === 20 && result === 1;
 
-            setLastResult({
+            const rollData = {
                 total: result,
                 die: sides,
                 rolls: rolls,
                 isCrit,
                 isFumble,
                 mode
-            });
+            };
+
+            setLastResult(rollData);
+
+            if (typeof window !== 'undefined') {
+                const event = new CustomEvent('dice-roll-complete', { detail: rollData });
+                window.dispatchEvent(event);
+            }
 
             let logMessage = '';
 
