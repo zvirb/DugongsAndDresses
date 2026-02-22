@@ -18,6 +18,7 @@ import { prisma } from "./prisma";
  * ## 2025-06-02 - [getSpectatorCampaign] Slow: [Two DB calls for NPC turn] Sight: [Merged into single query with OR clause]
  * ## 2025-06-06 - [getPlayerDashboard] Slow: [Fetched unused conditions] Sight: [Optimized Select: Removed conditions]
  * ## 2025-06-12 - [getPlayerDashboard] Slow: [Fetched all char types for targets] Sight: [Optimized Select: Removed type, Filtered self in DB]
+ * ## 2025-06-15 - [getPlayerDashboard] Slow: [Fetching all targets on every poll] Sight: [Split targets into cached getCampaignTargets, removed from dashboard]
  */
 
 // Reusable select constants for consistency and optimization
@@ -296,11 +297,6 @@ export const getPlayerDashboard = unstable_cache(
                 content: true,
                 timestamp: true
               }
-            },
-            characters: {
-              where: { id: { not: id } },
-              select: { id: true, name: true },
-              orderBy: { name: 'asc' }
             }
           }
         }
@@ -312,11 +308,27 @@ export const getPlayerDashboard = unstable_cache(
     const { campaign, ...charData } = character;
     // Although campaign is required by schema, we safely access logs just in case
     const logs = campaign?.logs || [];
-    const targets = campaign?.characters || [];
-    return { ...charData, logs, targets };
+    return { ...charData, logs };
   },
   ['player-dashboard'],
   { revalidate: 1, tags: ['player-dashboard'] }
+);
+
+/**
+ * Optimized fetch for Campaign Targets (Player Action Form).
+ * Fetches all characters in the campaign (ID, Name).
+ * Cached indefinitely and invalidated only on character changes (create/delete/rename).
+ */
+export const getCampaignTargets = unstable_cache(
+  async function getCampaignTargets(campaignId: string) {
+    return prisma.character.findMany({
+      where: { campaignId },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true }
+    });
+  },
+  ['campaign-targets'],
+  { tags: ['campaign-targets'] } // Long-lived cache, manual invalidation via revalidateTag
 );
 
 /**

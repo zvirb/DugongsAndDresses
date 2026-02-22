@@ -21,6 +21,7 @@ vi.mock('./prisma', () => ({
     character: {
       findFirst: vi.fn(),
       findUnique: vi.fn(),
+      findMany: vi.fn(),
     },
     logEntry: {
       findMany: vi.fn(),
@@ -34,7 +35,8 @@ import {
   getPlayerDashboard,
   getPlayerSkills,
   getPlayerInventory,
-  getCampaignPulse
+  getCampaignPulse,
+  getCampaignTargets
 } from './queries';
 
 describe('Spectator Campaign Optimization', () => {
@@ -156,7 +158,7 @@ describe('General Query Optimizations', () => {
     (prisma.character.findUnique as any).mockResolvedValue({
       id: '1',
       campaignId: 'c1',
-      campaign: { logs: [], characters: [] }
+      campaign: { logs: [] }
     });
 
     await getPlayerDashboard('1');
@@ -191,6 +193,9 @@ describe('General Query Optimizations', () => {
 
     // Ensure no separate log query
     expect(prisma.logEntry.findMany).not.toHaveBeenCalled();
+
+    // Ensure targets are NOT selected
+    expect(campaignSelect.characters).toBeUndefined();
   });
 
   it('getPlayerDashboard handles missing campaign gracefully', async () => {
@@ -203,6 +208,31 @@ describe('General Query Optimizations', () => {
 
     expect(result).toBeDefined();
     expect(result!.logs).toEqual([]);
+  });
+
+  it('getCampaignTargets selects minimal fields', async () => {
+    const mockCampaignId = 'c1';
+    (prisma.character.findMany as any).mockResolvedValue([
+      { id: 'char-1', name: 'Hero' },
+      { id: 'char-2', name: 'Ally' }
+    ]);
+
+    const result = await getCampaignTargets(mockCampaignId);
+
+    const calls = (prisma.character.findMany as any).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const args = calls[0][0];
+
+    // Verify query
+    expect(args.where.campaignId).toBe(mockCampaignId);
+    expect(args.orderBy.name).toBe('asc');
+
+    // Verify select
+    expect(args.select).toEqual({ id: true, name: true });
+
+    // Verify result
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe('Hero');
   });
 
   it('getPlayerSkills selects only attributes and stats', async () => {
@@ -274,54 +304,4 @@ describe('General Query Optimizations', () => {
     expect(select.logs.take).toBe(5);
   });
 
-  it('getPlayerDashboard filters targets in DB and excludes type', async () => {
-    const mockCharacterId = 'char-1';
-
-    // Mock return value to prevent crash
-    (prisma.character.findUnique as any).mockResolvedValue({
-      id: mockCharacterId,
-      name: 'Hero',
-      type: 'PLAYER',
-      hp: 10,
-      maxHp: 10,
-      campaign: {
-        logs: [],
-        characters: [
-          { id: 'char-2', name: 'Ally' },
-          { id: 'char-3', name: 'Enemy' }
-        ]
-      }
-    });
-
-    const result = await getPlayerDashboard(mockCharacterId);
-
-    // Verify Prisma call arguments
-    const calls = (prisma.character.findUnique as any).mock.calls;
-    expect(calls.length).toBeGreaterThan(0);
-    const args = calls[0][0];
-
-    // Check main select
-    expect(args.where.id).toBe(mockCharacterId);
-
-    // Check nested campaign select
-    const campaignSelect = args.select.campaign.select;
-    expect(campaignSelect).toBeDefined();
-
-    // Check characters (targets) select
-    const charactersSelect = campaignSelect.characters;
-    expect(charactersSelect).toBeDefined();
-
-    // VERIFY OPTIMIZATION: DB-level filtering
-    expect(charactersSelect.where).toEqual({ id: { not: mockCharacterId } });
-
-    // VERIFY OPTIMIZATION: Minimal field selection
-    expect(charactersSelect.select).toEqual({ id: true, name: true });
-    // explicitly ensure 'type' is NOT selected
-    expect(charactersSelect.select.type).toBeUndefined();
-
-    // Verify result processing
-    expect(result).toBeDefined();
-    expect(result!.targets.length).toBe(2);
-    expect(result!.targets[0].id).toBe('char-2');
-  });
 });
