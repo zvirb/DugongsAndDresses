@@ -11,6 +11,7 @@
 // ## 2025-05-29 - [Seed] Gap: No jungle/beast themed campaign. Summon: Added 'The Verdant Jungle' with Kaelith and Spirit of the Wilds.
 // ## 2025-05-29 - [Seed] Gap: No steampunk/clockwork themed campaign. Summon: Added 'The Clockwork City' with Cogsworth and Ironclad.
 // ## 2025-05-30 - [Seed] Gap: No sky/air themed campaign. Summon: Added 'The Floating Isles' with Captain Zephyr and Aeris.
+// ## 2025-05-31 - [Seed] Gap: No urban/thieves guild themed campaign. Summon: Added 'Shadows of Ravenport' with Silas, Lyra, and Captain Valda.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -613,6 +614,38 @@ const libraryCharacters: CharacterTemplate[] = [
     attributes: { str: 12, dex: 16, con: 12, int: 10, wis: 16, cha: 10, Ki: 2 },
     activeTurn: false,
     level: 2,
+  },
+  {
+    name: 'Silas "The Fox"',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Rogue',
+    imageUrl: '/avatars/thief_male_1770267752047.png',
+    hp: 12,
+    maxHp: 12,
+    armorClass: 14,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 16, con: 12, int: 13, wis: 10, cha: 15 },
+    activeTurn: false,
+    level: 1,
+  },
+  {
+    name: 'Lyra "Raven"',
+    type: 'PLAYER',
+    race: 'Elf',
+    class: 'Assassin',
+    imageUrl: '/avatars/rogue_female_1770266208126.png',
+    hp: 10,
+    maxHp: 10,
+    armorClass: 15,
+    initiative: 5,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 8, dex: 18, con: 10, int: 12, wis: 14, cha: 10 },
+    activeTurn: false,
+    level: 1,
   },
   // --- Generic NPCs ---
   {
@@ -1675,6 +1708,89 @@ const floatingIslesCharacters: CharacterTemplate[] = [
   }
 ]
 
+const shadowsOfRavenportCharacters: CharacterTemplate[] = [
+  {
+    name: 'Silas "The Fox"',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Rogue',
+    imageUrl: '/avatars/thief_male_1770267752047.png',
+    hp: 20,
+    maxHp: 20,
+    armorClass: 15,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 16, con: 12, int: 13, wis: 10, cha: 16 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Lyra "Raven"',
+    type: 'PLAYER',
+    race: 'Elf',
+    class: 'Assassin',
+    imageUrl: '/avatars/rogue_female_1770266208126.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 16,
+    initiative: 5,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 8, dex: 18, con: 12, int: 12, wis: 14, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: '"Sly" Fingers',
+    type: 'NPC',
+    race: 'Halfling',
+    class: 'Urchin',
+    imageUrl: '/avatars/hobbit_male_1770267994027.png',
+    hp: 15,
+    maxHp: 15,
+    armorClass: 14,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 8, dex: 16, con: 12, int: 10, wis: 10, cha: 14 },
+    activeTurn: false,
+    level: 2,
+  },
+  {
+    name: 'Captain Valda',
+    type: 'NPC',
+    race: 'Human',
+    class: 'City Watch',
+    imageUrl: '/avatars/fighter_female_1770266152007.png',
+    hp: 35,
+    maxHp: 35,
+    armorClass: 17,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 16, dex: 12, con: 16, int: 10, wis: 14, cha: 12 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'The Guildmaster',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Crime Lord',
+    imageUrl: '/avatars/wizard_male_1770266164795.png',
+    hp: 45,
+    maxHp: 45,
+    armorClass: 14,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 14, con: 12, int: 18, wis: 16, cha: 18 },
+    activeTurn: false,
+    level: 6,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -2195,6 +2311,42 @@ async function main() {
   })
 
   console.log(`☁️ Campaign "${floatingIslesCampaign.name}" created.`)
+
+  // Create Shadows of Ravenport Campaign (Inactive)
+  const shadowsOfRavenportCampaign = await prisma.campaign.create({
+    data: {
+      name: 'Shadows of Ravenport',
+      active: false,
+      characters: {
+        create: shadowsOfRavenportCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The fog clings to the cobblestones of **Ravenport**.', type: 'Story' },
+          { content: '**Silas "The Fox"** slips unseen through the shadows.', type: 'Story' },
+          { content: '**Lyra "Raven"** sharpens her dagger in the dark.', type: 'Story' },
+          { content: '**Captain Valda** patrols the streets, looking for trouble.', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`🗝️ Campaign "${shadowsOfRavenportCampaign.name}" created.`)
 }
 
 main()
