@@ -68,7 +68,10 @@ describe('generateAIContext', () => {
         const turnOrder = [{ name: 'Hero', init: 20, current: true }];
 
         const context = generateAIContext(logs, characters, turnOrder);
-        expect(context).toContain('▶ [ACTIVE] Hero');
+        // Updated expectation for active turn header
+        expect(context).toContain('▶ Hero (1 ? ?)');
+        expect(context).toContain('HP: 10/10 (100%)');
+        expect(context).toContain('PP: 10');
     });
 
     it('formats HP with percentage and separates resources', () => {
@@ -83,8 +86,9 @@ describe('generateAIContext', () => {
         const context = generateAIContext(logs, characters, turnOrder);
         // Expect HP percentage
         expect(context).toContain('HP:5/10 (50%)');
-        // Expect Stats separation with new bracket format
-        expect(context).toContain('Stats:[STR:18');
+        // Expect Stats separation with new compact format
+        // Core stats use short labels: S, D, C, I, W, Ch
+        expect(context).toContain('S:18');
         expect(context).toContain('Res:[SpellSlots:2]');
     });
 });
