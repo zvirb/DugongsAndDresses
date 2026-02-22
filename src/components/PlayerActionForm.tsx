@@ -8,6 +8,7 @@
 // ## 2025-06-03 - [ActionForm] Feature: [Missing Damage/Target] Path: [Added Target Selector and Damage Input]
 // ## 2025-06-05 - [ActionForm] Interaction: [Critical actions buried] Path: [Split into PRIMARY (Attack/Cast) and SECONDARY (Dodge/Dash/Rest) groups for prominence]
 // ## 2025-06-09 - [Interaction] Thumb Zone: [Inputs/Buttons < 44px] Path: [Increased all inputs/secondary buttons to h-24, primary to h-32]
+// ## 2025-06-10 - [Layout] Density: [Primary/Secondary buttons too tall] Path: [Reduced primary to h-24, secondary to h-20]
 
 import { logAction, performAttack, castSpell, performLongRest, performDodge, performDash } from "@/app/actions";
 import { useTransition, useState } from "react";
@@ -289,7 +290,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             variant="agent" // Use agent variant for primary actions
                             disabled={isPending}
                             onClick={() => handleActionClick(action)}
-                            className="h-32 p-4 text-3xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.2)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20"
+                            className="h-24 p-4 text-3xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.2)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20"
                         >
                             {action}
                         </Button>
@@ -305,7 +306,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             variant="ghost"
                             disabled={isPending}
                             onClick={() => handleActionClick(action)}
-                            className="h-24 p-2 text-base font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
+                            className="h-20 p-2 text-base font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
                         >
                             {action}
                         </Button>

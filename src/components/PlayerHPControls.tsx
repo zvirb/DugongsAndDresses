@@ -5,6 +5,7 @@
 // ## 2025-05-29 - [HPControls] Fat Fingers: [Buttons small] Path: [Increased padding to p-10/p-8]
 // ## 2025-06-01 - [HPControls] Fat Fingers: [Buttons small] Path: [Increased +1/-1 to h-40 p-12, +5/-5 to h-28 p-10, Custom to h-24]
 // ## 2025-06-09 - [Interaction] Fat Fingers: [Padding insufficient] Path: [Increased padding to p-16, added active glow]
+// ## 2025-06-10 - [Layout] Optimization: [Buttons too large vertically] Path: [Reduced +1/-1 to h-32, +5/-5 to h-24]
 
 import { updateHP } from "@/app/actions";
 import { useTransition, useState, useEffect } from "react";
@@ -88,7 +89,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(-1)}
                         disabled={isPending}
-                        className="flex-1 h-40 p-16 text-6xl font-black rounded-xl border-b-8 border-red-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 active:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all touch-manipulation shadow-[0_10px_0_rgba(127,29,29,0.5)] bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700"
+                        className="flex-1 h-32 p-8 text-6xl font-black rounded-xl border-b-8 border-red-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 active:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all touch-manipulation shadow-[0_10px_0_rgba(127,29,29,0.5)] bg-gradient-to-br from-red-600 to-red-800 hover:from-red-500 hover:to-red-700"
                     >
                         -1
                     </Button>
@@ -97,7 +98,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(1)}
                         disabled={isPending}
-                        className="flex-1 h-40 p-16 text-6xl font-black rounded-xl border-b-8 border-emerald-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 active:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all touch-manipulation shadow-[0_10px_0_rgba(6,78,59,0.5)] bg-gradient-to-br from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700"
+                        className="flex-1 h-32 p-8 text-6xl font-black rounded-xl border-b-8 border-emerald-900 active:translate-y-2 active:border-b-0 active:scale-95 active:brightness-90 active:shadow-[0_0_25px_rgba(255,255,255,0.4)] transition-all touch-manipulation shadow-[0_10px_0_rgba(6,78,59,0.5)] bg-gradient-to-br from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700"
                     >
                         +1
                     </Button>
@@ -108,7 +109,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(-5)}
                         disabled={isPending}
-                        className="flex-1 h-28 p-10 text-3xl font-bold rounded-xl border-b-4 border-red-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-red-900/50 hover:bg-red-800/80 text-red-100"
+                        className="flex-1 h-24 p-6 text-3xl font-bold rounded-xl border-b-4 border-red-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-red-900/50 hover:bg-red-800/80 text-red-100"
                     >
                         -5
                     </Button>
@@ -117,7 +118,7 @@ export default function PlayerHPControls({ characterId, currentHp, maxHp }: { ch
                         size="lg"
                         onClick={() => handleUpdate(5)}
                         disabled={isPending}
-                        className="flex-1 h-28 p-10 text-3xl font-bold rounded-xl border-b-4 border-emerald-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-emerald-900/50 hover:bg-emerald-800/80 text-emerald-100"
+                        className="flex-1 h-24 p-6 text-3xl font-bold rounded-xl border-b-4 border-emerald-900 active:translate-y-1 active:border-b-0 active:scale-95 active:brightness-90 transition-all touch-manipulation bg-emerald-900/50 hover:bg-emerald-800/80 text-emerald-100"
                     >
                         +5
                     </Button>

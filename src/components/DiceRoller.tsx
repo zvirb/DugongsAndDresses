@@ -17,6 +17,7 @@
 // ## 2025-06-01 - [Dice] Log: [Improved log format] Fix: [Refined "Advantage/Disadvantage" text and Rolling feedback]
 // ## 2025-06-08 - [Dice] Visual: [Updated colors to Agent Mesh] Fix: [Replaced generic yellow/green/red with agent-blue/emerald/rose and added glows]
 // ## 2025-06-09 - [Dice] Feedback: [Single number animation for Adv/Dis] Fix: [Animating both dice values during roll]
+// ## 2025-06-10 - [Layout] Compactness: [Buttons taking too much vertical space] Fix: [Reduced dice buttons to h-16]
 
 import { useState, useCallback, useEffect } from 'react';
 import { logAction } from '@/app/actions';
@@ -251,7 +252,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                             onClick={() => rollDice(d)}
                             variant={getDiceVariant()}
                             aria-label={rollingDie === d ? "Rolling" : undefined}
-                            className="font-black text-2xl h-20 p-4 w-full rounded-xl active:scale-95 active:brightness-90 transition-transform shadow-lg touch-manipulation border border-white/5 hover:border-agent-blue/50"
+                            className="font-black text-2xl h-16 p-2 w-full rounded-xl active:scale-95 active:brightness-90 transition-transform shadow-lg touch-manipulation border border-white/5 hover:border-agent-blue/50"
                         >
                             {rollingDie === d ? <Spinner /> : `d${d}`}
                         </Button>
