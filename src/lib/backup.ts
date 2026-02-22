@@ -4,7 +4,7 @@ import path from 'path';
 import { prisma } from './prisma';
 import { z } from 'zod';
 import { Campaign, Character, LogEntry, Encounter } from '@prisma/client';
-import { AttributesSchema, InventorySchema, ConditionsSchema, ParticipantsSchema } from './schemas';
+import { AttributesSchema, InventorySchema, ConditionsSchema, ParticipantsSchema, jsonStringSchema } from './schemas';
 
 const BACKUP_DIR = '/app/backups';
 
@@ -42,33 +42,9 @@ const CharacterBackupSchema = z.object({
   armorClass: z.number(),
   speed: z.number(),
   initiative: z.number(),
-  attributes: z.string().refine(val => {
-    try {
-      const parsed = JSON.parse(val);
-      AttributesSchema.parse(parsed);
-      return true;
-    } catch {
-      return false;
-    }
-  }, "Invalid attributes JSON"),
-  inventory: z.string().refine(val => {
-    try {
-      const parsed = JSON.parse(val);
-      InventorySchema.parse(parsed);
-      return true;
-    } catch {
-      return false;
-    }
-  }, "Invalid inventory JSON"),
-  conditions: z.string().refine(val => {
-    try {
-      const parsed = JSON.parse(val);
-      ConditionsSchema.parse(parsed);
-      return true;
-    } catch {
-      return false;
-    }
-  }, "Invalid conditions JSON"),
+  attributes: jsonStringSchema(AttributesSchema, "Invalid attributes JSON"),
+  inventory: jsonStringSchema(InventorySchema, "Invalid inventory JSON"),
+  conditions: jsonStringSchema(ConditionsSchema, "Invalid conditions JSON"),
   campaignId: z.string(),
   activeTurn: z.boolean(),
   initiativeRoll: z.number(),
@@ -89,15 +65,7 @@ const EncounterBackupSchema = z.object({
   id: z.string(),
   name: z.string(),
   status: z.string(),
-  participants: z.string().refine(val => {
-    try {
-      const parsed = JSON.parse(val);
-      ParticipantsSchema.parse(parsed);
-      return true;
-    } catch {
-      return false;
-    }
-  }, "Invalid participants JSON"),
+  participants: jsonStringSchema(ParticipantsSchema, "Invalid participants JSON"),
   campaignId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),

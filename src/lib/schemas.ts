@@ -9,6 +9,32 @@ const attributeMappings: Record<string, string> = {
   charisma: 'cha'
 };
 
+// Standard D&D 5e Conditions
+export const DND_CONDITIONS = [
+    'Blinded', 'Charmed', 'Deafened', 'Frightened', 'Grappled',
+    'Incapacitated', 'Invisible', 'Paralyzed', 'Petrified',
+    'Poisoned', 'Prone', 'Restrained', 'Stunned', 'Unconscious',
+    // Custom Actions masquerading as conditions
+    'Dodging', 'Dashing'
+];
+
+/**
+ * Helper to create a Zod schema that validates a JSON string.
+ * @param schema The Zod schema to validate the parsed JSON against.
+ * @param description Error message description.
+ */
+export function jsonStringSchema<T extends z.ZodType>(schema: T, description: string = "Invalid JSON structure") {
+    return z.string().refine(val => {
+        try {
+            const parsed = JSON.parse(val);
+            schema.parse(parsed);
+            return true;
+        } catch {
+            return false;
+        }
+    }, description);
+}
+
 // Attributes are a flexible dictionary of string keys to number values.
 // e.g. { str: 10, dex: 12, speed: 30 }
 export const BaseAttributesSchema = z.object({
