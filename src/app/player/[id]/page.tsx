@@ -10,7 +10,7 @@
 // ## 2025-06-05 - [Layout] Hierarchy: [Action form buried below Dice] Path: [Reordered to Status(HP) -> Action -> Dice for combat speed]
 // ## 2025-06-09 - [Layout] Thumb Zone: [Critical Actions (Attack/Cast) hard to reach] Path: [Reordered Dice -> ActionForm to fix Critical Actions at viewport bottom]
 
-import { getPlayerDashboard } from "@/lib/queries";
+import { getPlayerDashboard, getCampaignTargets } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import PlayerHPControls from "@/components/PlayerHPControls";
 import PlayerActionForm from "@/components/PlayerActionForm";
@@ -31,6 +31,10 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     if (!character || character.type !== 'PLAYER') {
         notFound();
     }
+
+    // Optimized: Fetch targets separately to allow caching (doesn't change often)
+    const allTargets = await getCampaignTargets(character.campaignId);
+    const targets = allTargets.filter(t => t.id !== character.id);
 
     return (
         <main className="flex flex-col p-4 space-y-6 pb-40 min-h-[100dvh] bg-agent-navy relative overflow-x-hidden">
@@ -139,7 +143,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                         characterName={character.name}
                         campaignId={character.campaignId}
                         characterId={character.id}
-                        targets={character.targets}
+                        targets={targets}
                     />
                 </div>
             </div>

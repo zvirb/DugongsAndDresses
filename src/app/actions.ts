@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getLibraryCharacters, getEncounters } from "@/lib/queries";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { actionWrapper, ActionResult } from "@/lib/actions-utils";
 import { stringifyAttributes, parseAttributes, stringifyConditions, parseInventory, stringifyInventory, parseConditions, extractAttributesFromFormData, stringifyParticipants, parseParticipants, parseCharacterInputs, parseCharacterForm, createDefaultAttributes, parseSettingsForm } from "@/lib/safe-json";
 import { mkdir } from 'fs/promises';
@@ -297,6 +297,7 @@ export async function duplicateCharacter(characterId: string): Promise<ActionRes
 
         await logAction(source.campaignId, `**${source.name}** splits! A doppelgänger, **${newChar.name}**, emerges from the shadows.`, "Story");
 
+        revalidateTag('campaign-targets');
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -577,6 +578,7 @@ export async function createCharacter(formData: FormData): Promise<ActionResult>
 
         await logAction(campaignId, `A new legend begins. **${character.name}** steps forth into the unknown!`, "Story");
 
+        revalidateTag('campaign-targets');
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -632,6 +634,11 @@ export async function updateCharacter(characterId: string, formData: FormData): 
 
         await logAction(character.campaignId, content, "Story");
 
+        // Optimistic invalidation: If name changed, targets list needs update
+        if (charData.name && charData.name !== existing.name) {
+            revalidateTag('campaign-targets');
+        }
+
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -650,6 +657,7 @@ export async function deleteCharacter(characterId: string): Promise<ActionResult
 
         await logAction(character.campaignId, `The pages fade. **${character.name}** is lost to the mists of time.`, "Story");
 
+        revalidateTag('campaign-targets');
         revalidatePath('/dm');
         revalidatePath('/public');
         revalidatePath('/player');
@@ -1174,6 +1182,7 @@ export async function importCharacterFromLibrary(campaignId: string, libraryChar
 
         await logAction(campaignId, `**${newChar.name}** is summoned from the archives to join the adventure.`, "Story");
 
+        revalidateTag('campaign-targets');
         revalidatePath('/dm');
         revalidatePath('/player');
         return newChar;
