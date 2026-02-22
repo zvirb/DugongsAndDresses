@@ -193,7 +193,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                         disabled={isPending || sortedParticipants.length === 0}
                         variant="agent"
                         size="sm"
-                        className="text-[10px] h-7 px-4 font-black tracking-widest uppercase shadow-[0_0_15px_rgba(43,43,238,0.4)] hover:shadow-[0_0_25px_rgba(43,43,238,0.7)] hover:scale-105 transition-all"
+                        className="text-[10px] h-7 px-4 font-black tracking-widest uppercase shadow-[0_0_20px_rgba(43,43,238,0.6)] hover:shadow-[0_0_30px_rgba(43,43,238,0.8)] hover:scale-105 transition-all animate-pulse hover:animate-none"
                     >
                         {isPending ? '...' : 'NEXT'}
                     </Button>
@@ -203,7 +203,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
             {/* Load Modal Overlay */}
             {showLoadModal && (
                 <div className="absolute inset-0 z-50 bg-agent-navy/80 flex items-center justify-center p-2 rounded-lg backdrop-blur-sm">
-                    <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue shadow-[0_0_50px_rgba(43,43,238,0.2)] rounded-lg w-full h-full flex flex-col animate-in fade-in zoom-in duration-200 relative overflow-hidden">
+                    <div className="bg-agent-navy/95 backdrop-blur-xl border border-agent-blue shadow-[0_0_50px_rgba(43,43,238,0.3)] rounded-lg w-full h-full flex flex-col animate-in fade-in zoom-in duration-200 relative overflow-hidden ring-1 ring-agent-blue/50">
                         {/* Scanline Overlay */}
                         <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px] opacity-20" />
 

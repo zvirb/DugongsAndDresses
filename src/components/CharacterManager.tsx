@@ -98,10 +98,10 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                     <Card
                         key={char.id}
                         className={cn(
-                            "bg-agent-navy/20 border transition-all duration-200 backdrop-blur-sm",
+                            "bg-agent-navy/20 transition-all duration-200 backdrop-blur-sm",
                             isOpen
-                                ? "z-50 relative border-agent-blue bg-agent-navy/60 shadow-[0_0_20px_rgba(43,43,238,0.2)]"
-                                : "z-0 relative border-white/5 hover:border-agent-blue/30 hover:bg-agent-blue/5 hover:shadow-[0_0_15px_rgba(43,43,238,0.15)]"
+                                ? "z-50 relative border border-agent-blue bg-agent-navy/60 shadow-[0_0_20px_rgba(43,43,238,0.2)]"
+                                : "z-0 relative border-y border-r border-l-4 border-white/5 border-l-white/10 hover:border-l-agent-blue hover:bg-agent-blue/5 hover:shadow-[0_0_15px_rgba(43,43,238,0.1)]"
                         )}
                     >
                         <CardContent className="p-3">
@@ -213,10 +213,10 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                 <AddCharacterForm campaignId={campaignId} onClose={() => setShowAddForm(false)} />
             ) : (
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)} className="flex-1 h-12 border-dashed border-2 border-agent-blue/30 hover:border-agent-blue hover:bg-agent-blue/10 text-agent-blue uppercase tracking-widest font-bold text-xs">
+                    <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)} className="flex-1 h-12 border-dashed border-2 border-agent-blue/30 hover:border-agent-blue hover:bg-agent-blue/10 text-agent-blue uppercase tracking-widest font-bold text-xs hover:shadow-[0_0_20px_rgba(43,43,238,0.4)] transition-all duration-300">
                         + Create New
                     </Button>
-                    <Button variant="outline" size="sm" onClick={openLibrary} className="flex-1 h-12 border-dashed border-2 border-agent-blue/10 hover:border-agent-blue/30 hover:bg-agent-blue/5 text-agent-blue/50 uppercase tracking-widest font-bold text-xs">
+                    <Button variant="outline" size="sm" onClick={openLibrary} className="flex-1 h-12 border-dashed border-2 border-agent-blue/10 hover:border-agent-blue/30 hover:bg-agent-blue/5 text-agent-blue/50 uppercase tracking-widest font-bold text-xs hover:shadow-[0_0_20px_rgba(43,43,238,0.2)] transition-all duration-300">
                         Import Library
                     </Button>
                 </div>
@@ -225,11 +225,14 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
             {/* Library Modal */}
             {showLibraryModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-agent-navy/90 backdrop-blur-sm p-4">
-                    <Card variant="agent" className="max-w-2xl w-full max-h-[80vh] flex flex-col shadow-[0_0_50px_rgba(43,43,238,0.2)] border-agent-blue/50">
-                        <CardContent className="p-4 flex flex-col h-full">
+                    <Card variant="agent" className="max-w-2xl w-full max-h-[80vh] flex flex-col shadow-[0_0_50px_rgba(43,43,238,0.2)] border-agent-blue/50 relative overflow-hidden">
+                         {/* Scanline Overlay */}
+                        <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px] opacity-20" />
+
+                        <CardContent className="p-4 flex flex-col h-full relative z-10">
                             <div className="flex justify-between items-center mb-4 border-b border-agent-blue/20 pb-2">
                                 <h3 className="text-lg font-bold text-agent-blue uppercase tracking-widest flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-agent-blue rounded-full animate-pulse shadow-[0_0_10px_#2b2bee]" />
+                                    <span className="w-3 h-3 bg-agent-blue rounded-sm animate-pulse shadow-[0_0_10px_#2b2bee]" />
                                     Character Library
                                 </h3>
                                 <button onClick={() => setShowLibraryModal(false)} className="text-agent-blue/50 hover:text-white transition-colors">✕</button>
