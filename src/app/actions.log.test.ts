@@ -1,6 +1,5 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { performAttack, performSkillCheck, castSpell, updateHP, updateCharacter, updateInitiative, addInventoryItem, removeInventoryItem } from '@/app/actions';
+import { performAttack, performSkillCheck, castSpell, updateHP, updateCharacter, updateInitiative, addInventoryItem, removeInventoryItem, toggleCondition, updateConditions, saveEncounter, deleteEncounter } from '@/app/actions';
 import { prisma } from '@/lib/prisma';
 
 // Mock dependencies
@@ -13,12 +12,17 @@ vi.mock('@/lib/prisma', () => ({
       findUnique: vi.fn(),
       update: vi.fn(),
     },
+    encounter: {
+        create: vi.fn(),
+        delete: vi.fn(),
+    },
     $transaction: vi.fn((callback) => callback), // Mock transaction to just return callback result
   }
 }));
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
   unstable_cache: vi.fn((fn) => fn),
 }));
 
@@ -136,7 +140,7 @@ describe('Bard Logging Enhancements', () => {
 
         expect(content).toContain('**Lyra** attempts to **Stealth**');
         expect(content).toContain(': **SUCCESS**!');
-        expect(content).toContain('They pull it off.');
+        expect(content).toContain('The attempt succeeds.');
         expect(content).toContain('Roll: **14**+**4** = **18**');
       });
 
@@ -301,5 +305,91 @@ describe('Bard Logging Enhancements', () => {
 
         expect(content).toContain('**Grom** casts aside **Sword**');
     });
+  });
+
+  describe('toggleCondition', () => {
+      it('should log adding condition', async () => {
+          vi.mocked(prisma.character.findUnique).mockResolvedValue({
+              id: 'char-1', name: 'Grom', campaignId: 'camp-1', conditions: '[]'
+          } as any);
+          vi.mocked(prisma.character.update).mockResolvedValue({
+              id: 'char-1', name: 'Grom', campaignId: 'camp-1', conditions: '["Blinded"]'
+          } as any);
+
+          await toggleCondition('char-1', 'Blinded');
+
+          const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+          const content = createCall.data.content;
+          expect(content).toContain('**Grom** is afflicted by **Blinded**!');
+      });
+
+      it('should log removing condition', async () => {
+        vi.mocked(prisma.character.findUnique).mockResolvedValue({
+            id: 'char-1', name: 'Grom', campaignId: 'camp-1', conditions: '["Blinded"]'
+        } as any);
+        vi.mocked(prisma.character.update).mockResolvedValue({
+            id: 'char-1', name: 'Grom', campaignId: 'camp-1', conditions: '[]'
+        } as any);
+
+        await toggleCondition('char-1', 'Blinded');
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+        expect(content).toContain('**Grom** shakes off the effects of **Blinded**');
+    });
+  });
+
+  describe('updateConditions', () => {
+      it('should log clearing all conditions', async () => {
+          vi.mocked(prisma.character.update).mockResolvedValue({
+              id: 'char-1', name: 'Grom', campaignId: 'camp-1', conditions: '[]'
+          } as any);
+
+          await updateConditions('char-1', []);
+
+          const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+          const content = createCall.data.content;
+          expect(content).toContain('**Grom** is cleared of all conditions');
+      });
+
+      it('should log setting multiple conditions', async () => {
+        vi.mocked(prisma.character.update).mockResolvedValue({
+            id: 'char-1', name: 'Grom', campaignId: 'camp-1', conditions: '["Blinded", "Stunned"]'
+        } as any);
+
+        await updateConditions('char-1', ['Blinded', 'Stunned']);
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+        expect(content).toContain('**Grom** is now suffering from: **Blinded, Stunned**');
+      });
+  });
+
+  describe('saveEncounter', () => {
+      it('should log saving a new encounter', async () => {
+          vi.mocked(prisma.encounter.create).mockResolvedValue({
+              id: 'enc-1', campaignId: 'camp-1', name: 'Encounter 1'
+          } as any);
+
+          await saveEncounter('camp-1', []);
+
+          const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+          const content = createCall.data.content;
+          expect(content).toContain('The DM drafts a new encounter: **Encounter 1**');
+      });
+  });
+
+  describe('deleteEncounter', () => {
+      it('should log deleting an encounter', async () => {
+          vi.mocked(prisma.encounter.delete).mockResolvedValue({
+              id: 'enc-1', campaignId: 'camp-1', name: 'Encounter 1'
+          } as any);
+
+          await deleteEncounter('enc-1');
+
+          const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+          const content = createCall.data.content;
+          expect(content).toContain('The DM discards the encounter **Encounter 1**');
+      });
   });
 });
