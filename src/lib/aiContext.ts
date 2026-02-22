@@ -15,6 +15,7 @@
 // ## 2026-02-05 - [Context] Gap: [Buried active turn] Fix: [Added top-level == ACTIVE TURN == section]
 // ## 2026-02-05 - [Context] Gap: [Duplicate initiative data] Fix: [Streamlined INITIATIVE list, enriched CHARACTERS list]
 // ## 2026-02-05 - [Context] Gap: [Potential null/undefined values] Fix: [Added safe fallbacks for race, class, type, speed]
+// ## 2026-02-06 - [Context] Gap: [Missing active details] Fix: [Added PP/Slots to active turn, denser stats, stricter instructions]
 
 import { parseConditions, parseInventory, parseAttributes } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
@@ -42,9 +43,32 @@ export function generateAIContext(
         const cls = activeChar.class || '?';
         const speed = activeChar.speed !== null && activeChar.speed !== undefined ? activeChar.speed : '?';
 
+        const attributes = parseAttributes(activeChar.attributes);
+        // Passive Perception
+        let wis = 10;
+        if (typeof attributes['wis'] === 'number') wis = attributes['wis'];
+        else if (typeof attributes['wis'] === 'string') wis = parseInt(attributes['wis']) || 10;
+        // Fallback checks
+        if (wis === 10) {
+             if (typeof attributes['WIS'] === 'number') wis = attributes['WIS'];
+             else if (typeof attributes['Wisdom'] === 'number') wis = attributes['Wisdom'];
+        }
+        const pp = 10 + Math.floor((wis - 10) / 2);
+
+        // Extra Resources (Spell Slots, Ki, etc.)
+        const extraStats = Object.entries(attributes)
+            .filter(([k]) => !['str', 'dex', 'con', 'int', 'wis', 'cha'].includes(k.toLowerCase()))
+            .filter(([_, v]) => typeof v === 'number' || (typeof v === 'string' && v.trim().length > 0))
+            .map(([k, v]) => {
+                const cleanKey = (k.charAt(0).toUpperCase() + k.slice(1)).replace(/_/g, ' ');
+                return `${cleanKey}:${v}`;
+            })
+            .join(', ');
+
         activeTurnSection = `▶ ${activeChar.name} (${activeChar.level} ${race} ${cls})
-HP: ${activeChar.hp}/${activeChar.maxHp} (${hpPercent}%) | AC: ${activeChar.armorClass} | Spd: ${speed}
-Conditions: ${conditionText}`;
+HP: ${activeChar.hp}/${activeChar.maxHp} (${hpPercent}%) | AC: ${activeChar.armorClass} | PP: ${pp} | Spd: ${speed}
+Conditions: ${conditionText}
+${extraStats ? `Resources: [${extraStats}]` : ''}`.trim();
     }
 
     // 2. Initiative List (Concise)
@@ -58,15 +82,16 @@ Conditions: ${conditionText}`;
         if (c.hp <= 0 && !conditions.some(cond => ['unconscious', 'down', 'dead', 'dying'].includes(cond.toLowerCase()))) {
             conditions.push('DOWN');
         }
-        const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'Healthy';
+        const conditionText = conditions.length > 0 ? `Cond:[${conditions.join(',')}]` : 'Healthy';
         const attributes = parseAttributes(c.attributes);
 
-        // Core Stats
+        // Core Stats (Compressed)
+        const coreStatsMap: Record<string, string> = { str: 'S', dex: 'D', con: 'C', int: 'I', wis: 'W', cha: 'Ch' };
         const coreStats = ['str', 'dex', 'con', 'int', 'wis', 'cha']
             .map(k => {
                 const val = attributes[k as keyof typeof attributes];
                 const numVal = typeof val === 'number' ? val : (parseInt(String(val)) || 10);
-                return `${k.toUpperCase()}:${numVal}`;
+                return `${coreStatsMap[k]}:${numVal}`;
             })
             .join(' ');
 
@@ -93,14 +118,14 @@ Conditions: ${conditionText}`;
         // Inventory (First 5)
         const inventory = parseInventory(c.inventory);
         const invText = inventory.length > 0
-            ? `Inv:[${inventory.slice(0, 5).join(', ')}${inventory.length > 5 ? '...' : ''}]`
+            ? `Inv:[${inventory.slice(0, 5).join(',')}${inventory.length > 5 ? '...' : ''}]`
             : '';
 
         const hpPercent = c.maxHp > 0 ? Math.floor((c.hp / c.maxHp) * 100) : 0;
         const type = c.type || '?';
 
         // Single Line Format
-        return `• ${c.name} [${type}] | HP:${c.hp}/${c.maxHp} (${hpPercent}%) AC:${c.armorClass} PP:${pp} | ${conditionText} | Stats:[${coreStats}]${extraStats ? ` Res:[${extraStats}]` : ''} ${invText}`;
+        return `• ${c.name} (${type}) | HP:${c.hp}/${c.maxHp} (${hpPercent}%) AC:${c.armorClass} PP:${pp} | ${conditionText} | ${coreStats} | ${extraStats ? `Res:[${extraStats}] ` : ''}${invText}`;
     }).join('\n');
 
     // 4. Logs (Chronological)
@@ -125,10 +150,10 @@ ${logSummary}
 Role: Narrator. Task: Describe [ACTIVE]'s action based on Logs.
 Context:
 - [ACTIVE]: Current turn.
-- HP%: <50%="bloodied", 0%="down".
-- Logs: Truth.
+- HP%: <50% (Bloodied), 0% (Down/Unconscious).
+- Logs: Truth. Do not hallucinate rolls.
 Rules:
 - Max 2 sentences. Present tense. Visceral.
-- Mention mechanics (Attack/Damage) naturally.
-- Note condition changes.`;
+- Mention mechanics (Attack/Damage/DC) naturally.
+- Highlight condition changes (e.g. "Knocked prone").`;
 }
