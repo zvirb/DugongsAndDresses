@@ -13,6 +13,7 @@
 // ## 2025-06-05 - [UI] Fortify: [Error Handling] Fix: [Replaced alert() with inline error banner for better UX]
 // ## 2025-06-06 - [Logic] Fortify: [Error Handling] Fix: [Added try/catch blocks to async handlers]
 // ## 2025-06-06 - [UI] Fortify: [Visual Alert] Fix: [Added prominent 'YOUR TURN' badge for active character]
+// ## 2025-06-09 - [UI] Fortify: [Active Turn Visibility] Fix: [Enhanced 'YOUR TURN' glow]
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
@@ -287,7 +288,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 {p.activeTurn && (
                                     <div className="flex flex-col gap-0.5 mt-1">
                                         <span className="text-xs text-agent-blue font-black animate-pulse uppercase tracking-[0.2em] block drop-shadow-[0_0_5px_#2b2bee]">&gt;&gt; ACTIVE TURN &lt;&lt;</span>
-                                        <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block bg-emerald-900/30 px-1 py-0.5 rounded border border-emerald-500/30 w-fit shadow-[0_0_10px_rgba(52,211,153,0.3)] animate-pulse">YOUR TURN</span>
+                                        <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block bg-emerald-900/30 px-1 py-0.5 rounded border border-emerald-500/30 w-fit shadow-[0_0_15px_rgba(52,211,153,0.5)] animate-pulse">YOUR TURN</span>
                                     </div>
                                 )}
                             </div>

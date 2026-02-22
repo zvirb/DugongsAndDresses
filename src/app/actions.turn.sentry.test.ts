@@ -243,4 +243,67 @@ describe('Sentry Logic Fortification', () => {
         expect(result).toEqual({ success: true, data: updateResult });
         consoleSpy.mockRestore();
     });
+
+    it('Scenario: Corrupt Data (Missing ID)', async () => {
+        // Setup: Character with missing ID
+        const characters = [
+            { id: '1', name: 'Char1', activeTurn: true },
+            { id: undefined, name: 'Char2', activeTurn: false } // Corrupt
+        ];
+        vi.mocked(prisma.character.findMany).mockResolvedValue(characters as any);
+
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        // Should throw error
+        const result = await advanceTurn(campaignId, '1');
+
+        expect(result).toEqual({ success: false, error: '[SENTRY] Database Integrity Error: Found character with missing ID.' });
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[SENTRY] Critical Failure: Corrupt character data found'));
+
+        consoleSpy.mockRestore();
+    });
+
+    it('Scenario: Combatant Vanished -> Retry Success', async () => {
+        // Setup: A (Active) -> B.
+        // First Call: A, B. Next is B.
+        // Transaction Fails (B deleted).
+        // Recursive Call: A (Active), C. Next is C.
+
+        const charactersFirst = [
+            { id: '1', name: 'Char1', activeTurn: true, initiativeRoll: 20 },
+            { id: '2', name: 'Char2', activeTurn: false, initiativeRoll: 15 },
+        ];
+
+        const charactersSecond = [
+            { id: '1', name: 'Char1', activeTurn: true, initiativeRoll: 20 },
+            { id: '3', name: 'Char3', activeTurn: false, initiativeRoll: 10 },
+        ];
+
+        // Mock findMany to change return value
+        vi.mocked(prisma.character.findMany)
+            .mockResolvedValueOnce(charactersFirst as any)
+            .mockResolvedValueOnce(charactersSecond as any);
+
+        // Mock transaction to fail first, succeed second
+        const error: any = new Error('Record to update not found.');
+        error.code = 'P2025';
+
+        const updateResult = { id: '3', name: 'Char3', activeTurn: true };
+
+        vi.mocked(prisma.$transaction)
+            .mockRejectedValueOnce(error)
+            .mockResolvedValueOnce([{ count: 1 }, updateResult] as any);
+
+        const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const result = await advanceTurn(campaignId, '1');
+
+        // Should warn about retry
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[SENTRY] Race Condition: Next character 2 not found (likely deleted). Retrying'));
+
+        // Should eventually succeed with Char3
+        expect(result).toEqual({ success: true, data: updateResult });
+
+        consoleSpy.mockRestore();
+    });
 });
