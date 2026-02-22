@@ -92,7 +92,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(' with Advantage (Rolls:'),
+        expect.stringContaining(' [Advantage:'),
         'Roll'
       )
     })
@@ -107,7 +107,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringContaining(' with Disadvantage (Rolls:'),
+        expect.stringContaining(' [Disadvantage:'),
         'Roll'
       )
     })
@@ -175,7 +175,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/ with Advantage \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
+        expect.stringMatching(/ \[Advantage: \*\*\d+\*\*, \*\*\d+\*\*\]/),
         'Roll'
       )
     })
@@ -190,7 +190,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
       expect(actions.logAction).toHaveBeenCalledWith(
         campaignId,
-        expect.stringMatching(/ with Disadvantage \(Rolls: \*\*\d+\*\*, \*\*\d+\*\*\)/),
+        expect.stringMatching(/ \[Disadvantage: \*\*\d+\*\*, \*\*\d+\*\*\]/),
         'Roll'
       )
     })
@@ -260,7 +260,7 @@ describe('DiceRoller', () => {
     await waitFor(() => {
         expect(actions.logAction).toHaveBeenCalledWith(
           campaignId,
-          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\* with Advantage \(Rolls: \*\*20\*\*, \*\*15\*\*\)\./), // New format
+          expect.stringMatching(/A natural 20! \*\*DM\*\* rolls d20: \*\*20\*\* \[Advantage: \*\*20\*\*, \*\*15\*\*\]\./), // New format
           'Roll'
         )
     })
