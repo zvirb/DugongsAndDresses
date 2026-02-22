@@ -22,6 +22,7 @@ import { Character, Settings } from "@prisma/client";
 // ## 2025-05-25 - [Log] Boring: [Generic "Casts", "Checks"] Song: [Enhanced with "The air shimmers", "The attempt succeeds"]
 // ## 2025-05-26 - [Log] Boring: [Generic "Attacks", "Hits"] Song: [Enhanced with "Strikes", "Devastating blow", "The blow goes wide"]
 // ## 2025-06-07 - [Log] Boring: [Generic "Attacks", "Casts", "Checks", "Creates", "Deletes", "Inventory"] Song: [Enhanced with "Fatal opening", "Stumbles disastrously", "Reality bends", "New legend begins", "Pages fade", "Secures", "Casts aside"]
+// ## 2025-06-10 - [Log] Boring: [Generic "Condition Update", "Encounter"] Song: [Enhanced with "Afflicted by", "Shakes off", "Drafts new encounter", "Discards encounter", "Attempt succeeds/falls short"]
 
 // ARTIFICER'S JOURNAL - CRITICAL LEARNINGS ONLY:
 // Format: ## YYYY-MM-DD - [Stub] Hollow: [Rest Button did nothing] Forge: [Added resetHP action & log]
@@ -676,6 +677,12 @@ export async function updateConditions(characterId: string, conditions: string[]
             data: { conditions: stringifyConditions(conditions) }
         });
 
+        if (conditions.length === 0) {
+            await logAction(character.campaignId, `**${character.name}** is cleared of all conditions.`, "Story");
+        } else {
+            await logAction(character.campaignId, `**${character.name}** is now suffering from: **${conditions.join(", ")}**.`, "Story");
+        }
+
         await syncToSource(character);
 
         revalidatePath('/dm');
@@ -707,6 +714,12 @@ export async function toggleCondition(characterId: string, condition: string): P
             where: { id: characterId },
             data: { conditions: stringifyConditions(newConditions) }
         });
+
+        if (exists) {
+            await logAction(character.campaignId, `**${character.name}** shakes off the effects of **${condition}**.`, "Story");
+        } else {
+            await logAction(character.campaignId, `**${character.name}** is afflicted by **${condition}**!`, "Story");
+        }
 
         await syncToSource(updated);
 
@@ -833,9 +846,11 @@ export async function deleteEncounter(encounterId: string): Promise<ActionResult
     return actionWrapper("deleteEncounter", async () => {
         if (!encounterId) throw new Error("Encounter ID is required");
 
-        await prisma.encounter.delete({
+        const encounter = await prisma.encounter.delete({
             where: { id: encounterId }
         });
+
+        await logAction(encounter.campaignId, `The DM discards the encounter **${encounter.name}**.`, "Story");
 
         revalidatePath('/dm');
         return { success: true };
@@ -883,6 +898,8 @@ export async function saveEncounter(campaignId: string, participants: Participan
                 participants: stringifyParticipants(participants)
             }
         });
+
+        await logAction(encounter.campaignId, `The DM drafts a new encounter: **${encounter.name}**.`, "Story");
 
         revalidatePath('/dm');
         return encounter;
@@ -995,9 +1012,9 @@ export async function performSkillCheck(characterId: string, skillName: string, 
                 content += `: **CRITICAL FAILURE**! **${character.name}** falters disastrously!`;
             } else if (dc) {
                 if (roll >= dc) {
-                    content += `: **SUCCESS**! They pull it off.`;
+                    content += `: **SUCCESS**! The attempt succeeds.`;
                 } else {
-                    content += `: **FAILURE**! It was not enough.`;
+                    content += `: **FAILURE**! The attempt falls short.`;
                 }
             }
 
