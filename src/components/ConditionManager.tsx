@@ -3,12 +3,7 @@
 import { useState, useEffect, useRef, useTransition } from 'react';
 import { toggleCondition } from '@/app/actions';
 import { Badge } from '@/components/ui/Badge';
-
-const DND_CONDITIONS = [
-    'Blinded', 'Charmed', 'Deafened', 'Frightened', 'Grappled',
-    'Incapacitated', 'Invisible', 'Paralyzed', 'Petrified',
-    'Poisoned', 'Prone', 'Restrained', 'Stunned', 'Unconscious',
-];
+import { DND_CONDITIONS } from '@/lib/schemas';
 
 interface ConditionManagerProps {
     characterId: string;
