@@ -337,6 +337,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // ## 2025-05-26 - [Logic] Fortify: [Turn Loop & Recovery] Fix: [Verified loop safety (last->first) and state recovery in new test suite]
 // ## 2025-05-31 - [Logic] Fortify: [Multiple Active Turns] Fix: [Added detection and auto-recovery logging]
 // ## 2025-06-06 - [Logic] Fortify: [Type Safety] Fix: [Enforced strict Character return type for internalAdvanceTurn]
+// ## 2025-06-09 - [Logic] Fortify: [Data Integrity] Fix: [Added corruption check for missing IDs and verified retry logic]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
@@ -362,6 +363,12 @@ async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string
             activeTurn: true
         }
     });
+
+    // SENTRY: Sanity Check - Data Corruption
+    if (characters.some(c => !c.id)) {
+        console.error(`[SENTRY] Critical Failure: Corrupt character data found in campaign ${campaignId}. Missing ID.`);
+        throw new Error("[SENTRY] Database Integrity Error: Found character with missing ID.");
+    }
 
     if (characters.length === 0) {
         console.error(`[SENTRY] AdvanceTurn failed: No characters found in campaign ${campaignId}`);
