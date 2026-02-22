@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useTransition } from 'react';
-import { toggleCondition } from '@/app/actions';
+import { toggleCondition, updateConditions } from '@/app/actions';
 import { Badge } from '@/components/ui/Badge';
 import { DND_CONDITIONS } from '@/lib/schemas';
 
@@ -41,9 +41,15 @@ export default function ConditionManager({ characterId, conditions }: ConditionM
         });
     };
 
+    const clearAll = () => {
+        startTransition(async () => {
+            await updateConditions(characterId, []);
+        });
+    };
+
     return (
         <div className="space-y-1">
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1 items-center">
                 {conditions.length === 0 && (
                     <span className="text-xs text-neutral-500">Normal</span>
                 )}
@@ -60,6 +66,16 @@ export default function ConditionManager({ characterId, conditions }: ConditionM
                         </Badge>
                     </button>
                 ))}
+                {conditions.length > 0 && (
+                    <button
+                        onClick={clearAll}
+                        disabled={isPending}
+                        className="text-[10px] text-red-400 hover:text-red-300 transition-colors ml-1 disabled:opacity-50 border border-red-900/50 bg-red-900/20 px-1.5 py-0.5 rounded hover:bg-red-900/40"
+                        title="Clear All Conditions"
+                    >
+                        Clear
+                    </button>
+                )}
             </div>
             <div className="relative" ref={dropdownRef}>
                 <button
