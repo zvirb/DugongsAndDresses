@@ -340,6 +340,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
 // ## 2025-05-31 - [Logic] Fortify: [Multiple Active Turns] Fix: [Added detection and auto-recovery logging]
 // ## 2025-06-06 - [Logic] Fortify: [Type Safety] Fix: [Enforced strict Character return type for internalAdvanceTurn]
 // ## 2025-06-09 - [Logic] Fortify: [Data Integrity] Fix: [Added corruption check for missing IDs and verified retry logic]
+// ## 2025-06-12 - [Logic] Fortify: [Race Condition] Fix: [Verified Idempotency logic via test suite. Added explicit missing ID filtering in TurnTracker.]
 
 export async function advanceTurn(campaignId: string, expectedActiveId?: string): Promise<ActionResult> {
     return actionWrapper("advanceTurn", async () => {
@@ -409,6 +410,7 @@ async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string
     // --- SENTRY'S LOOP SAFETY ---
     // Uses modulo arithmetic to ensure the turn cycles back to the first character (index 0)
     // when the last character finishes their turn.
+    // [SENTRY] Logic verified: (Index + 1) % Length always yields valid index [0..Length-1].
     let nextIndex = 0;
     if (currentIndex !== -1) {
         nextIndex = (currentIndex + 1) % characters.length;
