@@ -4,9 +4,10 @@ import { z } from "zod";
 // Format: ## YYYY-MM-DD - [Schema] Mess: [Found string in HP field] Tidy: [Enforced number parsing]
 // ## 2025-06-08 - [Schema] Mess: [Manual validation of participants] Tidy: [Enforced ParticipantSchema validation for robust filtering]
 // ## 2025-06-08 - [Schema] Mess: [Inconsistent Attributes types] Tidy: [Verified and solidified AttributesSchema coercion and backward compatibility]
+// ## 2025-06-13 - [Schema] Mess: [Manual attribute extraction fragile] Tidy: [Implemented PartialAttributesSchema for robust form extraction]
 
 import {
-  Attributes, AttributesSchema, BaseAttributesSchema,
+  Attributes, AttributesSchema, BaseAttributesSchema, PartialAttributesSchema, attributeMappings,
   Conditions, ConditionsSchema,
   Inventory, InventorySchema,
   Participants, ParticipantsSchema, ParticipantSchema,
@@ -195,7 +196,9 @@ export function parseCharacterForm(formData: FormData, partial: boolean = false)
   const result: Partial<CharacterForm> & { attributes?: Partial<Attributes> } = { ...parsed };
 
   // Check if we should extract attributes
-  const hasAttributeKeys = ATTRIBUTE_KEYS.some(k => formData.has(k));
+  // We check for both short keys and long keys
+  const hasAttributeKeys = ATTRIBUTE_KEYS.some(k => formData.has(k)) ||
+                           Object.keys(attributeMappings).some(k => formData.has(k) || formData.has(k.charAt(0).toUpperCase() + k.slice(1)));
 
   if (!partial || hasAttributeKeys) {
       result.attributes = extractAttributesFromFormData(formData);
@@ -209,20 +212,37 @@ export function parseCharacterForm(formData: FormData, partial: boolean = false)
  * Only returns attributes present in the form data.
  */
 export function extractAttributesFromFormData(formData: FormData): Partial<Attributes> {
-  const attributes: Partial<Attributes> = {};
+  const rawAttributes: Record<string, any> = {};
 
+  // 1. Core Keys (str, dex...)
   for (const key of ATTRIBUTE_KEYS) {
     const value = formData.get(key);
     if (value !== null) {
-      const parsed = parseInt(value as string);
-      attributes[key] = isNaN(parsed) ? 10 : parsed;
+      rawAttributes[key] = value;
     }
   }
 
-  const result = BaseAttributesSchema.partial().safeParse(attributes);
-  if (result.success) return result.data;
+  // 2. Mapped Keys (strength, dexterity...) - check lowercase and Capitalized
+  for (const key of Object.keys(attributeMappings)) {
+      // Lowercase (e.g. strength)
+      const val = formData.get(key);
+      if (val !== null) rawAttributes[key] = val;
 
-  return attributes;
+      // Capitalized (e.g. Strength)
+      const capKey = key.charAt(0).toUpperCase() + key.slice(1);
+      const capVal = formData.get(capKey);
+      if (capVal !== null) rawAttributes[capKey] = capVal;
+  }
+
+  // Use PartialAttributesSchema to handle coercion ("18 (+4)") and validation
+  const result = PartialAttributesSchema.safeParse(rawAttributes);
+
+  if (result.success) {
+      return result.data;
+  } else {
+      console.error("Attributes extraction failed:", result.error);
+      return {};
+  }
 }
 
 /**

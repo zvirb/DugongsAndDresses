@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { CharacterInputSchema, AttributesSchema, CharacterFormSchema } from './schemas';
+import { CharacterInputSchema, AttributesSchema, CharacterFormSchema, PartialAttributesSchema } from './schemas';
+import { extractAttributesFromFormData, parseCharacterForm } from './safe-json';
 
 describe('CharacterInputSchema', () => {
     it('validates a correct character input', () => {
@@ -177,5 +178,97 @@ describe('CharacterFormSchema', () => {
             expect(result.data.race).toBeNull();
             expect(result.data.class).toBeNull();
         }
+    });
+});
+
+describe('PartialAttributesSchema', () => {
+  it('should handle partial input without defaults', () => {
+    const input = { str: 15 };
+    const result = PartialAttributesSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+        expect(result.data).toEqual({ str: 15 });
+        expect(result.data).not.toHaveProperty('dex');
+    }
+  });
+
+  it('should normalize keys in partial input', () => {
+    const input = { Strength: "16" };
+    const result = PartialAttributesSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+        expect(result.data).toEqual({ str: 16 });
+    }
+  });
+});
+
+describe('extractAttributesFromFormData', () => {
+  it('should extract core stats', () => {
+    const fd = new FormData();
+    fd.append('str', '18');
+    fd.append('dex', '12');
+
+    const result = extractAttributesFromFormData(fd);
+    expect(result).toEqual({ str: 18, dex: 12 });
+  });
+
+  it('should extract and normalize long keys (Strength -> str)', () => {
+    const fd = new FormData();
+    fd.append('Strength', '18');
+    fd.append('dexterity', '12');
+
+    const result = extractAttributesFromFormData(fd);
+    expect(result).toEqual({ str: 18, dex: 12 });
+  });
+
+  it('should handle string coercion ("18 (+4)")', () => {
+    const fd = new FormData();
+    fd.append('str', '18 (+4)');
+
+    const result = extractAttributesFromFormData(fd);
+    expect(result).toEqual({ str: 18 });
+  });
+
+  it('should ignore unrelated fields', () => {
+    const fd = new FormData();
+    fd.append('str', '10');
+    fd.append('name', 'Grom');
+    fd.append('hp', '20');
+
+    const result = extractAttributesFromFormData(fd);
+    expect(result).toEqual({ str: 10 });
+    expect(result).not.toHaveProperty('name');
+    expect(result).not.toHaveProperty('hp');
+  });
+
+  it('should be robust against mixed input', () => {
+    const fd = new FormData();
+    fd.append('str', '10');
+    fd.append('Constitution', '14 (+2)');
+    fd.append('wis', 'invalid');
+
+    const result = extractAttributesFromFormData(fd);
+    expect(result).toEqual({ str: 10, con: 14 });
+    expect(result).not.toHaveProperty('wis');
+  });
+});
+
+describe('parseCharacterForm (Attributes)', () => {
+    it('should trigger attribute extraction if only long keys are present', () => {
+      const fd = new FormData();
+      fd.append('name', 'Test Char');
+      fd.append('Strength', '18');
+
+      const result = parseCharacterForm(fd, true); // partial update
+      expect(result.attributes).toBeDefined();
+      expect(result.attributes).toEqual({ str: 18 });
+    });
+
+    it('should NOT trigger attribute extraction if no attribute keys present (partial)', () => {
+      const fd = new FormData();
+      fd.append('name', 'Test Char');
+
+      const result = parseCharacterForm(fd, true);
+      expect(result.attributes).toBeUndefined();
     });
 });

@@ -9,6 +9,7 @@
 // ## 2025-05-26 - [Schema] Mess: [Untyped 'any' in backup data] Tidy: [Implemented strict Zod schemas for all backup entities]
 // ## 2025-05-26 - [Schema] Mess: [Partial attribute updates reset missing keys to 10] Tidy: [Enforced partial extraction and merge-on-update]
 // ## 2025-06-03 - [Schema] Mess: [Manual parsing of Settings and raw JSON in backups] Tidy: [Implemented SettingsSchema, parseSettingsForm, and refined BackupDataSchema with JSON validation]
+// ## 2025-06-13 - [Schema] Mess: [Manual attribute extraction fragile] Tidy: [Implemented PartialAttributesSchema for robust form extraction]
 
 import { Character, LogEntry, Campaign, Encounter, Settings } from '@prisma/client';
 import { Attributes, Conditions, Inventory, Participant, Participants, LogType, AttackAction, SkillCheckAction, SpellCastAction, SettingsType } from '@/lib/schemas';
