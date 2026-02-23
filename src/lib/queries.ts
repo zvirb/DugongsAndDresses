@@ -19,6 +19,7 @@ import { prisma } from "./prisma";
  * ## 2025-06-06 - [getPlayerDashboard] Slow: [Fetched unused conditions] Sight: [Optimized Select: Removed conditions]
  * ## 2025-06-12 - [getPlayerDashboard] Slow: [Fetched all char types for targets] Sight: [Optimized Select: Removed type, Filtered self in DB]
  * ## 2025-06-15 - [getPlayerDashboard] Slow: [Fetching all targets on every poll] Sight: [Split targets into cached getCampaignTargets, removed from dashboard]
+ * ## 2025-06-16 - [getPublicCampaign] Slow: [Fetched unused stats for selection] Sight: [Optimized Select: PLAYER_SELECTION_SELECT]
  */
 
 // Reusable select constants for consistency and optimization
@@ -73,6 +74,15 @@ const PUBLIC_CHAR_SELECT = {
   maxHp: true,
   conditions: true,
   type: true
+} as const;
+
+const PLAYER_SELECTION_SELECT = {
+  id: true,
+  name: true,
+  imageUrl: true,
+  level: true,
+  race: true,
+  class: true
 } as const;
 
 const PLAYER_DASHBOARD_SELECT = {
@@ -188,7 +198,7 @@ export const getPublicCampaign = unstable_cache(
         characters: {
           where: { type: 'PLAYER' },
           orderBy: { name: 'asc' },
-          select: PUBLIC_CHAR_SELECT
+          select: PLAYER_SELECTION_SELECT
         }
       }
     });

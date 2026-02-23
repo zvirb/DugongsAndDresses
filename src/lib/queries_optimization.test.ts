@@ -36,7 +36,8 @@ import {
   getPlayerSkills,
   getPlayerInventory,
   getCampaignPulse,
-  getCampaignTargets
+  getCampaignTargets,
+  getPublicCampaign
 } from './queries';
 
 describe('Spectator Campaign Optimization', () => {
@@ -302,6 +303,45 @@ describe('General Query Optimizations', () => {
     // Verify Log Selection
     expect(select.logs).toBeDefined();
     expect(select.logs.take).toBe(5);
+  });
+
+  it('getPublicCampaign selects minimal fields for player selection', async () => {
+    (prisma.campaign.findFirst as any).mockResolvedValue({
+      id: 'c1',
+      name: 'Test Campaign',
+      characters: []
+    });
+
+    await getPublicCampaign();
+
+    const calls = (prisma.campaign.findFirst as any).mock.calls;
+    expect(calls.length).toBeGreaterThan(0);
+    const args = calls[0][0];
+
+    // Verify it filters for active campaign
+    expect(args.where.active).toBe(true);
+
+    // Verify it selects only name and characters
+    expect(args.select.name).toBe(true);
+    expect(args.select.characters).toBeDefined();
+
+    const charSelect = args.select.characters.select;
+
+    // Verify fields that SHOULD be selected (PLAYER_SELECTION_SELECT)
+    expect(charSelect.id).toBe(true);
+    expect(charSelect.name).toBe(true);
+    expect(charSelect.imageUrl).toBe(true);
+    expect(charSelect.level).toBe(true);
+    expect(charSelect.race).toBe(true);
+    expect(charSelect.class).toBe(true);
+
+    // Verify fields that SHOULD NOT be selected (from PUBLIC_CHAR_SELECT)
+    expect(charSelect.hp).toBeUndefined();
+    expect(charSelect.maxHp).toBeUndefined();
+    expect(charSelect.activeTurn).toBeUndefined();
+    expect(charSelect.conditions).toBeUndefined();
+    expect(charSelect.armorClass).toBeUndefined();
+    expect(charSelect.type).toBeUndefined();
   });
 
 });
