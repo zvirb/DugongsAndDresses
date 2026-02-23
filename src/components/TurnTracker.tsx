@@ -32,11 +32,20 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
 
     // Sort by initiative desc, then ID asc (stable sort matching server)
     const sortedParticipants = useMemo(() => {
-        return [...initialParticipants].sort((a, b) => {
+        // SENTRY: Defensive coding - filter out corrupt data (missing ID)
+        const validParticipants = initialParticipants.filter(p => {
+            if (!p.id) {
+                console.error("[SENTRY] TurnTracker received participant with missing ID:", p);
+                return false;
+            }
+            return true;
+        });
+
+        return [...validParticipants].sort((a, b) => {
             if (b.initiativeRoll !== a.initiativeRoll) {
                 return b.initiativeRoll - a.initiativeRoll;
             }
-            return a.id.localeCompare(b.id);
+            return (a.id || "").localeCompare(b.id || "");
         });
     }, [initialParticipants]);
 
@@ -46,6 +55,12 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
 
         // Find current active participant ID for optimistic concurrency check
         const currentActive = sortedParticipants.find(p => p.activeTurn);
+
+        // SENTRY: Defensive check
+        if (currentActive && !currentActive.id) {
+            console.error("[SENTRY] Active participant has no ID. Cannot advance.");
+            return;
+        }
 
         startTransition(async () => {
             const result = await advanceTurn(campaignId, currentActive?.id);
