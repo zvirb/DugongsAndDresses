@@ -75,6 +75,24 @@ export async function createCampaign(formData: FormData): Promise<ActionResult> 
     });
 }
 
+export async function updateCampaign(campaignId: string, name: string): Promise<ActionResult> {
+    return actionWrapper("updateCampaign", async () => {
+        if (!campaignId) throw new Error("Campaign ID is required");
+        if (!name || name.trim().length === 0) throw new Error("Campaign name is required");
+
+        const campaign = await prisma.campaign.update({
+            where: { id: campaignId },
+            data: { name: name.trim() }
+        });
+
+        await logAction(campaign.id, `The chronicle is renamed. It shall now be known as **${campaign.name}**.`, "Story");
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        return campaign;
+    });
+}
+
 export async function deleteCampaign(campaignId: string): Promise<ActionResult> {
     return actionWrapper("deleteCampaign", async () => {
         if (!campaignId) throw new Error("Campaign ID is required");
@@ -259,6 +277,86 @@ export async function performDash(characterId: string): Promise<ActionResult> {
         }
 
         await logAction(character.campaignId, `**${character.name}** sprints with desperate urgency, covering ground with unnatural speed!`, "PlayerAction");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        revalidatePath('/public');
+        return { success: true };
+    });
+}
+
+export async function performDisengage(characterId: string): Promise<ActionResult> {
+    return actionWrapper("performDisengage", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const currentConditions = parseConditions(character.conditions);
+        if (!currentConditions.includes("Disengaging")) {
+            currentConditions.push("Disengaging");
+            await prisma.character.update({
+                where: { id: characterId },
+                data: { conditions: stringifyConditions(currentConditions) }
+            });
+            await syncToSource(character);
+        }
+
+        await logAction(character.campaignId, `**${character.name}** carefully retreats, avoiding opportunities for enemy strikes.`, "PlayerAction");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        revalidatePath('/public');
+        return { success: true };
+    });
+}
+
+export async function performHide(characterId: string): Promise<ActionResult> {
+    return actionWrapper("performHide", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const currentConditions = parseConditions(character.conditions);
+        if (!currentConditions.includes("Hiding")) {
+            currentConditions.push("Hiding");
+            await prisma.character.update({
+                where: { id: characterId },
+                data: { conditions: stringifyConditions(currentConditions) }
+            });
+            await syncToSource(character);
+        }
+
+        await logAction(character.campaignId, `**${character.name}** slips into the shadows, attempting to vanish from sight.`, "PlayerAction");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        revalidatePath('/public');
+        return { success: true };
+    });
+}
+
+export async function performHelp(characterId: string): Promise<ActionResult> {
+    return actionWrapper("performHelp", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        // Help doesn't usually impart a persistent condition on self, but we'll log it clearly.
+        // Optionally we could add "Helping" state if visual feedback is desired.
+        const currentConditions = parseConditions(character.conditions);
+        if (!currentConditions.includes("Helping")) {
+            currentConditions.push("Helping");
+            await prisma.character.update({
+                where: { id: characterId },
+                data: { conditions: stringifyConditions(currentConditions) }
+            });
+            await syncToSource(character);
+        }
+
+        await logAction(character.campaignId, `**${character.name}** distracts the enemy, granting advantage to an ally's next effort!`, "PlayerAction");
 
         revalidatePath('/dm');
         revalidatePath('/player');
