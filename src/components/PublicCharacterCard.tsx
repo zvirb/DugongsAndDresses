@@ -114,7 +114,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                             LVL {character.level}
                         </Badge>
                         <div className="text-right">
-                            <span className="block text-4xl text-agent-blue/80 uppercase font-mono tracking-widest mb-1 font-bold">Defense</span>
+                            <span className="block text-5xl text-agent-blue/80 uppercase font-mono tracking-widest mb-1 font-bold">Defense</span>
                             <span className={`text-7xl font-black leading-none tracking-tighter drop-shadow-lg ${character.activeTurn ? 'text-white drop-shadow-[0_0_15px_rgba(43,43,238,0.8)]' : 'text-neutral-300'}`}>{character.armorClass}</span>
                         </div>
                     </div>
@@ -122,19 +122,19 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     <h2 className={`text-6xl lg:text-7xl font-black italic tracking-tighter uppercase mb-2 leading-none break-words text-balance drop-shadow-xl ${character.activeTurn ? 'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]' : 'text-neutral-300'}`}>
                         {character.name}
                     </h2>
-                    <p className="text-agent-blue text-4xl font-mono font-bold uppercase tracking-widest mb-10 opacity-90 truncate drop-shadow-md">
+                    <p className="text-agent-blue text-5xl font-mono font-bold uppercase tracking-widest mb-10 opacity-90 truncate drop-shadow-md">
                         {character.race} // {character.class}
                     </p>
                 </div>
 
                 <div className="mt-8">
                     <div className="flex justify-between items-end mb-4">
-                        <span className="text-4xl text-neutral-300 uppercase font-black tracking-[0.2em]">Vitality</span>
+                        <span className="text-5xl text-neutral-300 uppercase font-black tracking-[0.2em]">Vitality</span>
                         <div className="text-right flex items-baseline justify-end gap-3">
                             <span className={`text-8xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
                                 {displayHp}
                             </span>
-                            <span className="text-4xl text-neutral-300 font-bold">/ {character.maxHp}</span>
+                            <span className="text-5xl text-neutral-300 font-bold">/ {character.maxHp}</span>
                         </div>
                     </div>
 

@@ -1,0 +1,47 @@
+
+> temp-app@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 1871ms
+ ○ Compiling /public ...
+ ✓ Compiled /public in 4.3s (569 modules)
+ ⨯ PrismaClientKnownRequestError:
+Invalid `prisma.campaign.findFirst()` invocation:
+
+
+
+    at async getSpectatorCampaign (./src/lib/queries.ts:244:22)
+    at async PublicPage (./src/app/public/page.tsx:38:22)
+digest: "355229544"
+ ⨯ PrismaClientKnownRequestError:
+Invalid `prisma.campaign.findFirst()` invocation:
+
+
+
+    at async getSpectatorCampaign (./src/lib/queries.ts:244:22)
+    at async PublicPage (./src/app/public/page.tsx:38:22)
+digest: "355229544"
+ GET /public 500 in 4763ms
+ ✓ Compiled in 265ms (260 modules)
+ ✓ Compiled in 228ms (260 modules)
+ ✓ Compiled in 633ms (537 modules)
+ ✓ Compiled in 208ms (260 modules)
+ ○ Compiling /public-verify ...
+ ✓ Compiled /public-verify in 531ms (541 modules)
+ GET /public-verify 200 in 772ms
+ ✓ Compiled in 165ms (261 modules)
+ ✓ Compiled in 243ms (261 modules)
+ GET /public-verify 200 in 45ms
+ ✓ Compiled in 173ms (261 modules)
+ ✓ Compiled in 157ms (260 modules)
+ ✓ Compiled in 349ms (551 modules)
+ ✓ Compiled in 654ms (551 modules)
