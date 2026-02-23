@@ -15,7 +15,7 @@ export const DND_CONDITIONS = [
     'Incapacitated', 'Invisible', 'Paralyzed', 'Petrified',
     'Poisoned', 'Prone', 'Restrained', 'Stunned', 'Unconscious',
     // Custom Actions masquerading as conditions
-    'Dodging', 'Dashing'
+    'Dodging', 'Dashing', 'Disengaging', 'Hiding', 'Helping'
 ];
 
 /**

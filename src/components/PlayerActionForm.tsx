@@ -10,16 +10,16 @@
 // ## 2025-06-09 - [Interaction] Thumb Zone: [Inputs/Buttons < 44px] Path: [Increased all inputs/secondary buttons to h-24, primary to h-32]
 // ## 2025-06-10 - [Layout] Density: [Primary/Secondary buttons too tall] Path: [Reduced primary to h-24, secondary to h-20]
 
-import { logAction, performAttack, castSpell, performLongRest, performDodge, performDash } from "@/app/actions";
+import { logAction, performAttack, castSpell, performLongRest, performShortRest, performDodge, performDash, performDisengage, performHide, performHelp } from "@/app/actions";
 import { useTransition, useState, useEffect } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { secureRoll } from "@/lib/dice";
 
 const PRIMARY_ACTIONS = ["Attack", "Cast"];
-const SECONDARY_ACTIONS = ["Dodge", "Dash", "Rest"];
+const SECONDARY_ACTIONS = ["Dodge", "Dash", "Disengage", "Hide", "Help", "Rest"];
 
-type ActionMode = 'INTENT' | 'ATTACK' | 'CAST';
+type ActionMode = 'INTENT' | 'ATTACK' | 'CAST' | 'REST';
 
 function sanitizeInput(input: string): string {
     if (!input) return "";
@@ -63,6 +63,10 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
     // Cast State
     const [spell, setSpell] = useState("");
 
+    // Rest State
+    const [restType, setRestType] = useState<'SHORT' | 'LONG'>('SHORT');
+    const [healing, setHealing] = useState("");
+
     const handleRoll = (setter: (val: string) => void) => {
         setter(secureRoll(20).toString());
     };
@@ -73,14 +77,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
         } else if (action === "Cast") {
             setMode('CAST');
         } else if (action === "Rest") {
-             if (!confirm("Take a Long Rest? This will restore HP to max.")) return;
-             startTransition(async () => {
-                 try {
-                     await performLongRest(characterId);
-                 } catch (e) {
-                     console.error(e);
-                 }
-             });
+             setMode('REST');
         } else if (action === "Dodge") {
             if (!confirm("Take the Dodge action? (Disadvantage on attacks against you)")) return;
             startTransition(async () => {
@@ -94,6 +91,33 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
              startTransition(async () => {
                 try {
                     await performDash(characterId);
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+        } else if (action === "Disengage") {
+             if (!confirm("Take the Disengage action?")) return;
+             startTransition(async () => {
+                try {
+                    await performDisengage(characterId);
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+        } else if (action === "Hide") {
+             if (!confirm("Take the Hide action?")) return;
+             startTransition(async () => {
+                try {
+                    await performHide(characterId);
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+        } else if (action === "Help") {
+             if (!confirm("Take the Help action?")) return;
+             startTransition(async () => {
+                try {
+                    await performHelp(characterId);
                 } catch (e) {
                     console.error(e);
                 }
@@ -141,6 +165,26 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
         });
     };
 
+    const handleSubmitRest = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        startTransition(async () => {
+            try {
+                if (restType === 'LONG') {
+                     await performLongRest(characterId);
+                } else {
+                     const healAmount = parseInt(healing) || 0;
+                     await performShortRest(characterId, healAmount);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            setMode('INTENT');
+            setHealing("");
+            setRestType('SHORT');
+        });
+    };
+
     const handleSubmitIntent = async (e: React.FormEvent) => {
         e.preventDefault();
         const cleanIntent = sanitizeInput(intent);
@@ -159,6 +203,72 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
     };
 
     const selectClass = "bg-black/40 border-white/10 text-white focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl font-mono w-full rounded-md px-3 appearance-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]";
+
+    if (mode === 'REST') {
+        return (
+             <form onSubmit={handleSubmitRest} className="space-y-6 bg-black/40 p-6 rounded-2xl border border-agent-blue/30 shadow-lg backdrop-blur-md animate-in zoom-in-95 duration-200">
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-sm font-black uppercase tracking-[0.2em] text-emerald-400 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        Rest & Recovery
+                    </h3>
+                    <Button type="button" variant="ghost" onClick={() => setMode('INTENT')} className="h-16 px-6 text-xs uppercase tracking-wider text-neutral-500 hover:text-white border border-white/5 bg-white/5 active:bg-white/10 active:scale-95 transition-all">Cancel</Button>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="flex gap-4">
+                        <Button
+                            type="button"
+                            variant={restType === 'SHORT' ? 'agent' : 'ghost'}
+                            onClick={() => setRestType('SHORT')}
+                            className={`flex-1 h-20 text-lg font-black uppercase tracking-widest ${restType === 'SHORT' ? 'shadow-[0_0_15px_rgba(43,43,238,0.3)]' : 'bg-black/20 text-neutral-500'}`}
+                        >
+                            Short Rest
+                        </Button>
+                        <Button
+                            type="button"
+                            variant={restType === 'LONG' ? 'agent' : 'ghost'}
+                            onClick={() => setRestType('LONG')}
+                            className={`flex-1 h-20 text-lg font-black uppercase tracking-widest ${restType === 'LONG' ? 'shadow-[0_0_15px_rgba(43,43,238,0.3)]' : 'bg-black/20 text-neutral-500'}`}
+                        >
+                            Long Rest
+                        </Button>
+                    </div>
+
+                    {restType === 'SHORT' && (
+                        <div className="space-y-2 animate-in slide-in-from-top-2">
+                             <label className="block text-[10px] uppercase tracking-wider font-bold text-neutral-500 mb-1">Healing Amount (Hit Dice)</label>
+                             <Input
+                                autoFocus
+                                type="number"
+                                placeholder="e.g. 12"
+                                value={healing}
+                                onChange={e => setHealing(e.target.value)}
+                                className="bg-black/40 border-white/10 focus:border-emerald-500/50 focus:ring-emerald-500/20 h-20 text-xl font-mono text-center"
+                            />
+                            <p className="text-[10px] text-neutral-500 text-center uppercase tracking-wide">Enter total HP regained from Hit Dice.</p>
+                        </div>
+                    )}
+
+                    {restType === 'LONG' && (
+                         <div className="bg-emerald-900/10 border border-emerald-500/20 p-4 rounded-xl text-center animate-in slide-in-from-top-2">
+                            <p className="text-emerald-400 font-mono text-sm uppercase tracking-wide">Full Restoration</p>
+                            <p className="text-[10px] text-emerald-400/60 mt-1">HP and Spell Slots will be restored.</p>
+                         </div>
+                    )}
+
+                    <Button
+                        type="submit"
+                        variant="agent"
+                        disabled={isPending}
+                        className="w-full h-28 text-2xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] border-emerald-500/50 text-emerald-200 hover:bg-emerald-900/50 active:scale-95 active:brightness-90 transition-all touch-manipulation"
+                    >
+                        {isPending ? 'Resting...' : (restType === 'SHORT' ? 'TAKE SHORT REST' : 'TAKE LONG REST')}
+                    </Button>
+                </div>
+             </form>
+        );
+    }
 
     if (mode === 'ATTACK') {
         return (

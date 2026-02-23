@@ -1,6 +1,6 @@
 'use client';
 
-import { activateCampaign, createCampaign, deleteCampaign } from "@/app/actions";
+import { activateCampaign, createCampaign, deleteCampaign, updateCampaign } from "@/app/actions";
 import { useTransition, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/Button";
@@ -9,6 +9,7 @@ import { Input } from "./ui/Input";
 export default function CampaignSelector({ campaigns, activeId }: { campaigns: { id: string, name: string }[], activeId: string }) {
     const [isPending, startTransition] = useTransition();
     const [isCreating, setIsCreating] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const id = e.target.value;
@@ -50,6 +51,43 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
         );
     }
 
+    if (isEditing) {
+        const currentName = campaigns.find(c => c.id === activeId)?.name || "";
+        return (
+            <form action={async (formData) => {
+                const name = formData.get('name') as string;
+                if (name && name !== currentName) {
+                    startTransition(async () => {
+                        await updateCampaign(activeId, name);
+                        setIsEditing(false);
+                    });
+                } else {
+                    setIsEditing(false);
+                }
+            }} className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <Input
+                    name="name"
+                    defaultValue={currentName}
+                    className="h-8 w-[180px] text-xs bg-black/50 border-agent-blue/50 text-agent-blue placeholder:text-agent-blue/40 font-mono focus:bg-black/80 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
+                    autoFocus
+                    required
+                />
+                <Button type="submit" size="sm" variant="agent" disabled={isPending} className="h-8 shadow-[0_0_10px_rgba(43,43,238,0.3)]">
+                    {isPending ? "..." : "SAVE"}
+                </Button>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditing(false)}
+                    className="h-8 w-8 p-0 text-agent-blue/60 hover:text-red-400 hover:bg-red-900/20 rounded-full"
+                >
+                    ×
+                </Button>
+            </form>
+        );
+    }
+
     return (
         <div className="flex items-center gap-2">
             <div className="relative group">
@@ -74,6 +112,16 @@ export default function CampaignSelector({ campaigns, activeId }: { campaigns: {
                     </svg>
                 </div>
             </div>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-agent-blue/60 hover:text-white hover:bg-agent-blue/10 transition-all"
+                onClick={() => setIsEditing(true)}
+                disabled={isPending || !activeId}
+                title="Rename Campaign"
+            >
+               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+            </Button>
             <Button 
                 variant="outline" 
                 size="icon" 
