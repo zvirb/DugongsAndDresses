@@ -50,8 +50,6 @@ const PRESETS = [
     '/avatars/wizard_male_1770266164795.png',
 ];
 
-// ... (PRESETS array remains the same)
-
 export default function AvatarSelector({
     characterId,
     isOpen: controlledIsOpen,
@@ -98,7 +96,7 @@ export default function AvatarSelector({
         <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
             <Popover.Trigger asChild>
                 <button
-                    className="mt-2 text-xs bg-neutral-800 hover:bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-neutral-300 flex items-center gap-2"
+                    className="mt-2 text-[10px] font-bold uppercase tracking-wider bg-agent-navy/50 hover:bg-agent-blue/20 border border-agent-blue/30 hover:border-agent-blue px-2 py-1 rounded text-agent-blue flex items-center gap-2 transition-all shadow-[0_0_10px_rgba(43,43,238,0.1)] hover:shadow-[0_0_15px_rgba(43,43,238,0.3)] w-full justify-center"
                     disabled={isPending}
                 >
                     {isPending ? 'Updating...' : 'Change Avatar'}
@@ -106,45 +104,48 @@ export default function AvatarSelector({
             </Popover.Trigger>
             <Popover.Portal>
                 <Popover.Content
-                    className="z-50 w-64 bg-neutral-800 border-2 border-neutral-600 rounded-lg shadow-xl p-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+                    className="z-50 w-64 bg-agent-navy/95 backdrop-blur-md border border-agent-blue rounded-lg shadow-[0_0_30px_rgba(43,43,238,0.3)] p-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-1 ring-white/10"
                     sideOffset={5}
                 >
-                    <h4 className="text-sm font-bold text-white mb-2">Choose Avatar</h4>
+                    <h4 className="text-xs font-bold text-agent-blue uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-agent-blue rounded-full animate-pulse shadow-[0_0_5px_#2b2bee]" />
+                        Select Visual ID
+                    </h4>
 
                     {/* Presets */}
-                    <div className="grid grid-cols-4 gap-2 mb-4 max-h-60 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-4 gap-2 mb-4 max-h-60 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-agent-blue/30 scrollbar-track-transparent">
                         {PRESETS.map((src, i) => (
                             <button
                                 key={i}
                                 onClick={() => handlePresetSelect(src)}
-                                className="w-10 h-10 rounded-full bg-neutral-700 hover:bg-neutral-600 border border-neutral-500 overflow-hidden"
+                                className="w-10 h-10 rounded-full bg-agent-navy/50 hover:bg-agent-blue/20 border border-agent-blue/30 hover:border-agent-blue overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_10px_rgba(43,43,238,0.4)]"
                                 title={src.split('/').pop()}
                             >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={src} alt="preset" className="w-full h-full object-cover" />
+                                <img src={src} alt="preset" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" />
                             </button>
                         ))}
                     </div>
 
-                    <div className="border-t border-neutral-600 pt-3">
-                        <label className="block text-xs text-neutral-400 mb-1">Upload Custom</label>
+                    <div className="border-t border-agent-blue/20 pt-3">
+                        <label className="block text-[10px] text-agent-blue/60 mb-1 uppercase tracking-widest font-bold">Upload Custom Data</label>
                         <input
                             type="file"
                             accept="image/*"
                             onChange={handleFileUpload}
-                            className="block w-full text-xs text-neutral-400 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-neutral-700 file:text-neutral-300 hover:file:bg-neutral-600"
+                            className="block w-full text-[10px] text-agent-blue/50 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:uppercase file:tracking-wider file:bg-agent-blue/20 file:text-agent-blue hover:file:bg-agent-blue/30 transition-all cursor-pointer"
                         />
                     </div>
 
                     <Popover.Close asChild>
                         <button
-                            className="mt-3 w-full text-xs text-center text-neutral-500 hover:text-neutral-300"
+                            className="mt-3 w-full text-[10px] text-center text-agent-blue/40 hover:text-white uppercase tracking-widest font-bold transition-colors hover:bg-white/5 rounded py-1"
                             aria-label="Close"
                         >
                             Cancel
                         </button>
                     </Popover.Close>
-                    <Popover.Arrow className="fill-neutral-600" />
+                    <Popover.Arrow className="fill-agent-navy stroke-agent-blue" />
                 </Popover.Content>
             </Popover.Portal>
         </Popover.Root>
