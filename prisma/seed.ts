@@ -12,6 +12,7 @@
 // ## 2025-05-29 - [Seed] Gap: No steampunk/clockwork themed campaign. Summon: Added 'The Clockwork City' with Cogsworth and Ironclad.
 // ## 2025-05-30 - [Seed] Gap: No sky/air themed campaign. Summon: Added 'The Floating Isles' with Captain Zephyr and Aeris.
 // ## 2025-05-31 - [Seed] Gap: No urban/thieves guild themed campaign. Summon: Added 'Shadows of Ravenport' with Silas, Lyra, and Captain Valda.
+// ## 2025-06-01 - [Seed] Gap: No carnival or horror themed campaign. Summon: Added 'The Twisted Carnival' and 'The Haunted Mansion' with diverse NPCs.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -695,6 +696,70 @@ const libraryCharacters: CharacterTemplate[] = [
     attributes: { str: 14, dex: 10, con: 16, int: 10, wis: 12, cha: 10 },
     activeTurn: false,
     level: 2,
+  },
+  {
+    name: 'Town Guard',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Fighter',
+    imageUrl: '/avatars/fighter_male_1770266261627.png',
+    hp: 20,
+    maxHp: 20,
+    armorClass: 16,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 14, dex: 12, con: 14, int: 10, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 2,
+  },
+  {
+    name: 'Blacksmith',
+    type: 'NPC',
+    race: 'Dwarf',
+    class: 'Expert',
+    imageUrl: '/avatars/dwarf_fighter_male_1770268439402.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 12,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 16, dex: 10, con: 16, int: 12, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Merchant',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Commoner',
+    imageUrl: '/avatars/wizard_male_1770266164795.png',
+    hp: 10,
+    maxHp: 10,
+    armorClass: 10,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 10, con: 10, int: 14, wis: 14, cha: 14 },
+    activeTurn: false,
+    level: 1,
+  },
+  {
+    name: 'Cultist',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Warlock',
+    imageUrl: '/avatars/cleric_male_1770266221119.png',
+    hp: 12,
+    maxHp: 12,
+    armorClass: 11,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 12, con: 10, int: 10, wis: 10, cha: 12 },
+    activeTurn: false,
+    level: 1,
   },
 ]
 
@@ -1791,6 +1856,156 @@ const shadowsOfRavenportCharacters: CharacterTemplate[] = [
   }
 ]
 
+const twistedCarnivalCharacters: CharacterTemplate[] = [
+  {
+    name: 'Ringmaster Cornelius',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Bard',
+    imageUrl: '/avatars/bard_male_1770267480087.png',
+    hp: 40,
+    maxHp: 40,
+    armorClass: 14,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 16, con: 12, int: 14, wis: 14, cha: 18 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Jiggles',
+    type: 'NPC',
+    race: 'Tiefling',
+    class: 'Jester',
+    imageUrl: '/avatars/jester_male_1770267240604.png',
+    hp: 25,
+    maxHp: 25,
+    armorClass: 15,
+    initiative: 5,
+    initiativeRoll: 0,
+    speed: 35,
+    attributes: { str: 8, dex: 18, con: 12, int: 10, wis: 8, cha: 16 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Madame Luna',
+    type: 'NPC',
+    race: 'Elf',
+    class: 'Sorcerer',
+    imageUrl: '/avatars/nymph_female_1770267925456.png',
+    hp: 22,
+    maxHp: 22,
+    armorClass: 12,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 14, con: 12, int: 12, wis: 16, cha: 16 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Strongman Brutus',
+    type: 'NPC',
+    race: 'Orc',
+    class: 'Barbarian',
+    imageUrl: '/avatars/fantasy_barbarian_male_1770266807624.png',
+    hp: 50,
+    maxHp: 50,
+    armorClass: 14,
+    initiative: 1,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 20, dex: 12, con: 18, int: 6, wis: 10, cha: 12 },
+    activeTurn: false,
+    level: 5,
+  },
+  {
+    name: 'Knife Thrower',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Rogue',
+    imageUrl: '/avatars/thief_male_1770267828895.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 15,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 18, con: 12, int: 10, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  }
+]
+
+const hauntedMansionCharacters: CharacterTemplate[] = [
+  {
+    name: 'Ghost of Lord Manor',
+    type: 'NPC',
+    race: 'Spirit',
+    class: 'Undead',
+    imageUrl: '/avatars/wizard_male_1770266164795.png',
+    hp: 30,
+    maxHp: 30,
+    armorClass: 12,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 6, dex: 14, con: 10, int: 14, wis: 12, cha: 16 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Vampire Count',
+    type: 'NPC',
+    race: 'Vampire',
+    class: 'Noble',
+    imageUrl: '/avatars/elf_male_1770267634807.png',
+    hp: 60,
+    maxHp: 60,
+    armorClass: 16,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 16, dex: 16, con: 16, int: 14, wis: 14, cha: 18 },
+    activeTurn: false,
+    level: 7,
+  },
+  {
+    name: 'Zombie Butler',
+    type: 'NPC',
+    race: 'Zombie',
+    class: 'Servant',
+    imageUrl: '/avatars/fighter_male_1770266290109.png',
+    hp: 22,
+    maxHp: 22,
+    armorClass: 10,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 20,
+    attributes: { str: 14, dex: 8, con: 16, int: 6, wis: 6, cha: 6 },
+    activeTurn: false,
+    level: 2,
+  },
+  {
+    name: 'Scared Guest',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Commoner',
+    imageUrl: '/avatars/bard_female_1770267498918.png',
+    hp: 10,
+    maxHp: 10,
+    armorClass: 10,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+    activeTurn: false,
+    level: 1,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -2347,6 +2562,78 @@ async function main() {
   })
 
   console.log(`🗝️ Campaign "${shadowsOfRavenportCampaign.name}" created.`)
+
+  // Create The Twisted Carnival Campaign (Inactive)
+  const twistedCarnivalCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Twisted Carnival',
+      active: false,
+      characters: {
+        create: twistedCarnivalCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The lights of **The Twisted Carnival** flicker ominously.', type: 'Story' },
+          { content: '**Ringmaster Cornelius** tips his hat to the crowd.', type: 'Story' },
+          { content: '**Strongman Brutus** bends an iron bar with ease.', type: 'Story' },
+          { content: 'A maniacal laugh echoes from the funhouse... **Jiggles**?', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`🎪 Campaign "${twistedCarnivalCampaign.name}" created.`)
+
+  // Create The Haunted Mansion Campaign (Inactive)
+  const hauntedMansionCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Haunted Mansion',
+      active: false,
+      characters: {
+        create: hauntedMansionCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'Thunder crashes as you approach **The Haunted Mansion**.', type: 'Story' },
+          { content: '**Zombie Butler** creaks the heavy door open.', type: 'Story' },
+          { content: 'A chill runs down your spine as the **Ghost of Lord Manor** appears.', type: 'Story' },
+          { content: '**Scared Guest** screams in terror!', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`👻 Campaign "${hauntedMansionCampaign.name}" created.`)
 }
 
 main()
