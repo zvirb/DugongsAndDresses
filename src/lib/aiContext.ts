@@ -16,6 +16,7 @@
 // ## 2026-02-05 - [Context] Gap: [Duplicate initiative data] Fix: [Streamlined INITIATIVE list, enriched CHARACTERS list]
 // ## 2026-02-05 - [Context] Gap: [Potential null/undefined values] Fix: [Added safe fallbacks for race, class, type, speed]
 // ## 2026-02-06 - [Context] Gap: [Missing active details] Fix: [Added PP/Slots to active turn, denser stats, stricter instructions]
+// ## 2026-06-03 - [Context] Gap: [Active Turn Details Missing, Fluff Instructions] Fix: [Added Stats/Inv to Active Turn, Condensed Instructions, Standardized Headers]
 
 import { parseConditions, parseInventory, parseAttributes } from '@/lib/safe-json';
 import { Character, LogEntry } from "@/types";
@@ -35,7 +36,7 @@ export function generateAIContext(
         if (activeChar.hp <= 0 && !conditions.some(cond => ['unconscious', 'down', 'dead', 'dying'].includes(cond.toLowerCase()))) {
             conditions.push('DOWN');
         }
-        const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'Healthy';
+        const conditionText = conditions.length > 0 ? `[${conditions.join(', ')}]` : 'None';
         const hpPercent = activeChar.maxHp > 0 ? Math.floor((activeChar.hp / activeChar.maxHp) * 100) : 0;
 
         const type = activeChar.type || '?';
@@ -55,6 +56,16 @@ export function generateAIContext(
         }
         const pp = 10 + Math.floor((wis - 10) / 2);
 
+        // Core Stats (S, D, C, I, W, Ch)
+        const coreStatsMap: Record<string, string> = { str: 'S', dex: 'D', con: 'C', int: 'I', wis: 'W', cha: 'Ch' };
+        const coreStats = ['str', 'dex', 'con', 'int', 'wis', 'cha']
+            .map(k => {
+                const val = attributes[k as keyof typeof attributes];
+                const numVal = typeof val === 'number' ? val : (parseInt(String(val)) || 10);
+                return `${coreStatsMap[k]}:${numVal}`;
+            })
+            .join(' ');
+
         // Extra Resources (Spell Slots, Ki, etc.)
         const extraStats = Object.entries(attributes)
             .filter(([k]) => !['str', 'dex', 'con', 'int', 'wis', 'cha'].includes(k.toLowerCase()))
@@ -65,10 +76,17 @@ export function generateAIContext(
             })
             .join(', ');
 
-        activeTurnSection = `▶ ${activeChar.name} (${activeChar.level} ${race} ${cls})
+        const inventory = parseInventory(activeChar.inventory);
+        const invText = inventory.length > 0
+            ? `[${inventory.slice(0, 5).join(', ')}${inventory.length > 5 ? '...' : ''}]`
+            : '[]';
+
+        activeTurnSection = `Name: ${activeChar.name} | Race: ${race} | Class: ${cls} (${activeChar.level})
 HP: ${activeChar.hp}/${activeChar.maxHp} (${hpPercent}%) | AC: ${activeChar.armorClass} | PP: ${pp} | Spd: ${speed}
-Conditions: ${conditionText}
-${extraStats ? `Resources: [${extraStats}]` : ''}`.trim();
+Stats: ${coreStats}
+Cond: ${conditions.length > 0 ? `[${conditions.join(', ')}]` : 'None'}
+Res: ${extraStats ? `[${extraStats}]` : '[]'}
+Inv: ${invText}`.trim();
     }
 
     // 2. Initiative List (Concise)
@@ -82,7 +100,7 @@ ${extraStats ? `Resources: [${extraStats}]` : ''}`.trim();
         if (c.hp <= 0 && !conditions.some(cond => ['unconscious', 'down', 'dead', 'dying'].includes(cond.toLowerCase()))) {
             conditions.push('DOWN');
         }
-        const conditionText = conditions.length > 0 ? `Cond:[${conditions.join(',')}]` : 'Healthy';
+        const conditionText = conditions.length > 0 ? `Cond:[${conditions.join(',')}]` : 'Cond:None';
         const attributes = parseAttributes(c.attributes);
 
         // Core Stats (Compressed)
@@ -147,13 +165,7 @@ ${charDetails}
 ${logSummary}
 
 == INSTRUCTIONS ==
-Role: Narrator. Task: Describe [ACTIVE]'s action based on Logs.
-Context:
-- [ACTIVE]: Current turn.
-- HP%: <50% (Bloodied), 0% (Down/Unconscious).
-- Logs: Truth. Do not hallucinate rolls.
-Rules:
-- Max 2 sentences. Present tense. Visceral.
-- Mention mechanics (Attack/Damage/DC) naturally.
-- Highlight condition changes (e.g. "Knocked prone").`;
+Role: Narrator. Describe [ACTIVE]'s turn.
+Context: Logs are TRUTH. No roll hallucinations.
+Rules: Present tense. Visceral. <3 sentences. Highlight mechanics & conditions.`;
 }

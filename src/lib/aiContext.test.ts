@@ -69,7 +69,7 @@ describe('generateAIContext', () => {
 
         const context = generateAIContext(logs, characters, turnOrder);
         // Updated expectation for active turn header
-        expect(context).toContain('▶ Hero (1 ? ?)');
+        expect(context).toContain('Name: Hero');
         expect(context).toContain('HP: 10/10 (100%)');
         expect(context).toContain('PP: 10');
     });
