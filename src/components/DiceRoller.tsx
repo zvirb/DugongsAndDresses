@@ -19,6 +19,7 @@
 // ## 2025-06-09 - [Dice] Feedback: [Single number animation for Adv/Dis] Fix: [Animating both dice values during roll]
 // ## 2025-06-10 - [Layout] Compactness: [Buttons taking too much vertical space] Fix: [Reduced dice buttons to h-16]
 // ## 2025-06-11 - [Dice] Log: [Verbose Advantage logs] Fix: [Simplified format to [Advantage: X, Y]]
+// ## 2025-06-12 - [Dice] Log: [Unordered Advantage logs] Fix: [Sorted Advantage (High->Low) and Disadvantage (Low->High) for clarity]
 
 import { useState, useCallback, useEffect } from 'react';
 import { logAction } from '@/app/actions';
@@ -102,10 +103,14 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                 rolls.push(roll2);
                 if (mode === 'ADVANTAGE') {
                     result = Math.max(roll1, roll2);
-                    details = ` [Advantage: **${roll1}**, **${roll2}**]`;
+                    // Sort Descending: High, Low
+                    rolls.sort((a, b) => b - a);
+                    details = ` [Advantage: **${rolls[0]}**, **${rolls[1]}**]`;
                 } else {
                     result = Math.min(roll1, roll2);
-                    details = ` [Disadvantage: **${roll1}**, **${roll2}**]`;
+                    // Sort Ascending: Low, High
+                    rolls.sort((a, b) => a - b);
+                    details = ` [Disadvantage: **${rolls[0]}**, **${rolls[1]}**]`;
                 }
             }
 
