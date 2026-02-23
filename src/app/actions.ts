@@ -23,6 +23,7 @@ import { Character, Settings } from "@prisma/client";
 // ## 2025-05-26 - [Log] Boring: [Generic "Attacks", "Hits"] Song: [Enhanced with "Strikes", "Devastating blow", "The blow goes wide"]
 // ## 2025-06-07 - [Log] Boring: [Generic "Attacks", "Casts", "Checks", "Creates", "Deletes", "Inventory"] Song: [Enhanced with "Fatal opening", "Stumbles disastrously", "Reality bends", "New legend begins", "Pages fade", "Secures", "Casts aside"]
 // ## 2025-06-10 - [Log] Boring: [Generic "Condition Update", "Encounter"] Song: [Enhanced with "Afflicted by", "Shakes off", "Drafts new encounter", "Discards encounter", "Attempt succeeds/falls short"]
+// ## 2025-06-14 - [Log] Boring: [Generic "Attack", "Initiative", "Turn"] Song: [Enhanced with narrative flavor: "Blow connects", "Enters the fray", "Spotlight falls on", "Weaves a threat", "Erases from existence"]
 
 // ARTIFICER'S JOURNAL - CRITICAL LEARNINGS ONLY:
 // Format: ## YYYY-MM-DD - [Stub] Hollow: [Rest Button did nothing] Forge: [Added resetHP action & log]
@@ -319,7 +320,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
         // but maybe the user wants to keep the last roll?
         // Let's NOT sync initiative roll to source as it's ephemeral.
 
-        const content = `**${character.name}** prepares for battle! Initiative: **${roll}**.`;
+        const content = `**${character.name}** enters the fray with a roll of **${roll}**!`;
         await logAction(character.campaignId, content, "Combat");
 
         revalidatePath('/dm');
@@ -456,7 +457,7 @@ async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string
         throw error;
     }
 
-    await logAction(campaignId, `The chaos of battle shifts. It is now **${newActiveChar.name}**'s turn to shape fate.`, "Combat");
+    await logAction(campaignId, `The spotlight falls on **${newActiveChar.name}**. It is their moment to act.`, "Combat");
 
     revalidatePath('/dm');
     revalidatePath('/public');
@@ -499,7 +500,7 @@ export async function updateCharacterImage(characterId: string, imageUrl: string
             data: { imageUrl }
         });
 
-        const content = `**${character.name}** reveals a new appearance.`;
+        const content = `**${character.name}** shifts their form, revealing a new visage.`;
         await logAction(character.campaignId, content, "Story");
 
         revalidatePath('/public');
@@ -680,9 +681,9 @@ export async function updateConditions(characterId: string, conditions: string[]
         });
 
         if (conditions.length === 0) {
-            await logAction(character.campaignId, `**${character.name}** is cleared of all conditions.`, "Story");
+            await logAction(character.campaignId, `**${character.name}** is purged of all ailments.`, "Story");
         } else {
-            await logAction(character.campaignId, `**${character.name}** is now suffering from: **${conditions.join(", ")}**.`, "Story");
+            await logAction(character.campaignId, `**${character.name}** falls under the influence of: **${conditions.join(", ")}**.`, "Story");
         }
 
         await syncToSource(character);
@@ -852,7 +853,7 @@ export async function deleteEncounter(encounterId: string): Promise<ActionResult
             where: { id: encounterId }
         });
 
-        await logAction(encounter.campaignId, `The DM discards the encounter **${encounter.name}**.`, "Story");
+        await logAction(encounter.campaignId, `The DM erases the encounter **${encounter.name}** from existence.`, "Story");
 
         revalidatePath('/dm');
         return { success: true };
@@ -901,7 +902,7 @@ export async function saveEncounter(campaignId: string, participants: Participan
             }
         });
 
-        await logAction(encounter.campaignId, `The DM drafts a new encounter: **${encounter.name}**.`, "Story");
+        await logAction(encounter.campaignId, `The DM weaves a new threat: **${encounter.name}**.`, "Story");
 
         revalidatePath('/dm');
         return encounter;
@@ -947,26 +948,28 @@ export async function performAttack(attackerId: string, targetId: string | undef
 
         if (target) {
              if (isCrit) {
-                content = `**CRITICAL HIT**! **${attacker.name}** finds a fatal opening and strikes **${target.name}** with deadly precision!`;
+                content = `**CRITICAL HIT**! **${attacker.name}** finds a fatal opening and strikes **${target.name}** with deadly precision`;
              } else if (isFumble) {
-                content = `**CRITICAL MISS**! **${attacker.name}** stumbles disastrously, their attack going wide!`;
+                content = `**CRITICAL MISS**! **${attacker.name}** stumbles disastrously, their attack against **${target.name}** going wide`;
              } else if (isHit) {
-                content = `**${attacker.name}** lands a solid blow on **${target.name}**!`;
+                content = `**${attacker.name}** attacks **${target.name}** and the blow connects`;
              } else {
-                content = `**${attacker.name}** attacks **${target.name}**, but the blow is deflected!`;
+                content = `**${attacker.name}** attacks **${target.name}**, but the attempt is thwarted`;
              }
         } else {
              if (isCrit) {
-                content = `**CRITICAL HIT**! **${attacker.name}** unleashes a devastating attack!`;
+                content = `**CRITICAL HIT**! **${attacker.name}** unleashes a devastating attack`;
              } else if (isFumble) {
-                content = `**CRITICAL MISS**! **${attacker.name}** stumbles disastrously!`;
+                content = `**CRITICAL MISS**! **${attacker.name}** stumbles disastrously`;
              } else {
-                content = `**${attacker.name}** attacks...`;
+                content = `**${attacker.name}** lashes out`;
              }
         }
 
         if (attackRoll !== undefined) {
              content += ` (Roll: **${attackRoll}**)`;
+        } else if (!isHit || !target) {
+             content += `!`;
         }
 
         let updatedTarget = target;
@@ -979,14 +982,16 @@ export async function performAttack(attackerId: string, targetId: string | undef
             });
             await syncToSource(updatedTarget);
 
-            content += `, cutting deep for **${dmg}** damage`;
+            content += `, dealing **${dmg}** damage`;
             if (updatedTarget.hp <= 0) {
-                content += `, knocking them **UNCONSCIOUS**!`;
+                content += `. The strike is too much, knocking them **UNCONSCIOUS**!`;
             } else {
                 content += `.`;
             }
         } else if (target && isHit && damage !== undefined) {
-            content += ` but deals no damage.`;
+            content += `, but the blow glances off harmlessly.`;
+        } else if (target && isHit) {
+             content += `.`; // Hit with no damage and no damage parameter (flavor hit)
         }
 
         await logAction(attacker.campaignId, content, "Combat");
@@ -1060,9 +1065,11 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
             if (target) targetName = target.name;
         }
 
-        let content = `**${caster.name}** channels the raw power of the weave, casting **${validated.spellName}**`;
+        let content = `**${caster.name}** invokes **${validated.spellName}**`;
         if (targetName) {
-            content += `, targeting **${targetName}**`;
+            content += ` upon **${targetName}**`;
+        } else {
+            content += `, channeling the raw power of the weave`;
         }
 
         if (validated.condition && target) {

@@ -92,7 +92,7 @@ describe('Bard Logging Enhancements', () => {
         const content = createCall.data.content;
 
         expect(content).toContain('**Grom** attacks **Goblin**');
-        expect(content).toContain('but the blow is deflected!');
+        expect(content).toContain('but the attempt is thwarted');
     });
   });
 
@@ -268,8 +268,7 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** prepares for battle!');
-        expect(content).toContain('Initiative: **15**');
+        expect(content).toContain('**Grom** enters the fray with a roll of **15**!');
       });
   });
 
@@ -349,7 +348,7 @@ describe('Bard Logging Enhancements', () => {
 
           const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
           const content = createCall.data.content;
-          expect(content).toContain('**Grom** is cleared of all conditions');
+          expect(content).toContain('**Grom** is purged of all ailments');
       });
 
       it('should log setting multiple conditions', async () => {
@@ -361,7 +360,7 @@ describe('Bard Logging Enhancements', () => {
 
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
-        expect(content).toContain('**Grom** is now suffering from: **Blinded, Stunned**');
+        expect(content).toContain('**Grom** falls under the influence of: **Blinded, Stunned**');
       });
   });
 
@@ -375,7 +374,7 @@ describe('Bard Logging Enhancements', () => {
 
           const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
           const content = createCall.data.content;
-          expect(content).toContain('The DM drafts a new encounter: **Encounter 1**');
+          expect(content).toContain('The DM weaves a new threat: **Encounter 1**');
       });
   });
 
@@ -389,7 +388,7 @@ describe('Bard Logging Enhancements', () => {
 
           const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
           const content = createCall.data.content;
-          expect(content).toContain('The DM discards the encounter **Encounter 1**');
+          expect(content).toContain('The DM erases the encounter **Encounter 1** from existence');
       });
   });
 });
