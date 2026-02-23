@@ -17,6 +17,8 @@ import { SystemClock } from "@/components/SystemClock";
  * ## 2025-06-05 - [View] Blur: [Active Turn needs more pop, Unconscious too static] Shout: [Added Shimmer/Heartbeat animations, Bumped Condition Badges to 5xl, Added System Clock]
  * ## 2025-06-08 - [View] Blur: [Clock/Status text too small] Shout: [Bumped to 4xl/neutral-300, Dynamic Turn Glow]
  * ## 2025-06-15 - [View] Blur: [Active Turn needs a face] Shout: [Added Active Portrait to bottom bar]
+ * ## 2025-06-20 - [View] Blur: [NPC faces leaking secrets] Shout: [Hid NPC portraits, Added Hostile Icon, Boosted Turn Pulse]
+ * ## 2025-06-21 - [Logic] Fix: [Players without images showed as Hostile] Shout: [Added Generic Player Icon fallback]
  */
 
 export const dynamic = 'force-dynamic';
@@ -92,21 +94,41 @@ export default async function PublicPage() {
                     return activeContestant ? (
                         <div className="flex items-center justify-center gap-12 overflow-hidden">
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
-                            <div className="relative group cursor-default">
+                            <div className="relative group cursor-default transition-all duration-500 hover:scale-105 animate-[pulse_3s_infinite]">
                                 <div className={`absolute inset-0 ${activeContestant.type === 'PLAYER' ? 'bg-agent-blue/20' : 'bg-red-500/20'} blur-xl animate-pulse rounded-full opacity-50`} />
                                 <div className={`text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white ${activeContestant.type === 'PLAYER' ? 'drop-shadow-[0_0_30px_rgba(43,43,238,0.8)]' : 'drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]'} relative z-10 flex items-center gap-6`}>
                                     <span className={`text-6xl font-mono tracking-widest self-center opacity-100 whitespace-nowrap ${activeContestant.type === 'PLAYER' ? 'text-agent-blue drop-shadow-[0_0_10px_rgba(43,43,238,0.5)]' : 'text-red-500 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]'}`}>CURRENT TURN</span>
 
                                     {/* Active Portrait */}
-                                    {activeContestant.imageUrl && (
-                                        <div className={`relative w-28 h-28 lg:w-36 lg:h-36 rounded-full border-4 overflow-hidden shrink-0 shadow-[0_0_30px_rgba(43,43,238,0.6)] ${activeContestant.type === 'PLAYER' ? 'border-agent-blue' : 'border-red-500'}`}>
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={activeContestant.imageUrl} alt="" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                    {activeContestant.type === 'PLAYER' ? (
+                                        activeContestant.imageUrl ? (
+                                            <div className="relative w-28 h-28 lg:w-36 lg:h-36 rounded-full border-4 overflow-hidden shrink-0 shadow-[0_0_30px_rgba(43,43,238,0.6)] border-agent-blue">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={activeContestant.imageUrl} alt="" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                            </div>
+                                        ) : (
+                                            /* Generic Player Icon (Fallback) */
+                                            <div className="relative w-28 h-28 lg:w-36 lg:h-36 rounded-full border-4 border-agent-blue bg-agent-navy flex items-center justify-center shrink-0 shadow-[0_0_30px_rgba(43,43,238,0.6)] overflow-hidden">
+                                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(43,43,238,0.4)_100%)] animate-pulse" />
+                                                <div className="text-agent-blue text-6xl lg:text-8xl animate-pulse drop-shadow-[0_0_15px_rgba(43,43,238,0.8)]">
+                                                    👤
+                                                </div>
+                                            </div>
+                                        )
+                                    ) : (
+                                        /* Hostile/NPC Icon */
+                                        <div className="relative w-28 h-28 lg:w-36 lg:h-36 rounded-full border-4 border-red-500 bg-red-950/50 flex items-center justify-center shrink-0 shadow-[0_0_30px_rgba(220,38,38,0.6)] overflow-hidden">
+                                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(220,38,38,0.4)_100%)] animate-pulse" />
+                                            <div className="text-red-500 text-6xl lg:text-8xl animate-pulse drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">
+                                                ⚠️
+                                            </div>
+                                            {/* Tech Reticle Overlay */}
+                                            <div className="absolute inset-0 border-2 border-red-500/30 rounded-full animate-[spin_4s_linear_infinite] opacity-50" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 25%, 0 25%, 0 75%, 100% 75%, 100% 100%, 0 100%)' }} />
                                         </div>
                                     )}
 
-                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 backdrop-blur-md animate-pulse text-7xl lg:text-9xl ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50 shadow-[0_0_30px_rgba(43,43,238,0.4)]' : 'text-red-500 border-red-500/50 shadow-[0_0_30px_rgba(220,38,38,0.4)]'} flex items-center gap-4`}>
+                                    <span className={`bg-black/40 px-8 py-2 rounded-xl border-2 backdrop-blur-md animate-pulse text-7xl lg:text-9xl ${activeContestant.type === 'PLAYER' ? 'text-agent-blue border-agent-blue/50 shadow-[0_0_30px_rgba(43,43,238,0.4)]' : 'text-red-500 border-red-500/50 shadow-[0_0_30px_rgba(220,38,38,0.4)]'} flex items-center gap-4 scale-105`}>
                                         <span className={`${activeContestant.type === 'PLAYER' ? 'text-agent-blue/50' : 'text-red-500/50'} animate-pulse`}>[</span>
                                         {activeContestant.type === 'PLAYER' ? activeContestant.name : 'OPPONENT TURN'}
                                         <span className={`${activeContestant.type === 'PLAYER' ? 'text-agent-blue/50' : 'text-red-500/50'} animate-pulse`}>]</span>
