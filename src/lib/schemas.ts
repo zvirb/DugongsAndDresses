@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const attributeMappings: Record<string, string> = {
+export const attributeMappings: Record<string, string> = {
   strength: 'str',
   dexterity: 'dex',
   constitution: 'con',
@@ -35,18 +35,7 @@ export function jsonStringSchema<T extends z.ZodType>(schema: T, description: st
     }, description);
 }
 
-// Attributes are a flexible dictionary of string keys to number values.
-// e.g. { str: 10, dex: 12, speed: 30 }
-export const BaseAttributesSchema = z.object({
-  str: z.number().default(10),
-  dex: z.number().default(10),
-  con: z.number().default(10),
-  int: z.number().default(10),
-  wis: z.number().default(10),
-  cha: z.number().default(10),
-}).catchall(z.union([z.number(), z.string()]));
-
-export const AttributesSchema = z.preprocess((val) => {
+export const attributesPreprocessor = (val: unknown) => {
   if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
     const newVal: Record<string, any> = {};
     const entries = Object.entries(val as Record<string, any>);
@@ -98,7 +87,22 @@ export const AttributesSchema = z.preprocess((val) => {
     return newVal;
   }
   return val;
-}, BaseAttributesSchema);
+};
+
+// Attributes are a flexible dictionary of string keys to number values.
+// e.g. { str: 10, dex: 12, speed: 30 }
+export const BaseAttributesSchema = z.object({
+  str: z.number().default(10),
+  dex: z.number().default(10),
+  con: z.number().default(10),
+  int: z.number().default(10),
+  wis: z.number().default(10),
+  cha: z.number().default(10),
+}).catchall(z.union([z.number(), z.string()]));
+
+export const AttributesSchema = z.preprocess(attributesPreprocessor, BaseAttributesSchema);
+
+export const PartialAttributesSchema = z.preprocess(attributesPreprocessor, BaseAttributesSchema.partial());
 
 export type Attributes = z.infer<typeof AttributesSchema>;
 
