@@ -9,6 +9,7 @@
 // ## 2025-05-30 - [Interaction] Clarity: [Active turn feedback generic] Path: [Changed to ">> YOUR TURN <<"]
 // ## 2025-06-05 - [Layout] Hierarchy: [Action form buried below Dice] Path: [Reordered to Status(HP) -> Action -> Dice for combat speed]
 // ## 2025-06-09 - [Layout] Thumb Zone: [Critical Actions (Attack/Cast) hard to reach] Path: [Reordered Dice -> ActionForm to fix Critical Actions at viewport bottom]
+// ## 2025-06-12 - [Layout] Viewport: [Excessive padding] Path: [Reduced padding to pb-32]
 
 import { getPlayerDashboard, getCampaignTargets } from "@/lib/queries";
 import { notFound } from "next/navigation";
@@ -37,7 +38,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     const targets = allTargets.filter(t => t.id !== character.id);
 
     return (
-        <main className="flex flex-col p-4 space-y-6 pb-40 min-h-[100dvh] bg-agent-navy relative overflow-x-hidden">
+        <main className="flex flex-col p-4 space-y-6 pb-32 min-h-[100dvh] bg-agent-navy relative overflow-x-hidden">
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:20px_20px] opacity-20" />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-agent-navy/50 to-agent-navy" />

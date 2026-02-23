@@ -158,7 +158,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
         });
     };
 
-    const selectClass = "bg-black/40 border-white/10 text-white focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono w-full rounded-md px-3 appearance-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]";
+    const selectClass = "bg-black/40 border-white/10 text-white focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl font-mono w-full rounded-md px-3 appearance-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]";
 
     if (mode === 'ATTACK') {
         return (
@@ -192,7 +192,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             placeholder="e.g. Greataxe"
                             value={weapon}
                             onChange={e => setWeapon(e.target.value)}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl font-mono"
                         />
                     </div>
                      <div className="flex gap-2">
@@ -203,7 +203,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                                 placeholder="d20"
                                 value={attackRoll}
                                 onChange={e => setAttackRoll(e.target.value)}
-                                className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono text-center"
+                                className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl font-mono text-center"
                             />
                         </div>
                         <div className="flex flex-col gap-1 w-24 justify-end">
@@ -231,7 +231,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             placeholder="e.g. 8"
                             value={damage}
                             onChange={e => setDamage(e.target.value)}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl font-mono"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl font-mono"
                         />
                     </div>
 
@@ -280,7 +280,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             placeholder="e.g. Fireball"
                             value={spell}
                             onChange={e => setSpell(e.target.value)}
-                            className="bg-black/40 border-white/10 focus:border-purple-500/50 focus:ring-purple-500/20 h-24 text-2xl font-mono"
+                            className="bg-black/40 border-white/10 focus:border-purple-500/50 focus:ring-purple-500/20 h-20 text-xl font-mono"
                         />
                     </div>
 
@@ -298,7 +298,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
     }
 
     return (
-        <form onSubmit={handleSubmitIntent} className="space-y-8 bg-black/40 p-6 rounded-2xl border border-white/5 shadow-lg backdrop-blur-md">
+        <form onSubmit={handleSubmitIntent} className="space-y-6 bg-black/40 p-6 rounded-2xl border border-white/5 shadow-lg backdrop-blur-md">
             <div className="space-y-3">
                 <label className="text-sm font-black uppercase tracking-[0.2em] text-agent-blue ml-1 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]" />
@@ -330,7 +330,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             variant="ghost"
                             disabled={isPending}
                             onClick={() => handleActionClick(action)}
-                            className="h-20 p-2 text-base font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
+                            className="h-16 p-2 text-sm font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
                         >
                             {action}
                         </Button>
@@ -342,7 +342,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                     value={intent}
                     onChange={(e) => setIntent(e.target.value)}
                     disabled={isPending}
-                    className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl rounded-xl touch-manipulation placeholder:text-neutral-600 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
+                    className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation placeholder:text-neutral-600 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
                 />
             </div>
             {/* ... Result Section ... */}
@@ -356,7 +356,7 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             value={roll}
                             onChange={(e) => setRoll(e.target.value)}
                             disabled={isPending}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-24 text-2xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
                         />
                         <div className="flex flex-col gap-1 w-24">
                             <Button
