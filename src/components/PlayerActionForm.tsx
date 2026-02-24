@@ -408,68 +408,42 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
     }
 
     return (
-        <form onSubmit={handleSubmitIntent} className="space-y-6 bg-black/40 p-6 rounded-2xl border border-white/5 shadow-lg backdrop-blur-md">
-            <div className="space-y-3">
-                <label className="text-sm font-black uppercase tracking-[0.2em] text-agent-blue ml-1 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-agent-blue rounded-full shadow-[0_0_5px_#2b2bee]" />
-                    Declare Intent
-                </label>
+        <form onSubmit={handleSubmitIntent} className="space-y-4 bg-agent-navy/95 backdrop-blur-xl p-6 rounded-t-3xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] pb-safe">
 
-                {/* Primary Actions (Attack / Cast) */}
-                <div className="grid grid-cols-2 gap-4 mb-2">
-                    {PRIMARY_ACTIONS.map((action) => (
-                        <Button
-                            key={action}
-                            type="button"
-                            variant="agent" // Use agent variant for primary actions
-                            disabled={isPending}
-                            onClick={() => handleActionClick(action)}
-                            className="h-24 p-4 text-3xl font-black uppercase tracking-widest shadow-[0_0_15px_rgba(43,43,238,0.2)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20"
-                        >
-                            {action}
-                        </Button>
-                    ))}
-                </div>
+            {/* Manual Entry / Log Section - Collapsible */}
+            <details className="group mb-2">
+                <summary className="list-none flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-neutral-500 cursor-pointer p-2 hover:text-white transition-colors select-none mb-2">
+                    <span className="w-1.5 h-1.5 bg-neutral-600 rounded-full group-open:bg-agent-blue group-open:shadow-[0_0_5px_#2b2bee]" />
+                    Manual Entry / Log
+                    <span className="ml-auto text-[10px] opacity-50 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
 
-                {/* Secondary Actions */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                    {SECONDARY_ACTIONS.map((action) => (
-                        <Button
-                            key={action}
-                            type="button"
-                            variant="ghost"
-                            disabled={isPending}
-                            onClick={() => handleActionClick(action)}
-                            className="h-16 p-2 text-sm font-mono font-bold uppercase tracking-wider bg-agent-navy/50 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
-                        >
-                            {action}
-                        </Button>
-                    ))}
-                </div>
-
-                <Input
-                    placeholder="I swing my axe..."
-                    value={intent}
-                    onChange={(e) => setIntent(e.target.value)}
-                    disabled={isPending}
-                    className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation placeholder:text-neutral-600 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
-                />
-            </div>
-            {/* ... Result Section ... */}
-            <div className="flex flex-col gap-6">
-                <div className="space-y-3">
-                    <label className="text-sm font-black uppercase tracking-[0.2em] text-neutral-500 ml-1">Result (Optional)</label>
-                    <div className="flex gap-3">
+                <div className="space-y-4 p-4 bg-black/40 rounded-xl border border-white/5 animate-in slide-in-from-top-2">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Action Description</label>
                         <Input
-                            type="text"
-                            placeholder="Dice Roll"
-                            value={roll}
-                            onChange={(e) => setRoll(e.target.value)}
+                            placeholder="I swing my axe..."
+                            value={intent}
+                            onChange={(e) => setIntent(e.target.value)}
                             disabled={isPending}
-                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation flex-1 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] active:scale-[0.98]"
+                            className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation placeholder:text-neutral-600 font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
                         />
-                        <div className="flex flex-col gap-1 w-24">
-                            <Button
+                    </div>
+
+                    <div className="flex gap-3 items-end">
+                        <div className="flex-1 space-y-2">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Roll Result (Optional)</label>
+                            <Input
+                                type="text"
+                                placeholder="Roll"
+                                value={roll}
+                                onChange={(e) => setRoll(e.target.value)}
+                                disabled={isPending}
+                                className="bg-black/40 border-white/10 focus:border-agent-blue focus:ring-agent-blue/20 h-20 text-xl rounded-xl touch-manipulation font-mono shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] text-center"
+                            />
+                        </div>
+                        <div className="flex flex-col gap-1 w-24 shrink-0">
+                             <Button
                                 type="button"
                                 onClick={() => handleRoll(setRoll)}
                                 disabled={isPending}
@@ -490,15 +464,48 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
                             )}
                         </div>
                     </div>
+
+                    <Button
+                        type="submit"
+                        variant="agent"
+                        disabled={isPending || !intent}
+                        className="h-24 p-4 w-full rounded-xl uppercase text-2xl font-black tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.4)] active:scale-95 active:brightness-90 transition-transform touch-manipulation border-t-4 border-agent-blue/50"
+                    >
+                        {isPending ? "LOGGING..." : "LOG ENTRY"}
+                    </Button>
                 </div>
-                <Button
-                    type="submit"
-                    variant="agent"
-                    disabled={isPending || !intent}
-                    className="h-28 p-4 w-full rounded-xl uppercase text-3xl font-black tracking-widest shadow-[0_0_25px_rgba(43,43,238,0.4)] active:scale-95 active:brightness-90 transition-transform touch-manipulation border-t-4 border-agent-blue/50"
-                >
-                    {isPending ? "TRANSMITTING..." : "EXECUTE"}
-                </Button>
+            </details>
+
+            {/* Secondary Actions */}
+            <div className="grid grid-cols-3 gap-3">
+                {SECONDARY_ACTIONS.map((action) => (
+                    <Button
+                        key={action}
+                        type="button"
+                        variant="ghost"
+                        disabled={isPending}
+                        onClick={() => handleActionClick(action)}
+                        className="h-16 p-2 text-xs font-mono font-bold uppercase tracking-wider bg-agent-navy/40 border border-white/5 hover:bg-agent-blue/20 hover:border-agent-blue/50 active:bg-agent-blue/40 active:scale-95 active:brightness-90 transition-all touch-manipulation shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] text-neutral-400 hover:text-white"
+                    >
+                        {action}
+                    </Button>
+                ))}
+            </div>
+
+            {/* Primary Actions (Attack / Cast) - Bottom for Thumb Access */}
+            <div className="grid grid-cols-2 gap-4 pt-2">
+                {PRIMARY_ACTIONS.map((action) => (
+                    <Button
+                        key={action}
+                        type="button"
+                        variant="agent" // Use agent variant for primary actions
+                        disabled={isPending}
+                        onClick={() => handleActionClick(action)}
+                        className="h-24 p-4 text-3xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20 hover:bg-agent-blue hover:text-white"
+                    >
+                        {action}
+                    </Button>
+                ))}
             </div>
         </form>
     );
