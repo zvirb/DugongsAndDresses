@@ -157,9 +157,18 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
             const amount = Math.abs(delta);
             let content = "";
             if (delta > 0) {
-                content = `**${character.name}** rallies, surging with **${amount}** renewed vitality!`;
+                if (amount >= 10) {
+                    content = `**${character.name}** is reinvigorated! A surge of **${amount}** healing energy washes over them.`;
+                } else {
+                    content = `**${character.name}** rallies, recovering **${amount}** hit points.`;
+                }
             } else {
-                content = `**${character.name}** reels from the blow, taking **${amount}** damage`;
+                if (amount >= 10) {
+                     content = `**${character.name}** is struck by a devastating blow, taking **${amount}** damage`;
+                } else {
+                     content = `**${character.name}** reels, taking **${amount}** damage`;
+                }
+
                 if (character.hp <= 0) {
                     content += ` and collapses! Their vision fades to black. They are **UNCONSCIOUS**!`;
                 } else {
@@ -418,7 +427,7 @@ export async function updateInitiative(characterId: string, roll: number): Promi
         // but maybe the user wants to keep the last roll?
         // Let's NOT sync initiative roll to source as it's ephemeral.
 
-        const content = `**${character.name}** enters the fray with a roll of **${roll}**!`;
+        const content = `Seizing the moment, **${character.name}** draws steel and rolls a **${roll}** for initiative!`;
         await logAction(character.campaignId, content, "Combat");
 
         revalidatePath('/dm');
@@ -1043,27 +1052,35 @@ export async function performAttack(attackerId: string, targetId: string | undef
         }
 
         let content = "";
+        const dmg = damage || 0;
 
+        // Flavor prefixes based on roll result
         if (target) {
              if (isCrit) {
                 content = `**CRITICAL HIT**! **${attacker.name}** finds a fatal opening and strikes **${target.name}** with deadly precision`;
              } else if (isFumble) {
                 content = `**CRITICAL MISS**! **${attacker.name}** stumbles disastrously, their attack against **${target.name}** going wide`;
              } else if (isHit) {
-                content = `**${attacker.name}** attacks **${target.name}** and the blow connects`;
+                if (dmg >= 15) {
+                    content = `**${attacker.name}** lands a **devastating blow** on **${target.name}**`;
+                } else {
+                    content = `**${attacker.name}** attacks **${target.name}** and the blow connects`;
+                }
              } else {
                 content = `**${attacker.name}** attacks **${target.name}**, but the attempt is thwarted`;
              }
         } else {
+             // No target specified (AoE or blind fire)
              if (isCrit) {
-                content = `**CRITICAL HIT**! **${attacker.name}** unleashes a devastating attack`;
+                content = `**CRITICAL HIT**! **${attacker.name}** unleashes a perfect strike`;
              } else if (isFumble) {
-                content = `**CRITICAL MISS**! **${attacker.name}** stumbles disastrously`;
+                content = `**CRITICAL MISS**! **${attacker.name}** loses their footing and falters`;
              } else {
-                content = `**${attacker.name}** lashes out`;
+                content = `**${attacker.name}** lashes out with an attack`;
              }
         }
 
+        // Append Roll Info
         if (attackRoll !== undefined) {
              content += ` (Roll: **${attackRoll}**)`;
         } else if (!isHit || !target) {
@@ -1071,7 +1088,6 @@ export async function performAttack(attackerId: string, targetId: string | undef
         }
 
         let updatedTarget = target;
-        const dmg = damage || 0;
 
         if (target && isHit && dmg > 0) {
             updatedTarget = await prisma.character.update({
@@ -1082,14 +1098,16 @@ export async function performAttack(attackerId: string, targetId: string | undef
 
             content += `, dealing **${dmg}** damage`;
             if (updatedTarget.hp <= 0) {
-                content += `. The strike is too much, knocking them **UNCONSCIOUS**!`;
+                content += `. The force of the blow sends them crashing to the ground. They are **UNCONSCIOUS**!`;
             } else {
                 content += `.`;
             }
         } else if (target && isHit && damage !== undefined) {
+            // Damage was 0 but explicitly provided (e.g. immunity)
             content += `, but the blow glances off harmlessly.`;
         } else if (target && isHit) {
-             content += `.`; // Hit with no damage and no damage parameter (flavor hit)
+             // Hit with no damage and no damage parameter (flavor hit / pure narrative)
+             content += `. The strike lands true.`;
         }
 
         await logAction(attacker.campaignId, content, "Combat");
@@ -1112,14 +1130,14 @@ export async function performSkillCheck(characterId: string, skillName: string, 
 
         if (roll !== undefined) {
             if (dieRoll === 20) {
-                content += `: **CRITICAL SUCCESS**! **${character.name}** performs the feat with godlike prowess!`;
+                content += `: **CRITICAL SUCCESS**! **${character.name}** achieves the impossible with godlike prowess!`;
             } else if (dieRoll === 1) {
-                content += `: **CRITICAL FAILURE**! **${character.name}** falters disastrously!`;
+                content += `: **CRITICAL FAILURE**! **${character.name}** falters disastrously in the attempt!`;
             } else if (dc) {
                 if (roll >= dc) {
-                    content += `: **SUCCESS**! The attempt succeeds.`;
+                    content += `: **SUCCESS**! The challenge is overcome.`;
                 } else {
-                    content += `: **FAILURE**! The attempt falls short.`;
+                    content += `: **FAILURE**! The challenge proves too great.`;
                 }
             }
 
@@ -1139,6 +1157,7 @@ export async function performSkillCheck(characterId: string, skillName: string, 
                 }
             }
         } else {
+            // Narrative check (no roll provided yet)
             if (dc) content += ` (DC **${dc}**)`;
         }
 
@@ -1163,15 +1182,16 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
             if (target) targetName = target.name;
         }
 
-        let content = `**${caster.name}** invokes **${validated.spellName}**`;
+        let content = `The air shimmers as **${caster.name}** casts **${validated.spellName}**`;
+
         if (targetName) {
-            content += ` upon **${targetName}**`;
+            content += `, targeting **${targetName}**.`;
         } else {
-            content += `, channeling the raw power of the weave`;
+            content += `, channeling the raw power of the Weave.`;
         }
 
         if (validated.condition && target) {
-            content += `. Reality bends as **${validated.condition}** takes hold!`;
+            content += ` Reality bends around **${target.name}** as **${validated.condition}** takes hold!`;
 
             const currentConditions = parseConditions(target.conditions);
             if (!currentConditions.includes(validated.condition)) {
@@ -1182,8 +1202,6 @@ export async function castSpell(casterId: string, targetId: string | undefined, 
                 });
                 await syncToSource(updatedTarget);
             }
-        } else {
-            content += `.`;
         }
 
         await logAction(caster.campaignId, content, "Combat");

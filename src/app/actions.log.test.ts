@@ -94,6 +94,40 @@ describe('Bard Logging Enhancements', () => {
         expect(content).toContain('**Grom** attacks **Goblin**');
         expect(content).toContain('but the attempt is thwarted');
     });
+
+    it('should log major damage on attack', async () => {
+        vi.mocked(prisma.character.findUnique).mockImplementation(async (args) => {
+            if (args.where.id === 'char-1') return { id: 'char-1', name: 'Grom', campaignId: 'camp-1', armorClass: 15, hp: 20 } as any;
+            if (args.where.id === 'target-1') return { id: 'target-1', name: 'Dragon', campaignId: 'camp-1', armorClass: 12, hp: 100 } as any;
+            return null;
+        });
+        vi.mocked(prisma.character.update).mockResolvedValue({
+             id: 'target-1', name: 'Dragon', campaignId: 'camp-1', armorClass: 12, hp: 80
+        } as any);
+
+        await performAttack('char-1', 'target-1', 20, 15); // Hit with 20 damage
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+
+        expect(content).toContain('**Grom** lands a **devastating blow** on **Dragon**');
+        expect(content).toContain('dealing **20** damage');
+    });
+
+    it('should log flavor hit (no damage)', async () => {
+        vi.mocked(prisma.character.findUnique).mockImplementation(async (args) => {
+            if (args.where.id === 'char-1') return { id: 'char-1', name: 'Grom', campaignId: 'camp-1', armorClass: 15, hp: 20 } as any;
+            if (args.where.id === 'target-1') return { id: 'target-1', name: 'Ghost', campaignId: 'camp-1', armorClass: 10, hp: 50 } as any;
+            return null;
+        });
+
+        await performAttack('char-1', 'target-1', undefined, 15); // Hit, undefined damage (flavor)
+
+        const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+        const content = createCall.data.content;
+
+        expect(content).toContain('The strike lands true');
+    });
   });
 
   describe('updateHP', () => {
@@ -108,7 +142,21 @@ describe('Bard Logging Enhancements', () => {
           const content = createCall.data.content;
 
           expect(content).toContain('**Grom** rallies');
-          expect(content).toContain('surging with **5** renewed vitality');
+          expect(content).toContain('recovering **5** hit points');
+      });
+
+      it('should log major healing', async () => {
+          vi.mocked(prisma.character.update).mockResolvedValue({
+              id: 'char-1', name: 'Grom', campaignId: 'camp-1', hp: 20
+          } as any);
+
+          await updateHP('char-1', 15);
+
+          const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+          const content = createCall.data.content;
+
+          expect(content).toContain('**Grom** is reinvigorated!');
+          expect(content).toContain('healing energy washes over them');
       });
 
       it('should log unconsciousness dramatically', async () => {
@@ -116,13 +164,13 @@ describe('Bard Logging Enhancements', () => {
             id: 'char-1', name: 'Grom', campaignId: 'camp-1', hp: 0
         } as any);
 
-        await updateHP('char-1', -10);
+        await updateHP('char-1', -15); // Major damage & unconscious
 
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** reels from the blow');
-        expect(content).toContain('taking **10** damage');
+        expect(content).toContain('**Grom** is struck by a devastating blow');
+        expect(content).toContain('taking **15** damage');
         expect(content).toContain('collapses! Their vision fades to black. They are **UNCONSCIOUS**!');
     });
   });
@@ -140,7 +188,7 @@ describe('Bard Logging Enhancements', () => {
 
         expect(content).toContain('**Lyra** attempts to **Stealth**');
         expect(content).toContain(': **SUCCESS**!');
-        expect(content).toContain('The attempt succeeds.');
+        expect(content).toContain('The challenge is overcome.');
         expect(content).toContain('Roll: **14**+**4** = **18**');
       });
 
@@ -157,7 +205,7 @@ describe('Bard Logging Enhancements', () => {
 
           expect(content).toContain('**Lyra** attempts to **Stealth**');
           expect(content).toContain('**CRITICAL SUCCESS**!');
-          expect(content).toContain('**Lyra** performs the feat with godlike prowess!');
+          expect(content).toContain('**Lyra** achieves the impossible with godlike prowess!');
       });
 
       it('should log critical failure for skill check', async () => {
@@ -173,7 +221,7 @@ describe('Bard Logging Enhancements', () => {
 
         expect(content).toContain('**Lyra** attempts to **Stealth**');
         expect(content).toContain('**CRITICAL FAILURE**!');
-        expect(content).toContain('**Lyra** falters disastrously!');
+        expect(content).toContain('**Lyra** falters disastrously in the attempt!');
     });
   });
 
@@ -268,7 +316,23 @@ describe('Bard Logging Enhancements', () => {
         const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
         const content = createCall.data.content;
 
-        expect(content).toContain('**Grom** enters the fray with a roll of **15**!');
+        expect(content).toContain('Seizing the moment, **Grom** draws steel and rolls a **15** for initiative!');
+      });
+  });
+
+  describe('castSpell', () => {
+      it('should log spell casting with flavor', async () => {
+          vi.mocked(prisma.character.findUnique).mockResolvedValue({
+              id: 'char-1', name: 'Merlin', campaignId: 'camp-1'
+          } as any);
+
+          await castSpell('char-1', undefined, 'Fireball');
+
+          const createCall = vi.mocked(prisma.logEntry.create).mock.calls[0][0];
+          const content = createCall.data.content;
+
+          expect(content).toContain('The air shimmers as **Merlin** casts **Fireball**');
+          expect(content).toContain('channeling the raw power of the Weave');
       });
   });
 
