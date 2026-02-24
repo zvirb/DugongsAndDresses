@@ -13,6 +13,7 @@
 // ## 2025-05-30 - [Seed] Gap: No sky/air themed campaign. Summon: Added 'The Floating Isles' with Captain Zephyr and Aeris.
 // ## 2025-05-31 - [Seed] Gap: No urban/thieves guild themed campaign. Summon: Added 'Shadows of Ravenport' with Silas, Lyra, and Captain Valda.
 // ## 2025-06-01 - [Seed] Gap: No carnival or horror themed campaign. Summon: Added 'The Twisted Carnival' and 'The Haunted Mansion' with diverse NPCs.
+// ## 2025-06-02 - [Seed] Gap: No sci-fi/astral fantasy campaign. Summon: Added 'The Astral Voyage' with Captain Orion and Xylia.
 
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma'
@@ -2006,6 +2007,105 @@ const hauntedMansionCharacters: CharacterTemplate[] = [
   }
 ]
 
+const astralVoyageCharacters: CharacterTemplate[] = [
+  {
+    name: 'Captain Orion',
+    type: 'PLAYER',
+    race: 'Human',
+    class: 'Starfarer',
+    imageUrl: '/avatars/human_archer_male_1770268315511.png',
+    hp: 28,
+    maxHp: 28,
+    armorClass: 16,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 12, dex: 16, con: 14, int: 12, wis: 14, cha: 14 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Xylia',
+    type: 'PLAYER',
+    race: 'Elf',
+    class: 'Void Mage',
+    imageUrl: '/avatars/elf_female_1770267798836.png',
+    hp: 18,
+    maxHp: 18,
+    armorClass: 12,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 30,
+    attributes: { str: 8, dex: 14, con: 12, int: 18, wis: 14, cha: 12 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Gearbox',
+    type: 'NPC',
+    race: 'Gnome',
+    class: 'Mechanic',
+    imageUrl: '/avatars/dwarf_mage_male_1770268698293.png',
+    hp: 24,
+    maxHp: 24,
+    armorClass: 14,
+    initiative: 2,
+    initiativeRoll: 0,
+    speed: 25,
+    attributes: { str: 10, dex: 14, con: 14, int: 18, wis: 12, cha: 10 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Void Stalker',
+    type: 'NPC',
+    race: 'Voidborn',
+    class: 'Alien',
+    imageUrl: '/avatars/rogue_female_1770266208126.png',
+    hp: 35,
+    maxHp: 35,
+    armorClass: 15,
+    initiative: 4,
+    initiativeRoll: 0,
+    speed: 40,
+    attributes: { str: 14, dex: 18, con: 14, int: 10, wis: 12, cha: 8 },
+    activeTurn: false,
+    level: 4,
+  },
+  {
+    name: 'Nebula',
+    type: 'NPC',
+    race: 'Elemental',
+    class: 'Spirit',
+    imageUrl: '/avatars/nymph_female_1770267925456.png',
+    hp: 20,
+    maxHp: 20,
+    armorClass: 13,
+    initiative: 3,
+    initiativeRoll: 0,
+    speed: 0, // Flies?
+    attributes: { str: 8, dex: 16, con: 12, int: 14, wis: 16, cha: 16 },
+    activeTurn: false,
+    level: 3,
+  },
+  {
+    name: 'Lost Explorer',
+    type: 'NPC',
+    race: 'Human',
+    class: 'Explorer',
+    imageUrl: '/avatars/fighter_male_1770266290109.png',
+    hp: 0, // Dead
+    maxHp: 10,
+    armorClass: 10,
+    initiative: 0,
+    initiativeRoll: 0,
+    speed: 0,
+    attributes: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+    activeTurn: false,
+    level: 1,
+  }
+]
+
 async function main() {
   console.log('🕯️ Summoner: Starting seed process...')
 
@@ -2634,6 +2734,42 @@ async function main() {
   })
 
   console.log(`👻 Campaign "${hauntedMansionCampaign.name}" created.`)
+
+  // Create The Astral Voyage Campaign (Inactive)
+  const astralVoyageCampaign = await prisma.campaign.create({
+    data: {
+      name: 'The Astral Voyage',
+      active: false,
+      characters: {
+        create: astralVoyageCharacters.map(char => ({
+          name: char.name,
+          type: char.type,
+          class: char.class,
+          race: char.race,
+          hp: char.hp,
+          maxHp: char.maxHp,
+          armorClass: char.armorClass,
+          initiative: char.initiative,
+          initiativeRoll: char.initiativeRoll,
+          speed: char.speed,
+          activeTurn: char.activeTurn,
+          imageUrl: char.imageUrl,
+          attributes: JSON.stringify(char.attributes),
+          level: char.level || 1,
+        }))
+      },
+      logs: {
+        create: [
+          { content: 'The stars stretch infinitely before **The Astral Voyage**.', type: 'Story' },
+          { content: '**Captain Orion** charts a course through the nebula.', type: 'Story' },
+          { content: '**Xylia** senses a disturbance in the void.', type: 'Story' },
+          { content: 'A strange signal beeps on **Gearbox**\'s scanner.', type: 'Story' },
+        ]
+      }
+    }
+  })
+
+  console.log(`🚀 Campaign "${astralVoyageCampaign.name}" created.`)
 }
 
 main()
