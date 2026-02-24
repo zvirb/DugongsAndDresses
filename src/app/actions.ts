@@ -15,6 +15,7 @@ import { generateStory } from "@/lib/ai";
 import { z } from "zod";
 import { CharacterInput, CharacterInputSchema, Participants, LogTypeSchema, AttackActionSchema, SkillCheckActionSchema, SpellCastActionSchema } from "@/lib/schemas";
 import { Character, Settings } from "@prisma/client";
+import { secureRoll } from "@/lib/dice";
 
 // BARD'S JOURNAL - CRITICAL LEARNINGS ONLY:
 // Format: ## YYYY-MM-DD - [Log] Boring: [Log said "HP Update"] Song: [Changed to "Grom takes 5 damage"]
@@ -187,6 +188,26 @@ export async function updateHP(characterId: string, delta: number): Promise<Acti
     });
 }
 
+export async function setHP(characterId: string, hp: number): Promise<ActionResult> {
+    return actionWrapper("setHP", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.update({
+            where: { id: characterId },
+            data: { hp }
+        });
+
+        await logAction(character.campaignId, `The DM sets **${character.name}**'s HP to **${hp}**.`, "Combat");
+
+        await syncToSource(character);
+
+        revalidatePath('/dm');
+        revalidatePath('/public');
+        revalidatePath('/player');
+        return character;
+    });
+}
+
 export async function performLongRest(characterId: string): Promise<ActionResult> {
     return actionWrapper("performLongRest", async () => {
         if (!characterId) throw new Error("Character ID is required");
@@ -210,6 +231,25 @@ export async function performLongRest(characterId: string): Promise<ActionResult
         revalidatePath('/player');
         revalidatePath('/public');
         return updated;
+    });
+}
+
+export async function clearInventory(characterId: string): Promise<ActionResult> {
+    return actionWrapper("clearInventory", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.update({
+            where: { id: characterId },
+            data: { inventory: "[]" }
+        });
+
+        await logAction(character.campaignId, `**${character.name}** drops everything they are carrying.`, "PlayerAction");
+
+        await syncToSource(character);
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        return character;
     });
 }
 
@@ -265,6 +305,49 @@ export async function performDodge(characterId: string): Promise<ActionResult> {
         revalidatePath('/player');
         revalidatePath('/public');
         return { success: true };
+    });
+}
+
+export async function performDeathSave(characterId: string): Promise<ActionResult> {
+    return actionWrapper("performDeathSave", async () => {
+        if (!characterId) throw new Error("Character ID is required");
+
+        const character = await prisma.character.findUnique({ where: { id: characterId } });
+        if (!character) throw new Error("Character not found");
+
+        const roll = secureRoll(20);
+
+        let resultText = "";
+        let isCritSuccess = false;
+
+        if (roll === 20) {
+            resultText = "CRITICAL SUCCESS! (Regains 1 HP)";
+            isCritSuccess = true;
+        } else if (roll === 1) {
+            resultText = "CRITICAL FAILURE! (2 Failures)";
+        } else if (roll >= 10) {
+            resultText = "SUCCESS";
+        } else {
+            resultText = "FAILURE";
+        }
+
+        let content = `**${character.name}** rolls a Death Saving Throw: **${roll}** - **${resultText}**`;
+
+        if (isCritSuccess) {
+            const updated = await prisma.character.update({
+                where: { id: characterId },
+                data: { hp: 1 }
+            });
+            content += `. **${character.name}** gasps for air and regains consciousness!`;
+            await syncToSource(updated);
+        }
+
+        await logAction(character.campaignId, content, "Roll");
+
+        revalidatePath('/dm');
+        revalidatePath('/player');
+        revalidatePath('/public');
+        return { success: true, roll, result: resultText };
     });
 }
 

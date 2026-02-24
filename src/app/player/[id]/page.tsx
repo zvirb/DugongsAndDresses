@@ -146,6 +146,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     campaignId={character.campaignId}
                     characterId={character.id}
                     targets={targets}
+                    currentHp={character.hp}
                 />
             </div>
         </main>

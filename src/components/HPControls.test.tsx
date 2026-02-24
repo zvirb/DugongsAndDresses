@@ -11,13 +11,14 @@ vi.mock('@/app/actions', () => ({
 describe('HPControls', () => {
   const characterId = 'char-123'
   const currentHp = 10
+  const maxHp = 20
 
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('renders buttons', () => {
-    render(<HPControls characterId={characterId} currentHp={currentHp} />)
+    render(<HPControls characterId={characterId} currentHp={currentHp} maxHp={maxHp} />)
     // Dynamic buttons (default 1)
     expect(screen.getByText('-1')).toBeInTheDocument()
     expect(screen.getByText('+1')).toBeInTheDocument()
@@ -27,7 +28,7 @@ describe('HPControls', () => {
   })
 
   it('calls updateHP with -1 when dynamic -1 button is clicked', async () => {
-    render(<HPControls characterId={characterId} currentHp={currentHp} />)
+    render(<HPControls characterId={characterId} currentHp={currentHp} maxHp={maxHp} />)
     fireEvent.click(screen.getByText('-1'))
 
     await waitFor(() => {
@@ -36,7 +37,7 @@ describe('HPControls', () => {
   })
 
   it('calls updateHP with +1 when dynamic +1 button is clicked', async () => {
-    render(<HPControls characterId={characterId} currentHp={currentHp} />)
+    render(<HPControls characterId={characterId} currentHp={currentHp} maxHp={maxHp} />)
     fireEvent.click(screen.getByText('+1'))
 
     await waitFor(() => {
@@ -45,7 +46,7 @@ describe('HPControls', () => {
   })
 
   it('updates amount when input changes and uses new amount', async () => {
-    render(<HPControls characterId={characterId} currentHp={currentHp} />)
+    render(<HPControls characterId={characterId} currentHp={currentHp} maxHp={maxHp} />)
     const input = screen.getByRole('spinbutton')
     fireEvent.change(input, { target: { value: '3' } })
     
@@ -60,7 +61,7 @@ describe('HPControls', () => {
   })
 
   it('calls updateHP with -5 when quick -5 button is clicked', async () => {
-    render(<HPControls characterId={characterId} currentHp={currentHp} />)
+    render(<HPControls characterId={characterId} currentHp={currentHp} maxHp={maxHp} />)
     fireEvent.click(screen.getByText('-5'))
 
     await waitFor(() => {

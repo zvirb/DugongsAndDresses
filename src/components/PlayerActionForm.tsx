@@ -10,7 +10,7 @@
 // ## 2025-06-09 - [Interaction] Thumb Zone: [Inputs/Buttons < 44px] Path: [Increased all inputs/secondary buttons to h-24, primary to h-32]
 // ## 2025-06-10 - [Layout] Density: [Primary/Secondary buttons too tall] Path: [Reduced primary to h-24, secondary to h-20]
 
-import { logAction, performAttack, castSpell, performLongRest, performShortRest, performDodge, performDash, performDisengage, performHide, performHelp } from "@/app/actions";
+import { logAction, performAttack, castSpell, performLongRest, performShortRest, performDodge, performDash, performDisengage, performHide, performHelp, performDeathSave } from "@/app/actions";
 import { useTransition, useState, useEffect } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -35,7 +35,7 @@ interface Target {
     name: string;
 }
 
-export default function PlayerActionForm({ characterName, campaignId, characterId, targets = [] }: { characterName: string, campaignId: string, characterId: string, targets?: Target[] }) {
+export default function PlayerActionForm({ characterName, campaignId, characterId, targets = [], currentHp = 1 }: { characterName: string, campaignId: string, characterId: string, targets?: Target[], currentHp?: number }) {
     const [isPending, startTransition] = useTransition();
     const [mode, setMode] = useState<ActionMode>('INTENT');
     const [intent, setIntent] = useState("");
@@ -69,6 +69,12 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
 
     const handleRoll = (setter: (val: string) => void) => {
         setter(secureRoll(20).toString());
+    };
+
+    const handleDeathSave = () => {
+        startTransition(async () => {
+            await performDeathSave(characterId);
+        });
     };
 
     const handleActionClick = (action: string) => {
@@ -494,18 +500,30 @@ export default function PlayerActionForm({ characterName, campaignId, characterI
 
             {/* Primary Actions (Attack / Cast) - Bottom for Thumb Access */}
             <div className="grid grid-cols-2 gap-4 pt-2">
-                {PRIMARY_ACTIONS.map((action) => (
+                {currentHp <= 0 ? (
                     <Button
-                        key={action}
                         type="button"
-                        variant="agent" // Use agent variant for primary actions
+                        variant="destructive"
                         disabled={isPending}
-                        onClick={() => handleActionClick(action)}
-                        className="h-24 p-4 text-3xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20 hover:bg-agent-blue hover:text-white"
+                        onClick={handleDeathSave}
+                        className="col-span-2 h-24 p-4 text-3xl font-black uppercase tracking-widest shadow-[0_0_40px_rgba(220,38,38,0.6)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-4 border-red-500 animate-pulse hover:animate-none hover:bg-red-600"
                     >
-                        {action}
+                        {isPending ? 'ROLLING...' : 'DEATH SAVE'}
                     </Button>
-                ))}
+                ) : (
+                    PRIMARY_ACTIONS.map((action) => (
+                        <Button
+                            key={action}
+                            type="button"
+                            variant="agent" // Use agent variant for primary actions
+                            disabled={isPending}
+                            onClick={() => handleActionClick(action)}
+                            className="h-24 p-4 text-3xl font-black uppercase tracking-widest shadow-[0_0_20px_rgba(43,43,238,0.3)] active:scale-95 active:brightness-90 transition-all touch-manipulation border-t-2 border-white/20 hover:bg-agent-blue hover:text-white"
+                        >
+                            {action}
+                        </Button>
+                    ))
+                )}
             </div>
         </form>
     );

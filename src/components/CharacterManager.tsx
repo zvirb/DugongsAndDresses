@@ -144,7 +144,7 @@ export default function CharacterManager({ characters, campaignId }: CharacterMa
                                                 <span>HP</span>
                                                 <span className="text-white font-mono">{char.hp}/{char.maxHp}</span>
                                             </div>
-                                            <HPControls characterId={char.id} currentHp={char.hp} />
+                                            <HPControls characterId={char.id} currentHp={char.hp} maxHp={char.maxHp} />
                                         </div>
                                         <div>
                                             <div className="flex justify-between">

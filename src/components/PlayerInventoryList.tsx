@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { removeInventoryItem, logAction } from '@/app/actions';
+import { removeInventoryItem, logAction, clearInventory } from '@/app/actions';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -53,6 +53,13 @@ export default function PlayerInventoryList({ characterId, characterName, campai
         });
     };
 
+    const handleClearAll = () => {
+        if (!confirm("Drop ALL items? This cannot be undone.") || isPending) return;
+        startTransition(async () => {
+            await clearInventory(characterId);
+        });
+    };
+
     if (inventory.length === 0) {
         return (
             <Card variant="agent" className="bg-agent-navy/40 border-white/5">
@@ -71,6 +78,17 @@ export default function PlayerInventoryList({ characterId, characterName, campai
 
     return (
         <div className="space-y-2">
+            <div className="flex justify-end mb-2">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearAll}
+                    disabled={isPending}
+                    className="text-xs text-red-400 hover:text-white hover:bg-red-900/20 h-6 px-2 uppercase tracking-wider"
+                >
+                    Drop All
+                </Button>
+            </div>
             {inventory.map((item, i) => (
                 <Card key={i} variant="agent" className="bg-agent-navy/40 border-white/5">
                     <CardContent className="p-4 flex items-center justify-between gap-3">
