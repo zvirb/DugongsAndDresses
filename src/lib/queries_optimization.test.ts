@@ -293,9 +293,9 @@ describe('General Query Optimizations', () => {
     expect(charSelect.id).toBe(true);
     expect(charSelect.hp).toBe(true);
     expect(charSelect.activeTurn).toBe(true);
-    expect(charSelect.conditions).toBe(true);
 
     // Should NOT select heavy fields
+    expect(charSelect.conditions).toBeUndefined();
     expect(charSelect.attributes).toBeUndefined();
     expect(charSelect.inventory).toBeUndefined();
     expect(charSelect.imageUrl).toBeUndefined();

@@ -20,6 +20,7 @@ import { prisma } from "./prisma";
  * ## 2025-06-12 - [getPlayerDashboard] Slow: [Fetched all char types for targets] Sight: [Optimized Select: Removed type, Filtered self in DB]
  * ## 2025-06-15 - [getPlayerDashboard] Slow: [Fetching all targets on every poll] Sight: [Split targets into cached getCampaignTargets, removed from dashboard]
  * ## 2025-06-16 - [getPublicCampaign] Slow: [Fetched unused stats for selection] Sight: [Optimized Select: PLAYER_SELECTION_SELECT]
+ * ## 2025-06-20 - [getCampaignPulse] Slow: [Fetched conditions on poll] Sight: [Optimized Select: Removed conditions]
  */
 
 // Reusable select constants for consistency and optimization
@@ -57,7 +58,6 @@ const PULSE_CHAR_SELECT = {
   maxHp: true,
   activeTurn: true,
   initiativeRoll: true,
-  conditions: true,
   type: true
 } as const;
 
