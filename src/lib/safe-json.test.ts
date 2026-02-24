@@ -27,7 +27,6 @@ describe('safe-json', () => {
       const result = parseAttributes(json);
       expect(result.str).toBe(18);
       expect(result.dex).toBe(14);
-      // @ts-expect-error Testing that old key is gone
       expect(result.strength).toBeUndefined();
     });
 
@@ -49,14 +48,12 @@ describe('safe-json', () => {
       expect(result.speed).toBe(30);
     });
 
-    it('preserves non-numeric strings for non-core attributes', () => {
+    it('drops non-numeric strings for non-core attributes', () => {
       const json = JSON.stringify({ str: 10, name: "Grom", speed: "fast" });
       const result = parseAttributes(json);
       expect(result.str).toBe(10);
-      // @ts-expect-error Testing new behavior: strings are allowed
-      expect(result.name).toBe("Grom");
-      // @ts-expect-error Testing new behavior: strings are allowed
-      expect(result.speed).toBe("fast");
+      expect(result.name).toBeUndefined();
+      expect(result.speed).toBeUndefined();
     });
   });
 
@@ -181,12 +178,12 @@ describe('safe-json', () => {
       expect(result.con).toBeUndefined(); // Only extracted if present
     });
 
-    it('handles invalid numbers by defaulting to 10', () => {
+    it('drops invalid numbers', () => {
       const formData = new FormData();
       formData.append('str', 'invalid');
 
       const result = extractAttributesFromFormData(formData);
-      expect(result.str).toBe(10);
+      expect(result.str).toBeUndefined();
     });
 
     it('returns empty object if empty', () => {

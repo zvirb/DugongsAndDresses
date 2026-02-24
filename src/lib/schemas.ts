@@ -55,34 +55,18 @@ export const attributesPreprocessor = (val: unknown) => {
 
        // Coercion & Cleanup
        if (typeof currentValue === 'string' && currentValue.trim() !== '') {
-         if (coreStats.includes(currentKey)) {
-             // Core stats: aggressive coercion (e.g. "18 (+4)" -> 18)
-             const num = parseFloat(currentValue);
-             if (!isNaN(num)) {
-               currentValue = num;
-             }
-         } else {
-             // Non-core stats: strict numeric check (e.g. "1st Level" stays string, "5" becomes 5)
-             const num = Number(currentValue);
-             if (!isNaN(num)) {
-               currentValue = num;
-             }
-         }
-       }
-
-       if (coreStats.includes(currentKey)) {
-           // Core stats MUST be numbers
-           if (typeof currentValue !== 'number') {
-               continue;
-           }
-       } else {
-           // Non-core stats can be strings or numbers
-           if (typeof currentValue !== 'string' && typeof currentValue !== 'number') {
-               continue;
+           // Attempt aggressive coercion for all fields (e.g. "18 (+4)" -> 18)
+           const num = parseFloat(currentValue);
+           if (!isNaN(num)) {
+             currentValue = num;
            }
        }
 
-       newVal[currentKey] = currentValue;
+       // Strict Check: ALL attributes must be numbers
+       if (typeof currentValue === 'number' && !isNaN(currentValue)) {
+           newVal[currentKey] = currentValue;
+       }
+       // If not a number, it is silently dropped to ensure schema validation passes.
     }
     return newVal;
   }
@@ -98,7 +82,7 @@ export const BaseAttributesSchema = z.object({
   int: z.number().default(10),
   wis: z.number().default(10),
   cha: z.number().default(10),
-}).catchall(z.union([z.number(), z.string()]));
+}).catchall(z.number());
 
 export const AttributesSchema = z.preprocess(attributesPreprocessor, BaseAttributesSchema);
 

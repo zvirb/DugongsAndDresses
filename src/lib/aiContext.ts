@@ -48,7 +48,6 @@ export function generateAIContext(
         // Passive Perception
         let wis = 10;
         if (typeof attributes['wis'] === 'number') wis = attributes['wis'];
-        else if (typeof attributes['wis'] === 'string') wis = parseInt(attributes['wis']) || 10;
         // Fallback checks
         if (wis === 10) {
              if (typeof attributes['WIS'] === 'number') wis = attributes['WIS'];
@@ -61,7 +60,7 @@ export function generateAIContext(
         const coreStats = ['str', 'dex', 'con', 'int', 'wis', 'cha']
             .map(k => {
                 const val = attributes[k as keyof typeof attributes];
-                const numVal = typeof val === 'number' ? val : (parseInt(String(val)) || 10);
+                const numVal = typeof val === 'number' ? val : 10;
                 return `${coreStatsMap[k]}:${numVal}`;
             })
             .join(' ');
@@ -69,7 +68,7 @@ export function generateAIContext(
         // Extra Resources (Spell Slots, Ki, etc.)
         const extraStats = Object.entries(attributes)
             .filter(([k]) => !['str', 'dex', 'con', 'int', 'wis', 'cha'].includes(k.toLowerCase()))
-            .filter(([_, v]) => typeof v === 'number' || (typeof v === 'string' && v.trim().length > 0))
+            .filter(([_, v]) => typeof v === 'number')
             .map(([k, v]) => {
                 const cleanKey = (k.charAt(0).toUpperCase() + k.slice(1)).replace(/_/g, ' ');
                 return `${cleanKey}:${v}`;
@@ -108,7 +107,7 @@ Inv: ${invText}`.trim();
         const coreStats = ['str', 'dex', 'con', 'int', 'wis', 'cha']
             .map(k => {
                 const val = attributes[k as keyof typeof attributes];
-                const numVal = typeof val === 'number' ? val : (parseInt(String(val)) || 10);
+                const numVal = typeof val === 'number' ? val : 10;
                 return `${coreStatsMap[k]}:${numVal}`;
             })
             .join(' ');
@@ -116,7 +115,7 @@ Inv: ${invText}`.trim();
         // Extra Resources
         const extraStats = Object.entries(attributes)
             .filter(([k]) => !['str', 'dex', 'con', 'int', 'wis', 'cha'].includes(k.toLowerCase()))
-            .filter(([_, v]) => typeof v === 'number' || (typeof v === 'string' && v.trim().length > 0))
+            .filter(([_, v]) => typeof v === 'number')
             .map(([k, v]) => {
                 const cleanKey = (k.charAt(0).toUpperCase() + k.slice(1)).replace(/_/g, ' ');
                 return `${cleanKey}:${v}`;
@@ -126,7 +125,6 @@ Inv: ${invText}`.trim();
         // Passive Perception
         let wis = 10;
         if (typeof attributes['wis'] === 'number') wis = attributes['wis'];
-        else if (typeof attributes['wis'] === 'string') wis = parseInt(attributes['wis']) || 10;
         if (wis === 10) {
              if (typeof attributes['WIS'] === 'number') wis = attributes['WIS'];
              else if (typeof attributes['Wisdom'] === 'number') wis = attributes['Wisdom'];
