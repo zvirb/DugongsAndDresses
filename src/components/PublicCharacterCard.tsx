@@ -61,13 +61,13 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
     return (
         <div
             className={`
-                relative overflow-hidden rounded-3xl border-4 transition-all duration-500 backdrop-blur-xl group
+                relative overflow-hidden rounded-3xl transition-all duration-500 backdrop-blur-xl group ${flashState === 'damage' ? 'animate-shake' : ''}
                 ${character.hp <= 0 ? 'grayscale brightness-50' : ''}
                 ${character.activeTurn
-                    ? 'border-agent-blue shadow-[0_0_150px_rgba(43,43,238,0.8),inset_0_0_60px_rgba(43,43,238,0.3)] bg-agent-navy/95 scale-105 z-30 ring-4 ring-agent-blue/50 ring-offset-4 ring-offset-agent-navy'
+                    ? 'border-8 border-agent-blue shadow-[0_0_150px_rgba(43,43,238,0.9),inset_0_0_60px_rgba(43,43,238,0.3)] bg-agent-navy/95 scale-105 z-30 ring-4 ring-agent-blue/50 ring-offset-4 ring-offset-agent-navy'
                     : character.hp > 0 && character.hp <= character.maxHp * 0.2
-                        ? 'border-red-500/50 bg-red-900/10 shadow-[0_0_30px_rgba(220,38,38,0.5)] animate-pulse'
-                        : 'border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/20 hover:bg-black/40'}
+                        ? 'border-4 border-red-500/50 bg-red-900/10 shadow-[0_0_30px_rgba(220,38,38,0.5)] animate-pulse'
+                        : 'border-4 border-white/5 bg-white/5 grayscale-[0.8] hover:grayscale-0 hover:border-white/20 hover:bg-black/40'}
             `}
         >
             {/* Unconscious Overlay */}
@@ -131,7 +131,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     <div className="flex justify-between items-end mb-4">
                         <span className="text-5xl text-neutral-300 uppercase font-black tracking-[0.2em]">Vitality</span>
                         <div className="text-right flex items-baseline justify-end gap-3">
-                            <span className={`text-8xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
+                            <span className={`text-9xl font-black italic tracking-tighter leading-none ${character.hp <= 0 ? 'text-red-500 animate-pulse drop-shadow-[0_0_10px_rgba(220,38,38,0.8)]' : 'text-white'}`}>
                                 {displayHp}
                             </span>
                             <span className="text-5xl text-neutral-300 font-bold">/ {character.maxHp}</span>
@@ -139,7 +139,7 @@ export function PublicCharacterCard({ character }: PublicCharacterCardProps) {
                     </div>
 
                     {/* Technical Health Bar */}
-                    <div className="h-24 bg-black/80 rounded-sm overflow-hidden p-1 border border-white/10 relative shadow-inner">
+                    <div className="h-32 bg-black/80 rounded-sm overflow-hidden p-1 border border-white/10 relative shadow-inner">
                          {/* Tick Marks - Enhanced */}
                         <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_9%,rgba(255,255,255,0.1)_10%)] z-20 pointer-events-none" />
 
