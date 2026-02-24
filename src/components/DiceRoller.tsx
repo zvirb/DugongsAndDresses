@@ -89,7 +89,6 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             await new Promise(resolve => setTimeout(resolve, 600));
 
             let result = 0;
-            let details = '';
             let rolls: number[] = [];
 
             // Base roll
@@ -105,12 +104,10 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                     result = Math.max(roll1, roll2);
                     // Sort Descending: High, Low
                     rolls.sort((a, b) => b - a);
-                    details = ` [Advantage: **${rolls[0]}**, **${rolls[1]}**]`;
                 } else {
                     result = Math.min(roll1, roll2);
                     // Sort Ascending: Low, High
                     rolls.sort((a, b) => a - b);
-                    details = ` [Disadvantage: **${rolls[0]}**, **${rolls[1]}**]`;
                 }
             }
 
@@ -134,14 +131,11 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
             }
 
             let logMessage = '';
+            const prefix = isCrit ? `A natural 20! ` : isFumble ? `Disaster strikes! ` : ``;
+            const modeText = mode === 'NORMAL' ? '' : ` (${mode === 'ADVANTAGE' ? 'Advantage' : 'Disadvantage'})`;
+            const rollDetails = mode === 'NORMAL' ? '' : ` [**${rolls[0]}**, **${rolls[1]}**]`;
 
-            if (isCrit) {
-                logMessage = `A natural 20! **${rollerName}** rolls d${sides}: **${result}**${details}.`;
-            } else if (isFumble) {
-                logMessage = `Disaster strikes! **${rollerName}** rolls d${sides}: **${result}**${details}.`;
-            } else {
-                logMessage = `**${rollerName}** rolls d${sides}: **${result}**${details}.`;
-            }
+            logMessage = `${prefix}**${rollerName}** rolls d${sides}${modeText}: **${result}**${rollDetails}.`;
 
             const resultAction = await logAction(campaignId, logMessage, 'Roll');
             if (!resultAction.success) {
@@ -204,7 +198,7 @@ export default function DiceRoller({ campaignId, rollerName = "DM" }: { campaign
                              <span className={`text-3xl font-black italic tracking-tighter whitespace-nowrap ${modeColors.text} ${modeColors.shadow} animate-pulse font-mono`}>
                                 {displayValues.join(' | ')}
                             </span>
-                            <span className={`text-xs text-black ${modeColors.bg} animate-pulse font-black tracking-widest ${modeColors.badgeShadow} uppercase px-2 py-0.5 rounded-full border ${modeColors.border}`}>
+                            <span className={`text-sm text-black ${modeColors.bg} animate-pulse font-black tracking-widest ${modeColors.badgeShadow} shadow-lg uppercase px-2 py-0.5 rounded-full border ${modeColors.border}`}>
                                 ROLLING d{rollingDie}...
                             </span>
                         </div>
