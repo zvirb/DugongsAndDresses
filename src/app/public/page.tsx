@@ -19,6 +19,7 @@ import { SystemClock } from "@/components/SystemClock";
  * ## 2025-06-15 - [View] Blur: [Active Turn needs a face] Shout: [Added Active Portrait to bottom bar]
  * ## 2025-06-20 - [View] Blur: [NPC faces leaking secrets] Shout: [Hid NPC portraits, Added Hostile Icon, Boosted Turn Pulse]
  * ## 2025-06-21 - [Logic] Fix: [Players without images showed as Hostile] Shout: [Added Generic Player Icon fallback]
+ * ## 2026-02-24 - [View] Blur: [Active turn needs more punch, HP changes too subtle] Shout: [Added shake animation, Thicker Health Bar, Huge Turn Indicator]
  */
 
 export const dynamic = 'force-dynamic';
@@ -38,10 +39,14 @@ export default async function PublicPage() {
         </div>
     );
 
+    const activeContestant = campaign.activeContestant;
+    const isOpponentTurn = activeContestant && activeContestant.type !== 'PLAYER';
+
     return (
-        <div className="min-h-screen bg-agent-navy text-white font-sans overflow-hidden relative selection:bg-agent-blue/30 selection:text-white">
+        <div className={`min-h-screen bg-agent-navy text-white font-sans overflow-hidden relative selection:bg-agent-blue/30 selection:text-white transition-colors duration-1000 ${isOpponentTurn ? 'shadow-[inset_0_0_200px_rgba(220,38,38,0.2)]' : ''}`}>
             {/* Background elements for technical feel */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                {isOpponentTurn && <div className="absolute inset-0 bg-red-900/10 animate-pulse z-0" />}
                 <div className="absolute inset-0 bg-[repeating-linear-gradient(transparent_0%,transparent_50%,rgba(0,0,0,0.2)_50%,rgba(0,0,0,0.2)_100%)] bg-[length:100%_4px] opacity-40 mix-blend-overlay" />
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:40px_40px] opacity-10 animate-[pulse_4s_infinite]" />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#101022_90%)] opacity-90" />
@@ -85,24 +90,23 @@ export default async function PublicPage() {
             </div>
 
             {/* Current Turn Indicator (Bottom) - Outside floating container */}
-            <div className="fixed bottom-0 left-0 w-full bg-agent-navy/95 border-t-4 border-agent-blue p-6 text-center backdrop-blur-2xl z-40 shadow-[0_-20px_60px_rgba(43,43,238,0.3)]">
+            <div className={`fixed bottom-0 left-0 w-full bg-agent-navy/95 border-t-4 border-agent-blue p-10 text-center backdrop-blur-2xl z-40 shadow-[0_-20px_60px_rgba(43,43,238,0.3)] transition-all duration-500 ${isOpponentTurn ? 'border-red-500 shadow-[0_-20px_60px_rgba(220,38,38,0.3)]' : ''}`}>
                 {/* Tactical Tab Decoration */}
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-48 h-2 bg-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.8)] [clip-path:polygon(0_0,100%_0,85%_100%,15%_100%)] animate-pulse" />
+                <div className={`absolute -top-2 left-1/2 -translate-x-1/2 w-48 h-2 ${isOpponentTurn ? 'bg-red-500 shadow-[0_0_20px_rgba(220,38,38,0.8)]' : 'bg-agent-blue shadow-[0_0_20px_rgba(43,43,238,0.8)]'} [clip-path:polygon(0_0,100%_0,85%_100%,15%_100%)] animate-pulse`} />
 
                 {(() => {
-                    const activeContestant = campaign.activeContestant;
                     return activeContestant ? (
                         <div className="flex items-center justify-center gap-12 overflow-hidden">
                             <div className="h-px bg-gradient-to-r from-transparent via-agent-blue to-transparent flex-1 hidden lg:block opacity-50" />
                             <div className="relative group cursor-default transition-all duration-500 hover:scale-105 animate-[pulse_3s_infinite]">
                                 <div className={`absolute inset-0 ${activeContestant.type === 'PLAYER' ? 'bg-agent-blue/20' : 'bg-red-500/20'} blur-xl animate-pulse rounded-full opacity-50`} />
-                                <div className={`text-7xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white ${activeContestant.type === 'PLAYER' ? 'drop-shadow-[0_0_30px_rgba(43,43,238,0.8)]' : 'drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]'} relative z-10 flex items-center gap-6`}>
+                                <div className={`text-8xl lg:text-9xl font-black italic tracking-[0.1em] uppercase text-white ${activeContestant.type === 'PLAYER' ? 'drop-shadow-[0_0_30px_rgba(43,43,238,0.8)]' : 'drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]'} relative z-10 flex items-center gap-8`}>
                                     <span className={`text-6xl font-mono tracking-widest self-center opacity-100 whitespace-nowrap ${activeContestant.type === 'PLAYER' ? 'text-agent-blue drop-shadow-[0_0_10px_rgba(43,43,238,0.5)]' : 'text-red-500 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]'}`}>CURRENT TURN</span>
 
                                     {/* Active Portrait */}
                                     {activeContestant.type === 'PLAYER' ? (
                                         activeContestant.imageUrl ? (
-                                            <div className="relative w-28 h-28 lg:w-36 lg:h-36 rounded-full border-4 overflow-hidden shrink-0 shadow-[0_0_30px_rgba(43,43,238,0.6)] border-agent-blue">
+                                            <div className="relative w-28 h-28 lg:w-40 lg:h-40 rounded-full border-4 overflow-hidden shrink-0 shadow-[0_0_30px_rgba(43,43,238,0.6)] border-agent-blue">
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src={activeContestant.imageUrl} alt="" className="w-full h-full object-cover" />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
