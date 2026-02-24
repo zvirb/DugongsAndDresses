@@ -1,17 +1,24 @@
 'use client';
 
-import { updateHP } from "@/app/actions";
+import { setHP, updateHP } from "@/app/actions";
 import { useTransition, useState } from "react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 
-export default function HPControls({ characterId }: { characterId: string, currentHp: number }) {
+export default function HPControls({ characterId, maxHp }: { characterId: string, currentHp: number, maxHp: number }) {
     const [isPending, startTransition] = useTransition();
     const [amount, setAmount] = useState(1);
 
     const handleUpdate = (delta: number) => {
         startTransition(async () => {
             await updateHP(characterId, delta);
+        });
+    };
+
+    const handleFullHeal = () => {
+        if (!confirm("Fully heal this character?")) return;
+        startTransition(async () => {
+            await setHP(characterId, maxHp);
         });
     };
 
@@ -61,6 +68,16 @@ export default function HPControls({ characterId }: { characterId: string, curre
                     className="flex-1 h-5 text-[10px] opacity-50 hover:opacity-100 p-0 border-emerald-900/50 bg-emerald-950/30 text-emerald-400 hover:bg-emerald-900/60"
                 >
                     +5
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleFullHeal}
+                    disabled={isPending}
+                    className="h-5 px-2 text-[10px] opacity-50 hover:opacity-100 p-0 border-agent-blue/30 text-agent-blue hover:text-white hover:bg-agent-blue/20"
+                    title="Full Heal"
+                >
+                    MAX
                 </Button>
             </div>
         </div>
