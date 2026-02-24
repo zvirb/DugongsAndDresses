@@ -14,6 +14,7 @@
 // ## 2025-06-06 - [Logic] Fortify: [Error Handling] Fix: [Added try/catch blocks to async handlers]
 // ## 2025-06-06 - [UI] Fortify: [Visual Alert] Fix: [Added prominent 'YOUR TURN' badge for active character]
 // ## 2025-06-09 - [UI] Fortify: [Active Turn Visibility] Fix: [Enhanced 'YOUR TURN' glow]
+// ## 2025-06-16 - [UI] Fortify: [Turn Label Confusion] Fix: [Changed "YOUR TURN" to "ACTIVE" for DM Clarity]
 
 import { advanceTurn, updateInitiative, saveEncounter, endEncounter, listEncounters, loadEncounter, deleteEncounter } from "@/app/actions";
 import { useTransition, useState, useMemo } from "react";
@@ -31,6 +32,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
     const [error, setError] = useState<string | null>(null);
 
     // Sort by initiative desc, then ID asc (stable sort matching server)
+    // SENTRY: Logic Fortification - Must match prisma.character.findMany orderBy in actions.ts
     const sortedParticipants = useMemo(() => {
         // SENTRY: Defensive coding - filter out corrupt data (missing ID)
         const validParticipants = initialParticipants.filter(p => {
@@ -42,9 +44,11 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
         });
 
         return [...validParticipants].sort((a, b) => {
+            // Primary Sort: Initiative Descending
             if (b.initiativeRoll !== a.initiativeRoll) {
                 return b.initiativeRoll - a.initiativeRoll;
             }
+            // Secondary Sort: ID Ascending (Stable Tie-breaker)
             return (a.id || "").localeCompare(b.id || "");
         });
     }, [initialParticipants]);
@@ -303,7 +307,7 @@ export default function TurnTracker({ initialParticipants, campaignId }: { initi
                                 {p.activeTurn && (
                                     <div className="flex flex-col gap-0.5 mt-1">
                                         <span className="text-xs text-agent-blue font-black animate-pulse uppercase tracking-[0.2em] block drop-shadow-[0_0_5px_#2b2bee]">&gt;&gt; ACTIVE TURN &lt;&lt;</span>
-                                        <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block bg-emerald-900/30 px-1 py-0.5 rounded border border-emerald-500/30 w-fit shadow-[0_0_15px_rgba(52,211,153,0.5)] animate-pulse">YOUR TURN</span>
+                                        <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest block bg-emerald-900/30 px-1 py-0.5 rounded border border-emerald-500/30 w-fit shadow-[0_0_15px_rgba(52,211,153,0.5)] animate-pulse">ACTIVE</span>
                                     </div>
                                 )}
                             </div>

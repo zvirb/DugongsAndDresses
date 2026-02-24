@@ -41,6 +41,13 @@ describe('TurnTracker', () => {
   it('highlights the active participant', () => {
     render(<TurnTracker initialParticipants={participants} campaignId={campaignId} />)
     expect(screen.getByText('>> ACTIVE TURN <<')).toBeInTheDocument()
+
+    // Check for the new "ACTIVE" badge
+    expect(screen.getByText('ACTIVE')).toBeInTheDocument()
+
+    // Ensure "YOUR TURN" is NOT present (DM Clarity)
+    expect(screen.queryByText('YOUR TURN')).not.toBeInTheDocument()
+
     // Grom is the one with activeTurn: true in the mock data
     // The structure has changed, so checking nextSibling might not work directly if there are wrapper divs.
     // Instead, we can check if "Active Unit" is near "Grom".
