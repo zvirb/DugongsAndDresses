@@ -21,11 +21,20 @@ vi.mock('@/lib/prisma', () => ({
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
   unstable_cache: vi.fn((fn) => fn),
 }));
 
 vi.mock('react', () => ({
   cache: vi.fn((fn) => fn),
+}));
+
+vi.mock('@/lib/ai', () => ({
+  generateStory: vi.fn().mockResolvedValue(null)
+}));
+
+vi.mock('@/lib/backup', () => ({
+  checkAutoBackup: vi.fn().mockResolvedValue(null)
 }));
 
 describe('Quartermaster Attribute Checks', () => {
