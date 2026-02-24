@@ -38,7 +38,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     const targets = allTargets.filter(t => t.id !== character.id);
 
     return (
-        <main className="flex flex-col p-4 space-y-6 pb-32 min-h-[100dvh] bg-agent-navy relative overflow-x-hidden">
+        <main className="flex flex-col p-4 space-y-6 pb-80 min-h-[100dvh] bg-agent-navy relative overflow-x-hidden">
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b2bee10_1px,transparent_1px),linear-gradient(to_bottom,#2b2bee10_1px,transparent_1px)] [background-size:20px_20px] opacity-20" />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-agent-navy/50 to-agent-navy" />
@@ -138,15 +138,15 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 </Card>
 
                 <DiceRoller campaignId={character.campaignId} rollerName={character.name} />
+            </div>
 
-                <div className="space-y-4">
-                    <PlayerActionForm
-                        characterName={character.name}
-                        campaignId={character.campaignId}
-                        characterId={character.id}
-                        targets={targets}
-                    />
-                </div>
+            <div className="fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] overflow-y-auto scrollbar-thin scrollbar-thumb-agent-blue/20 scrollbar-track-transparent">
+                 <PlayerActionForm
+                    characterName={character.name}
+                    campaignId={character.campaignId}
+                    characterId={character.id}
+                    targets={targets}
+                />
             </div>
         </main>
     );

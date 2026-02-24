@@ -112,7 +112,7 @@ describe('PlayerActionForm', () => {
         const input = screen.getByPlaceholderText('I swing my axe...');
         fireEvent.change(input, { target: { value: 'Do a flip' } });
 
-        const submitBtn = screen.getByText('EXECUTE');
+        const submitBtn = screen.getByText('LOG ENTRY');
         fireEvent.click(submitBtn);
 
         await waitFor(() => {
