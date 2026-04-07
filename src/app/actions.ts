@@ -596,6 +596,9 @@ async function internalAdvanceTurn(campaignId: string, expectedActiveId?: string
         // SENTRY: Client thinks someone is active, but DB says NO ONE is active.
         // This implies a manual reset or deletion occurred. We must restart at 0.
         console.warn(`[SENTRY] Race Condition: Client expects active character ${expectedActiveId}, but DB has none. Resetting to start.`);
+        if (retryCount === 0) {
+            await logAction(campaignId, "The rhythm of battle was broken; the expected actor has vanished. The cycle begins anew.", "Story");
+        }
     }
 
     // --- SENTRY'S LOOP SAFETY ---
