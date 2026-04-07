@@ -1023,7 +1023,7 @@ export async function createBackupAction(): Promise<ActionResult> {
 
 export async function listBackupsAction(): Promise<ActionResult> {
     return actionWrapper("listBackups", async () => {
-        return listBackups();
+        return await listBackups();
     });
 }
 
