@@ -107,14 +107,19 @@ export async function createBackup(): Promise<string> {
         encounters
     };
 
-    fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+    await fs.promises.writeFile(filepath, JSON.stringify(data, null, 2));
     return filename;
 }
 
-export function listBackups(): string[] {
+export async function listBackups(): Promise<string[]> {
     try {
-        if (!fs.existsSync(BACKUP_DIR)) return [];
-        return fs.readdirSync(BACKUP_DIR)
+        try {
+            await fs.promises.access(BACKUP_DIR);
+        } catch {
+            return [];
+        }
+        const files = await fs.promises.readdir(BACKUP_DIR);
+        return files
             .filter(file => file.endsWith('.json'))
             .sort()
             .reverse();
@@ -129,12 +134,14 @@ export async function deleteBackup(filename: string): Promise<boolean> {
     const safeFilename = path.basename(filename);
     const filepath = path.join(BACKUP_DIR, safeFilename);
 
-    if (!fs.existsSync(filepath)) {
+    try {
+        await fs.promises.access(filepath);
+    } catch {
         throw new Error(`Backup file ${filename} not found`);
     }
 
     try {
-        fs.unlinkSync(filepath);
+        await fs.promises.unlink(filepath);
         return true;
     } catch (e) {
         console.error(`Failed to delete backup ${filename}:`, e);
@@ -144,14 +151,16 @@ export async function deleteBackup(filename: string): Promise<boolean> {
 
 export async function restoreBackup(filename: string): Promise<boolean> {
     const filepath = path.join(BACKUP_DIR, filename);
-    if (!fs.existsSync(filepath)) {
+    try {
+        await fs.promises.access(filepath);
+    } catch {
         throw new Error(`Backup file ${filename} not found`);
     }
 
     // Use reviveDates to restore Date objects
     let rawData;
     try {
-        rawData = JSON.parse(fs.readFileSync(filepath, 'utf-8'), reviveDates);
+        rawData = JSON.parse(await fs.promises.readFile(filepath, 'utf-8'), reviveDates);
     } catch (e) {
         console.error(`Failed to parse backup file ${filename}:`, e);
         throw new Error(`Failed to parse backup file ${filename}: Invalid JSON format.`);
@@ -221,7 +230,7 @@ export async function checkAutoBackup() {
         const settings = await prisma.settings.findFirst();
         if (!settings || !settings.autoBackup) return;
 
-        const backups = listBackups();
+        const backups = await listBackups();
         const today = new Date().toISOString().split('T')[0];
         // Filename format: backup-YYYY-MM-DDTHH-mm-ss-sssZ.json
         // Check if any backup contains today's date
@@ -232,20 +241,19 @@ export async function checkAutoBackup() {
             await createBackup();
 
             // Rotate backups if needed
-            const updatedBackups = listBackups();
+            const updatedBackups = await listBackups();
             if (updatedBackups.length > settings.backupCount) {
                 const toDelete = updatedBackups.slice(settings.backupCount);
-                for (const file of toDelete) {
+                const deletePromises = toDelete.map(async (file) => {
                     try {
                         const filepath = path.join(BACKUP_DIR, file);
-                        if (fs.existsSync(filepath)) {
-                            fs.unlinkSync(filepath);
-                            console.log(`Rotated old backup: ${file}`);
-                        }
+                        await fs.promises.unlink(filepath);
+                        console.log(`Rotated old backup: ${file}`);
                     } catch (e) {
                         console.error(`Failed to delete old backup ${file}:`, e);
                     }
-                }
+                });
+                await Promise.all(deletePromises);
             }
         }
     } catch (e) {
