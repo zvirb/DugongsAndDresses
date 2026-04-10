@@ -106,15 +106,19 @@ export const CampaignService = {
   async activate(id: string) {
     if (!id) throw new Error("Campaign ID is required");
 
-    // Deactivate all
-    await prisma.campaign.updateMany({
-      data: { active: false }
-    });
+    // Perform updates in a transaction to group them into a single round trip
+    const [_, campaign] = await prisma.$transaction([
+      // Deactivate all
+      prisma.campaign.updateMany({
+        data: { active: false }
+      }),
+      // Activate target
+      prisma.campaign.update({
+        where: { id },
+        data: { active: true }
+      })
+    ]);
 
-    // Activate target
-    return prisma.campaign.update({
-      where: { id },
-      data: { active: true }
-    });
+    return campaign;
   }
 };
