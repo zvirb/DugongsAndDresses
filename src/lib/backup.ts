@@ -210,11 +210,13 @@ export async function restoreBackup(filename: string): Promise<boolean> {
             // We now update characters to restore their sourceId links.
             console.log("Linking characters (Pass 2)...");
             const charsWithSource = data.characters.filter(c => c.sourceId);
-            for (const char of charsWithSource) {
-                await tx.character.update({
-                    where: { id: char.id },
-                    data: { sourceId: char.sourceId }
-                });
+            if (charsWithSource.length > 0) {
+                await Promise.all(charsWithSource.map(char =>
+                    tx.character.update({
+                        where: { id: char.id },
+                        data: { sourceId: char.sourceId }
+                    })
+                ));
             }
         });
 
