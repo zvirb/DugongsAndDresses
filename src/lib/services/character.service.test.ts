@@ -9,6 +9,7 @@ vi.mock('../prisma', () => ({
       update: vi.fn(),
       updateMany: vi.fn(),
     },
+  $transaction: vi.fn((ops) => Promise.all(ops)),
     logEntry: {
       findMany: vi.fn(),
     }
@@ -69,5 +70,28 @@ describe('CharacterService', () => {
 
     expect(prisma.logEntry.findMany).not.toHaveBeenCalled();
     expect(result).toEqual({ ...mockCharacter, logs: [] });
+  });
+
+  it('setNextTurn utilizes $transaction for atomic turn updates', async () => {
+    const mockCharacter = { id: 'char1', name: 'Next Actor', activeTurn: true };
+    (prisma.character.update as any).mockReturnValue('update_op');
+    (prisma.character.updateMany as any).mockReturnValue('updateMany_op');
+    (prisma.$transaction as any).mockResolvedValue([ { count: 1 }, mockCharacter ]);
+
+    const result = await CharacterService.setNextTurn('camp1', 'char1');
+
+    expect(prisma.$transaction).toHaveBeenCalledWith([
+      'updateMany_op',
+      'update_op'
+    ]);
+    expect(prisma.character.updateMany).toHaveBeenCalledWith({
+      where: { campaignId: 'camp1', activeTurn: true },
+      data: { activeTurn: false }
+    });
+    expect(prisma.character.update).toHaveBeenCalledWith({
+      where: { id: 'char1' },
+      data: { activeTurn: true }
+    });
+    expect(result).toEqual(mockCharacter);
   });
 });
