@@ -88,16 +88,18 @@ export const CharacterService = {
     if (!campaignId) throw new Error("Campaign ID is required");
     if (!characterId) throw new Error("Character ID is required");
 
-    // 1. Unset current turn
-    await prisma.character.updateMany({
-      where: { campaignId, activeTurn: true },
-      data: { activeTurn: false }
-    });
+    // 1. Unset current turn and 2. Set new turn in a transaction
+    const [, updatedCharacter] = await prisma.$transaction([
+      prisma.character.updateMany({
+        where: { campaignId, activeTurn: true },
+        data: { activeTurn: false }
+      }),
+      prisma.character.update({
+        where: { id: characterId },
+        data: { activeTurn: true }
+      })
+    ]);
 
-    // 2. Set new turn
-    return prisma.character.update({
-      where: { id: characterId },
-      data: { activeTurn: true }
-    });
+    return updatedCharacter;
   }
 };
